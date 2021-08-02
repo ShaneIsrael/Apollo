@@ -1,0 +1,74 @@
+const express = require('express')
+const compression = require('compression')
+const bodyParser = require('body-parser')
+const cors = require('cors')
+const morgan = require('morgan')
+const path = require('path')
+const logger = require('./logger')
+// const { environment } = require('./config')
+
+const environment = process.env.NODE_ENV
+
+// console.log('Loading db...')
+// const { readFileSync } = require('fs')
+// const db = JSON.parse(readFileSync(path.resolve(__dirname, 'media.json')))
+// console.log('db loaded!')
+
+const app = express()
+app.use(compression({ filter: shouldCompress }))
+function shouldCompress (req, res) {
+  if (req.headers['x-no-compression']) {
+    // don't compress responses with this request header
+    console.log('no compress')
+    return false
+  }
+
+  // fallback to standard filter function
+  return compression.filter(req, res)
+}
+
+app.set('trust proxy', true)
+app.use(
+  morgan('combined', {
+    skip(req, res) {
+      return res.statusCode >= 400
+    },
+    stream: logger.stream,
+  }),
+)
+if (environment !== 'dev') {
+  app.use(
+    morgan('combined', {
+      skip(req, res) {
+        return res.statusCode >= 500
+      },
+      stream: logger.stream,
+    }),
+  )
+}
+
+
+app.use(bodyParser.json())
+app.use(cors())
+// app.use((req, res, next) => {
+//   res.locals.db = db
+//   next()
+// })
+
+// routes
+require('./routes/Library')(app)
+require('./routes/Media')(app)
+require('./routes/Misc')(app)
+
+// Error Handler Middleware
+app.use((err, req, res, next) => {
+  logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.headers['x-real-ip']} - ${err.stack}`)
+  // This will get passed back to the user as a generic server error
+  // message for caught errors.
+  res.status(err.status || 500).send(err.message || 'Unexpected server error occurred.')
+  next()
+})
+
+console.log('Listing on port 3001')
+// Start the server
+app.listen(3001)

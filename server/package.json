@@ -1,0 +1,26 @@
+{
+  "name": "media-browser",
+  "version": "1.0.0",
+  "description": "Track local media library",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "NODE_ENV=dev && nodemon src/app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "ffprobe": "^1.1.2",
+    "ffprobe-static": "^3.0.0",
+    "image-downloader": "^4.0.3",
+    "morgan": "^1.10.0",
+    "sequelize": "^6.6.5",
+    "sequelize-cli": "^6.2.0",
+    "sqlite3": "^5.0.2",
+    "winston": "^3.3.3"
+  }
+}
