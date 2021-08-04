@@ -1,12 +1,39 @@
 const { readdirSync, writeFileSync, readFileSync } = require('fs')
 const path = require('path')
+const ffprobe = require('ffprobe')
+const ffprobeStatic = require('ffprobe-static')
+
 const { searchTv, getTv, downloadImage } = require('./TmdbService')
-const { Library, Series, Metadata } = require('../database/models')
+const { Library, Series, Metadata, Season, EpisodeFile } = require('../database/models')
+const { VALID_EXTENSIONS } = require('../constants')
 
 const service = {}
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function probe(path) {
+  let info
+  try {
+    info = await ffprobe(path, { path: ffprobeStatic.path })
+  } catch (err) {
+    console.error(`\t${err.message}`)
+  }
+  return info
+}
+
+async function findOrCreateSeason(seriesId, season) {
+  return (await Season.findOrCreate({
+    where: {
+      seriesId,
+      season,
+    },
+    default: {
+      seriesId,
+      season,
+    }
+  }))[0]
 }
 
 const getDirectories = source =>
@@ -19,10 +46,25 @@ const getFiles = source =>
     .filter(dirent => !dirent.isDirectory())
     .map(dirent => dirent.name)
 
-service.crawlSeries = (libraryId) => new Promise(async (resolve, reject) => {
+service.getSeriesByUuid = async (uuid) => {
   try {
-    const library = await Library.findByPk(libraryId)
+    const series = await Series.findOne({
+      where: {uuid},
+      include: [{model: Metadata}, {model: Season, include: [EpisodeFile]}]
+    })
+    return series
+  } catch (err) {
+    throw err
+  }
+}
+
+service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) => {
+  const library = await Library.findByPk(libraryId)
+  wss.broadcast(`crawling initiated: ${library.name}`)
+  try {
     if (!library) throw new Error(`Library does not exist with id: ${libraryId}`)
+    library.crawling = true
+    library.save()
 
     const seriesRootDirs = getDirectories(library.path)
     for (let series of seriesRootDirs) {
@@ -32,41 +74,96 @@ service.crawlSeries = (libraryId) => new Promise(async (resolve, reject) => {
         },
         defaults: {
           name: series,
+          uuid: short.generate(),
           libraryId
         },
         raw: true
-      }))[0]
-      console.log(`working: ${series.name}`)
-      const search = await searchTv(series.name)
-      await sleep(500)
-      if (search.results.length > 0) {
-        const details = await getTv(search.results[0].id)
-        if (details) {
-          // console.log('download image')
-          const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path) : null
-          const posterPath = details.poster_path ? await downloadImage(details.poster_path) : null
-          const meta = (await Metadata.findOrCreate({
-            where: { seriesId: series.id },
-            defaults: {
-              seriesId: series.id,
-              tmdbId: details.id,
-              imdbId: details.imdbId ? details.imdbId : null,
-              tmdb_poster_path: details.poster_path,
-              tmdb_backdrop_path: details.backdrop_path,
-              local_poster_path: posterPath ? posterPath.split('/').pop() : null,
-              local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
-              release_date: details.first_air_date,
-              tmdb_rating: details.vote_average,
-              overview: details.overview,
-              genres: details.genres.map((g) => g.name).join(','),
-              name: details.name
+      }))
+
+      console.log(`working: ${series[0].name}`)
+      if (series[1]) { // if it was newly created
+        const search = await searchTv(series[0].name)
+        await sleep(500)
+        if (search.results.length > 0) {
+          const details = await getTv(search.results[0].id)
+          if (details) {
+            // console.log('download image')
+            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path) : null
+            const posterPath = details.poster_path ? await downloadImage(details.poster_path) : null
+            const meta = (await Metadata.findOrCreate({
+              where: { seriesId: series[0].id },
+              defaults: {
+                seriesId: series[0].id,
+                tmdbId: details.id,
+                imdbId: details.imdbId ? details.imdbId : null,
+                tmdb_poster_path: details.poster_path,
+                tmdb_backdrop_path: details.backdrop_path,
+                local_poster_path: posterPath ? posterPath.split('/').pop() : null,
+                local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
+                release_date: details.first_air_date,
+                tmdb_rating: details.vote_average,
+                overview: details.overview,
+                genres: details.genres.map((g) => g.name).join(','),
+                name: details.name
+              }
+            }))[0]
+          }
+        }
+      }
+      const seasonDirs = getDirectories(path.resolve(library.path, series[0].name))
+      for (let seasonDir of seasonDirs) {
+        const episodeFiles = getFiles(path.resolve(library.path, series[0].name, seasonDir))
+        for (let episode of episodeFiles) {
+          const { ext } = path.parse(episode)
+          if (VALID_EXTENSIONS.indexOf(ext) === -1) continue // not a valid video file
+
+          const filenameNoExtension = path.parse(episode).name
+          const seasonEpisodeParse = filenameNoExtension.match(/[sS]([0-9]+|[0-9]+)[eE]([0-9]+|[0-9]+)/)
+          if (seasonEpisodeParse) {
+            const seasonNumber = seasonEpisodeParse[1]
+            const episodeNumber = Number(seasonEpisodeParse[2])
+            const episodeTitleSplit = filenameNoExtension.toLowerCase().split(` - ${seasonEpisodeParse[0].toLowerCase()} - `)
+            let episodeTitle = ''
+            if (episodeTitleSplit.length === 2) {
+              episodeTitle = episodeTitleSplit[1]
             }
-          }))[0]
+
+            const seasonRow = await findOrCreateSeason(series[0].id, seasonNumber)
+            const episodeRow = (await EpisodeFile.findOrCreate({
+              where: {
+                seasonId: seasonRow.id,
+                filename: episode,
+              },
+              defaults: {
+                seasonId: seasonRow.id,
+                seriesId: series[0].id,
+                filename: episode,
+                episode: episodeNumber,
+                title: episodeTitle,
+              }
+            }))
+            if (episodeRow[1]) { // if it was created
+              wss.broadcast(`\tprobing metadata -- ${episode}`)
+              const epmeta = await probe(path.join(library.path, series[0].name, seasonDir, episode))
+              episodeRow[0].metadata = epmeta
+              episodeRow[0].save()
+            } else {
+              continue
+            }
+          } else {
+            console.error(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
+            wss.broadcast(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
+          } 
         }
       }
     }
+    wss.broadcast(`crawling done: ${library.name}`)
+    library.crawling = false
+    library.save()
     return resolve()
   } catch (err) {
+    library.crawling = true
+    library.save()
     return reject(err)
   }
 }).catch(err => console.error(err))

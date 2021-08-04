@@ -7,11 +7,8 @@ import HdIcon from '@material-ui/icons/Hd'
 import SdIcon from '@material-ui/icons/Sd'
 import FourKIcon from '@material-ui/icons/FourK'
 
-import testimage from '../../assets/testimage.jpg'
 import { orange } from '@material-ui/core/colors'
-
-import { MediaService } from '../../services'
-
+import { NavLink } from 'react-router-dom'
 
 const StyledBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -37,7 +34,8 @@ const MediaCard = (props) => {
   return (
     <>
       <Card sx={{ maxWidth: 200, minWidth: 200 }}>
-        <CardActionArea>
+        <CardActionArea component={NavLink} 
+            to={`/${type}/view/${data.uuid}`}>
           <CardMedia
             sx={{ height: 300 }}
             image={data.poster ? `http://shaneisrael.net:1338/api/v1/image/${data.poster}` : ''}

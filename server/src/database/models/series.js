@@ -12,6 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Series.belongsTo(models.Library)
       Series.hasOne(models.Metadata)
+      Series.hasMany(models.Season)
+      Series.hasMany(models.EpisodeFile)
     }
   }
   Series.init({
@@ -33,6 +35,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         notEmpty: false,
       }
+    },
+    uuid: {
+      type: DataTypes.STRING
     }
   }, {
     sequelize,

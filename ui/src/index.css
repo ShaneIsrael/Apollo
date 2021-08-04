@@ -11,3 +11,20 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@-webkit-keyframes spinright {
+  from { -webkit-transform: rotate(0deg) }
+  to { -webkit-transform: rotate(360deg) }
+}
+@keyframes spinright {
+  from { transform: rotate(0deg) }
+  to { transform: rotate(360deg) }
+}
+@-webkit-keyframes spinleft {
+  from { -webkit-transform: rotate(360deg) }
+  to { -webkit-transform: rotate(0deg) }
+}
+@keyframes spinleft {
+  from { transform: rotate(360deg) }
+  to { transform: rotate(0deg) }
+}

@@ -40,5 +40,17 @@ export default {
         id
       }
     })
-  }
+  },
+  isCrawling(id) {
+    return Api().get('/api/v1/library/crawling', {
+      params: {
+        id
+      }
+    })
+  },
+  crawl(id) {
+    return Api().put('/api/v1/library/crawl', {
+      id
+    })
+  },
 }

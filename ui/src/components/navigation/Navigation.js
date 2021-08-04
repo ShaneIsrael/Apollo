@@ -23,7 +23,8 @@ import TvIcon from '@material-ui/icons/Tv'
 import HomeIcon from '@material-ui/icons/Home'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
-
+import { Fade, Tooltip } from '@material-ui/core'
+import { LibraryService } from '../../services'
 const drawerWidth = 240
 
 
@@ -64,6 +65,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
+  height: 35,
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
     // vertical padding + font size from searchIcon
@@ -71,9 +73,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('sm')]: {
-      width: '12ch',
+      width: '15ch',
       '&:focus': {
-        width: '20ch',
+        width: '30ch',
       },
     },
   },
@@ -146,11 +148,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 
 function createLibraryPages(libraries) {
   if (!libraries) return []
-  return libraries.map(({name, path, type, tag}) => (
+  return libraries.map(({ name, path, type, tag }) => (
     {
       name,
       tag,
-      icon: type === 'series' ? <TvIcon/> : <LocalMoviesIcon/>,
+      icon: type === 'series' ? <TvIcon /> : <LocalMoviesIcon />,
       path,
     }
   ))
@@ -161,7 +163,7 @@ const pages2 = [
     title: 'Configure',
     tag: 'configure',
     path: '/configure',
-    icon: <SettingsIcon/>
+    icon: <SettingsIcon />
   }
 ]
 
@@ -171,9 +173,10 @@ const capitalize = ([firstLetter, ...restOfWord]) => {
   return capitalizedFirstLetter + restOfWordString
 }
 export default function Navigation(props) {
-  const {libraries, toggleTheme, children } = props
+  const { toggleTheme, children } = props
   let { title } = props
 
+  const [libraries, setLibraries] = React.useState([])
   const theme = useTheme()
   const location = useLocation()
   let { tag, page } = useParams()
@@ -182,8 +185,17 @@ export default function Navigation(props) {
   }
   const [open, setOpen] = React.useState(false)
   const [selectedPage, setSelectedPage] = React.useState(tag || page || '') //empty is root home page
+
+  React.useEffect(() => {
+    async function fetch() {
+      const resp = (await LibraryService.getLibraries()).data
+      setLibraries(resp)
+    }
+    fetch()
+  }, [setLibraries])
+
   let libraryPages = createLibraryPages(libraries)
-  
+
   // const handleLibraryChange = (library) => {
   //   setSelectedPage(library.tag)
   // }
@@ -195,7 +207,7 @@ export default function Navigation(props) {
   if (!title && page) {
     title = capitalize(page)
   }
-  
+
   const lp = libraryPages.filter((library) => library.tag === tag)[0]
   if (lp) {
     title = `Library / ${lp.name}`
@@ -209,10 +221,17 @@ export default function Navigation(props) {
     setOpen(false);
   }
 
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { libraries, setLibraries })
+    }
+    return child
+  })
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" open={open}>
-        <Toolbar>
+        <Toolbar variant="dense">
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -235,7 +254,7 @@ export default function Navigation(props) {
           </Typography>
           <Search>
             <SearchIconWrapper>
-              <SearchIcon />
+              <SearchIcon size="small"/>
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
@@ -251,7 +270,7 @@ export default function Navigation(props) {
               onClick={toggleTheme}
               color="inherit"
             >
-              { theme.palette.mode === 'dark' ? <BrightnessHighIcon/> : <Brightness4Icon/>}
+              {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
         </Toolbar>
@@ -264,66 +283,68 @@ export default function Navigation(props) {
         </DrawerHeader>
         <Divider />
         <List>
-        { selectedPage === '' ? 
-          <ListItemSelected 
-            button 
-            key={'home'} 
-            onClick={() => setSelectedPage('')}
-            component={NavLink} 
-            to={`/`}
-          >
-            <ListItemIcon sx={{ color: 'primary.main' }} >
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary={'Home'} />
-          </ListItemSelected>
-          :
-          <ListItemDefault
-            button 
-            key={'home'} 
-            onClick={() => setSelectedPage('')}
-            component={NavLink} 
-            to={`/`}
-          >
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary={'Home'} />
-          </ListItemDefault>
-        }
+          {selectedPage === '' ?
+            <ListItemSelected
+              button
+              key={'home'}
+              onClick={() => setSelectedPage('')}
+              component={NavLink}
+              to={`/`}
+            >
+              <ListItemIcon sx={{ color: 'primary.main' }} >
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Home'} />
+            </ListItemSelected>
+            :
+            <ListItemDefault
+              button
+              key={'home'}
+              onClick={() => setSelectedPage('')}
+              component={NavLink}
+              to={`/`}
+            >
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Home'} />
+            </ListItemDefault>
+          }
         </List>
         {libraryPages.length > 0 &&
-        <>
-          <Divider />
-          <List>
-            {libraryPages.map((library, index) => {
-              const selected = selectedPage === library.tag
-              const Li = selected ? ListItemSelected : ListItemDefault
-              return <Li button key={library.tag} 
-                // onClick={() => handleLibraryChange(library)}
-                component={NavLink} to={`/library/${library.tag}`}
-              >
-                <ListItemIcon sx={selected ? {color: 'primary.main' } : null}>
-                  {library.icon}
-                </ListItemIcon>
-                <ListItemText primary={library.name} />
-              </Li>
-            })}
-          </List>
-        </>
+          <>
+            <Divider />
+            <List>
+              {
+                libraryPages.map((library, index) => {
+                  const selected = selectedPage === library.tag
+                  const Li = selected ? ListItemSelected : ListItemDefault
+                  return <Li key={library.tag} button
+                    // onClick={() => handleLibraryChange(library)}
+                    component={NavLink} to={`/library/${library.tag}`}
+                  >
+                    <ListItemIcon sx={selected ? { color: 'primary.main' } : {}}>
+                      {library.icon}
+                    </ListItemIcon>
+                    <ListItemText primary={library.name} />
+                  </Li>
+                })
+              }
+            </List>
+          </>
         }
         <Divider />
         <List>
           {pages2.map((page, index) => {
             const selected = selectedPage === page.tag
             const Li = selected ? ListItemSelected : ListItemDefault
-            return <Li 
-              button 
-              key={page.title} 
+            return <Li
+              button
+              key={page.title}
               onClick={() => setSelectedPage(page.tag)}
               component={NavLink} to={`${page.path}`}
             >
-              <ListItemIcon sx={selected ? {color: 'primary.main' } : null}>
+              <ListItemIcon sx={selected ? { color: 'primary.main' } : null}>
                 {page.icon}
               </ListItemIcon>
               <ListItemText primary={page.title} />
@@ -331,8 +352,8 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 3, paddingRight: 3, paddingTop: 10}}>
-        {children}
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 3, paddingRight: 3, paddingTop: 8 }}>
+        {childrenWithProps}
       </Box>
     </Box>
   );

@@ -1,9 +1,23 @@
-const { Library, Series, Movie, Metadata } = require('../database/models')
+const { Library, Series, Movie, MovieFile, Metadata, Season, EpisodeFile } = require('../database/models')
 
 const service = {}
 
 function generateTag(name) {
   return name.replace(/\s/g, '-').toLowerCase()
+}
+
+service.isCrawlingActive = async () => {
+  try {
+    const crawling = await Library.findOne({
+      where: {
+        crawling: true
+      }
+    })
+    if (crawling) return true
+    return false
+  } catch (err) {
+    throw err
+  }
 }
 
 service.getLibraries = async () => {
@@ -20,7 +34,7 @@ service.getLibraries = async () => {
 
 service.getLibrary = async (id) => {
   try {
-    const res = await Library.findOne(id)
+    const res = await Library.findByPk(id)
     return res
   } catch (err) {
     throw err
@@ -77,7 +91,7 @@ service.deleteLibrary = async (id) => {
 service.getAllLibrarySeries = async (id) => {
   try {
     const info = await Library.findByPk(id, {
-      include: [{ model: Series, include: [{ model: Metadata}]}]
+      include: [{ model: Series, include: [{ model: Metadata}, { model: Season, include: [{ model: EpisodeFile}] }]}]
     })
     return info
   } catch (err) {
@@ -88,7 +102,7 @@ service.getAllLibrarySeries = async (id) => {
 service.getAllLibraryMovies = async (id) => {
   try {
     const info = await Library.findByPk(id, {
-      include: [{ model: Movie, include: [{ model: Metadata}]}]
+      include: [{ model: Movie, include: [{ model: Metadata}, { model: MovieFile }]}]
     })
     return info
   } catch (err) {

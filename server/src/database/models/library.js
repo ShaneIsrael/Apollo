@@ -44,7 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       values: ['series', 'movie']
     },
     description: DataTypes.STRING,
-    misc: DataTypes.JSON
+    misc: DataTypes.JSON,
+    crawling: {
+      type: DataTypes.BOOLEAN
+    }
   }, {
     sequelize,
     freezeTableName: true,

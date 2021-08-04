@@ -3,45 +3,36 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Movie extends Model {
+  class MovieFile extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Movie.belongsTo(models.Library)
-      Movie.hasOne(models.Metadata)
-      Movie.hasMany(models.MovieFile)
+      MovieFile.belongsTo(models.Movie)
     }
   }
-  Movie.init({
-    libraryId: {
+  MovieFile.init({
+    movieId: {
       type: DataTypes.INTEGER,
       foreignKey: true,
       allowNull: false,
     },
-    name: {
+    filename: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notEmpty: false,
       }
     },
-    formatted_name: {
-      type: DataTypes.STRING,
-      validate: {
-        notEmpty: false,
-      }
-    },
-    uuid: {
-      type: DataTypes.STRING
+    metadata: {
+      type: DataTypes.JSON
     }
   }, {
     sequelize,
     freezeTableName: true,
-    modelName: 'Movie',
+    modelName: 'MovieFile',
   });
-  return Movie
+  return MovieFile
 }

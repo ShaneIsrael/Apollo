@@ -2,36 +2,49 @@
 
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Movie', {
+    return queryInterface.createTable('EpisodeFile', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      libraryId: {
+      seasonId: {
         type: Sequelize.INTEGER,
         foreignKey: true,
         allowNull: false,
         references: {
-          model: 'Library', // name of Target model
+          model: 'Season', // name of Target model
           key: 'id' // key in Target model that we're referencing
         },
         onDelete: 'CASCADE',
       },
-      name: {
+      seriesId: {
+        type: Sequelize.INTEGER,
+        foreignKey: true,
+        allowNull: false,
+        references: {
+          model: 'Series', // name of Target model
+          key: 'id' // key in Target model that we're referencing
+        },
+        onDelete: 'CASCADE',
+      },
+      filename: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
         validate: {
           notEmpty: false,
         }
       },
-      formatted_name: {
-        type: Sequelize.STRING,
-        validate: {
-          notEmpty: false,
-        }
+      episode: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      title: {
+        type: Sequelize.STRING
+      },
+      metadata: {
+        type: Sequelize.JSON
       },
       createdAt: {
         allowNull: false,
@@ -45,6 +58,6 @@ module.exports = {
   },
 
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Movie');
+    return queryInterface.dropTable('EpisodeFile');
   }
 };
