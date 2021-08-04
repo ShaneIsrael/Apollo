@@ -1,4 +1,4 @@
-import { Grid, TextField } from '@material-ui/core'
+import { Grid, Paper, TextField } from '@material-ui/core'
 import React from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 import { MediaCard, Loading } from '../components'
@@ -45,10 +45,6 @@ const Library = (props) => {
 
   React.useEffect(() => {
     async function fetch() {
-      if (media.length >= 0) {
-        setMedia([])
-        setFilteredMedia([])
-      }
       if (library) {
         let resp
         if (library.type === 'series') {
@@ -69,14 +65,14 @@ const Library = (props) => {
 
   React.useEffect(() => {
     const filteredCards = filteredMedia.slice(cards.length, debouncedCardDisplayAmount).map((m) => createMediaCard(m, mediaType))
-    setCards(cards.concat(filteredCards))
-  }, [filteredMedia, debouncedCardDisplayAmount])
+    setCards(c => c.concat(filteredCards))
+  }, [filteredMedia, debouncedCardDisplayAmount, mediaType])
 
   React.useEffect(() => {
     if (libraries) {
       setLibrary(libraries.find((e) => e.tag === tag))
     }
-    setCards([])
+    setMedia([])
   }, [tag, libraries])
 
   const filterHandler = (event) => {
@@ -87,27 +83,27 @@ const Library = (props) => {
     const filtered = media.filter((m) => m.title.toLowerCase().indexOf(debouncedFilteredText.toLowerCase()) >= 0)
     const filteredMedia = filtered.slice(0, 50).map((m) => createMediaCard(m, mediaType))
     setCards(filteredMedia)
-  }, [debouncedFilteredText])
+  }, [debouncedFilteredText, media, mediaType])
 
   if (!library) {
     return <Redirect from={`/library/${tag}`} to="/404" />
   }
   return (
     <>
-      <Grid container spacing={3}>
+      <Grid container justifyContent="center">
+        <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
+          <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler} />
+        </Paper>
+      </Grid>
+      <Grid sx={{ pt: 9 }} container>
         {cards.length === 0 ?
-          <Grid sx={{height: '50vh'}} container justifyContent="center" alignItems="center" item>
-            <Loading disableShrink size={100}/>
+          <Grid sx={{ height: '50vh' }} container justifyContent="center" alignItems="center" item>
+            <Loading disableShrink size={100} />
           </Grid>
           :
-          <>
-            <Grid container justifyContent="center" item>
-              <TextField sx={{width: '90%', maxWidth: 600}} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler}/>
-            </Grid>
-            <Grid container justifyContent="center" item spacing={1}>
-              {cards}
-            </Grid>
-          </>
+          <Grid container justifyContent="center" item spacing={1}>
+            {cards}
+          </Grid>
         }
       </Grid>
     </>

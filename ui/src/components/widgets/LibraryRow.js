@@ -2,7 +2,9 @@ import React from 'react'
 import { Grid, FormControl, InputLabel, Select, MenuItem, TextField, Stack, IconButton, Button } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import SaveIcon from '@material-ui/icons/Save'
+import RefreshIcon from '@material-ui/icons/Refresh'
 import { LibraryService } from '../../services'
+import { useInterval } from '../utils'
 
 const LibraryRow = ({ library, handleChange }) => {
 
@@ -10,8 +12,10 @@ const LibraryRow = ({ library, handleChange }) => {
   const [type, setType] = React.useState(library.type)
   const [path, setPath] = React.useState(library.path)
   const [changed, setChanged] = React.useState(false)
+  const [crawling, setCrawling] = React.useState(library.crawling)
 
-  const [confirm, showConfirm] = React.useState(false)
+  const [deleteConfirm, showDeleteConfirm] = React.useState(false)
+  const [crawlConfirm, showCrawlConfirm] = React.useState(false)
 
   React.useEffect(() => {
     if (library.name !== name || library.type !== type || library.path !== path) {
@@ -20,6 +24,17 @@ const LibraryRow = ({ library, handleChange }) => {
       setChanged(false)
     }
   }, [name, type, path, library.name, library.type, library.path])
+
+  const crawl = async () => {
+    try {
+      await LibraryService.crawl(library.id)
+      handleChange('Crawl Initialized', 'info')
+      showCrawlConfirm(false)
+      setCrawling(true)
+    } catch (err) {
+      handleChange(err.response.data, 'error')
+    }
+  }
 
   const saveChange = async () => {
     try {
@@ -30,7 +45,6 @@ const LibraryRow = ({ library, handleChange }) => {
     } catch (err) {
       handleChange(err.response.data, 'error')
     }
-
   }
 
   const deleteLibrary = async () => {
@@ -42,13 +56,29 @@ const LibraryRow = ({ library, handleChange }) => {
     }
   }
 
+  useInterval(async () => {
+    try {
+      if (crawling) {
+        const resp = (await LibraryService.isCrawling(library.id)).data
+        setCrawling(resp)
+      }
+    } catch (err) {
+      console.error(err)
+    }
+  }, 5000)
+
   const actionItems = (
     <Grid item>
       <Stack direction="row" alignItems="center" spacing={1}>
+        <IconButton onClick={() => !crawling && showCrawlConfirm(true)} aria-label="crawl" size="medium" color={crawling ? 'warning' : 'info'}>
+          <RefreshIcon sx={{
+            animation: crawling ? 'spinright 1s infinite linear' : ''
+          }} fontSize="inherit" />
+        </IconButton>
         <IconButton onClick={saveChange} aria-label="save" size="medium" disabled={!changed} color="success">
           <SaveIcon fontSize="inherit" />
         </IconButton>
-        <IconButton onClick={() => showConfirm(true)} aria-label="delete" size="medium" color="error">
+        <IconButton onClick={() => showDeleteConfirm(true)} aria-label="delete" size="medium" color="error">
           <DeleteIcon fontSize="inherit" />
         </IconButton>
       </Stack>
@@ -57,9 +87,18 @@ const LibraryRow = ({ library, handleChange }) => {
 
   const confirmDeleteItems = (
     <Grid item>
-      <Stack sx={{pl: 1}} direction="row" alignItems="center" spacing={1}>
-        <Button onClick={() => showConfirm(false)} size="small" variant="contained">Cancel</Button>
+      <Stack sx={{ pl: 1 }} direction="row" alignItems="center" spacing={1}>
+        <Button onClick={() => showDeleteConfirm(false)} size="small" variant="contained">Cancel</Button>
         <Button onClick={deleteLibrary} size="small" variant="contained" color="error">Delete</Button>
+      </Stack>
+    </Grid>
+  )
+
+  const confirmCrawlItems = (
+    <Grid item>
+      <Stack sx={{ pl: 1 }} direction="row" alignItems="center" spacing={1}>
+        <Button onClick={() => showCrawlConfirm(false)} size="small" variant="contained">Cancel</Button>
+        <Button onClick={crawl} size="small" variant="contained" color="info">Crawl</Button>
       </Stack>
     </Grid>
   )
@@ -112,7 +151,7 @@ const LibraryRow = ({ library, handleChange }) => {
           />
         </Grid>
         {
-          confirm ? confirmDeleteItems : actionItems
+          deleteConfirm || crawlConfirm ? deleteConfirm ? confirmDeleteItems : confirmCrawlItems : actionItems
         }
       </Grid>
     </>

@@ -1,8 +1,8 @@
 'use strict';
 // https://stackoverflow.com/questions/23128816/sequelize-js-ondelete-cascade-is-not-deleting-records-sequelize/55323664#55323664
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Series', {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.createTable('Series', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -43,7 +43,7 @@ module.exports = {
       }
     });
   },
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Series');
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.dropTable('Series');
   }
 };

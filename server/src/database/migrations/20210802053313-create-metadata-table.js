@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Metadata', {
+  up: (queryInterface, Sequelize) => {
+    return queryInterface.createTable('Metadata', {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -76,7 +76,7 @@ module.exports = {
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Metadata');
+  down: (queryInterface, Sequelize) => {
+    return queryInterface.dropTable('Metadata');
   }
 };

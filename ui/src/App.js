@@ -8,22 +8,11 @@ import { createTheme, ThemeProvider } from '@material-ui/core/styles'
 import { CssBaseline } from "@material-ui/core"
 import { blue, pink } from "@material-ui/core/colors"
 import { Navigation } from './components'
-import { Dashboard, Library, Configure, FourOhFour } from './views'
-import { LibraryService } from "./services"
+import { Dashboard, Library, Configure, FourOhFour, Series, Movie } from './views'
 
 
 export default function App() {
-
-  const [libraries, setLibraries] = React.useState(null)
   const [themeMode, setThemeMode] = React.useState('dark')
-
-  React.useEffect(() => {
-    async function fetch() {
-      const resp = (await LibraryService.getLibraries()).data
-      setLibraries(resp)
-    }
-    fetch()
-  }, [setLibraries])
 
   const theme = createTheme({
     palette: {
@@ -49,27 +38,37 @@ export default function App() {
       <Router>
           <Switch>
             <Route exact path="/library/:tag">
-              <Navigation toggleTheme={handleToggleTheme} libraries={libraries}>
-                <Library libraries={libraries}/>
+              <Navigation toggleTheme={handleToggleTheme} >
+                <Library />
+              </Navigation>
+            </Route>
+            <Route exact path="/series/view/:uuid">
+              <Navigation toggleTheme={handleToggleTheme}  title="Series View">
+                <Series />
+              </Navigation>
+            </Route>
+            <Route exact path="/movie/view/:uuid">
+              <Navigation toggleTheme={handleToggleTheme}  title="Movie View">
+                <Movie />
               </Navigation>
             </Route>
             <Route exact path="/configure">
-              <Navigation toggleTheme={handleToggleTheme} libraries={libraries} >
-                <Configure libraries={libraries} setLibraries={setLibraries}/>
+              <Navigation toggleTheme={handleToggleTheme}  >
+                <Configure />
               </Navigation>
             </Route>
             <Route path="/404">
-              <Navigation toggleTheme={handleToggleTheme} libraries={libraries} title="Media Browser">
+              <Navigation toggleTheme={handleToggleTheme}  title="Media Browser">
                 <FourOhFour />
               </Navigation>
             </Route>
             <Route exact path="/">
-              <Navigation toggleTheme={handleToggleTheme} libraries={libraries} title="Media Browser">
+              <Navigation toggleTheme={handleToggleTheme}  title="Media Browser">
                 <Dashboard/>
               </Navigation>
             </Route>
             <Route>
-              <Navigation toggleTheme={handleToggleTheme} libraries={libraries} title="Media Browser">
+              <Navigation toggleTheme={handleToggleTheme}  title="Media Browser">
                 <FourOhFour />
               </Navigation>
             </Route>

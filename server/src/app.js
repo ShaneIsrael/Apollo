@@ -3,6 +3,7 @@ const compression = require('compression')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const WebSocket = require('ws')
 const path = require('path')
 const logger = require('./logger')
 // const { environment } = require('./config')
@@ -16,13 +17,12 @@ const environment = process.env.NODE_ENV
 
 const app = express()
 app.use(compression({ filter: shouldCompress }))
-function shouldCompress (req, res) {
+function shouldCompress(req, res) {
   if (req.headers['x-no-compression']) {
     // don't compress responses with this request header
     console.log('no compress')
     return false
   }
-
   // fallback to standard filter function
   return compression.filter(req, res)
 }
@@ -55,11 +55,6 @@ app.use(cors())
 //   next()
 // })
 
-// routes
-require('./routes/Library')(app)
-require('./routes/Media')(app)
-require('./routes/Misc')(app)
-
 // Error Handler Middleware
 app.use((err, req, res, next) => {
   logger.error(`${err.status || 500} - ${err.message} - ${req.originalUrl} - ${req.method} - ${req.headers['x-real-ip']} - ${err.stack}`)
@@ -69,6 +64,43 @@ app.use((err, req, res, next) => {
   next()
 })
 
-console.log('Listing on port 3001')
+function formatConsoleDate(date) {
+  var hour = date.getHours();
+  var minutes = date.getMinutes();
+  var seconds = date.getSeconds();
+  var milliseconds = date.getMilliseconds();
+
+  return '[' +
+    ((hour < 10) ? '0' + hour : hour) +
+    ':' +
+    ((minutes < 10) ? '0' + minutes : minutes) +
+    ':' +
+    ((seconds < 10) ? '0' + seconds : seconds) +
+    '] ';
+}
+
 // Start the server
-app.listen(3001)
+console.log('Listening on port 3001')
+const server = app.listen(3001)
+const wss = new WebSocket.Server({ server })
+wss.on('connection', ws => {
+  ws.on('message', async (message) => {
+    wss.broadcast(`${formatConsoleDate(new Date())} ${String(message)}`)
+  })
+})
+wss.broadcast = function broadcast(msg) {
+  wss.clients.forEach(function each(client) {
+    client.send(JSON.stringify({
+      timestamp: formatConsoleDate(new Date()),
+      message: String(msg)
+    }))
+  })
+}
+app.set('wss', wss)
+
+// routes
+require('./routes/Library')(app)
+require('./routes/Media')(app)
+require('./routes/Misc')(app)
+require('./routes/Series')(app)
+require('./routes/Movie')(app)
