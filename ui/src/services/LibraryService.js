@@ -5,6 +5,13 @@ export default {
   getLibraries() {
     return Api().get('/api/v1/libraries/')
   },
+  getLibraryByTag(tag) {
+    return Api().get('/api/v1/library/tag', {
+      params: {
+        tag
+      }
+    })
+  },
   validateLibraryPath(path) {
     return Api().post('/api/v1/library/validate', {
       path

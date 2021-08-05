@@ -1,4 +1,4 @@
-import { Grid, Paper, TextField } from '@material-ui/core'
+import { Box, Grid, Paper, TextField } from '@material-ui/core'
 import React from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 import { MediaCard, Loading } from '../components'
@@ -13,8 +13,7 @@ function createMediaCard(media, type) {
   )
 }
 
-const Library = (props) => {
-  const { libraries } = props
+const Library = () => {
   const { tag } = useParams()
 
   const [media, setMedia] = React.useState([])
@@ -28,9 +27,9 @@ const Library = (props) => {
 
   const [cards, setCards] = React.useState([])
   const [mediaType, setMediaType] = React.useState(null)
-  const lib = libraries ? libraries.find((e) => e.tag === tag) : '/Loading...'
-  const [library, setLibrary] = React.useState(lib)
-
+  const [library, setLibrary] = React.useState(null)
+  const [invalidPage, setInvalidPage] = React.useState(false)
+  
   const [scrollPosition, setScrollPosition] = React.useState(null)
   React.useEffect(() => {
     const onScroll = e => {
@@ -45,35 +44,32 @@ const Library = (props) => {
 
   React.useEffect(() => {
     async function fetch() {
-      if (library) {
-        let resp
-        if (library.type === 'series') {
-          resp = (await LibraryService.getAllLibrarySeries(library.id)).data
+      const libRes = (await LibraryService.getLibraryByTag(tag)).data
+      if (libRes) {
+        let libMedia
+        if (libRes.type === 'series') {
+          libMedia = (await LibraryService.getAllLibrarySeries(libRes.id)).data
         }
-        if (library.type === 'movie') {
-          resp = (await LibraryService.getAllLibraryMovies(library.id)).data
+        if (libRes.type === 'movie') {
+          libMedia = (await LibraryService.getAllLibraryMovies(libRes.id)).data
         }
-        if (resp) {
-          setMediaType(library.type)
-          setMedia(resp)
-          setFilteredMedia(resp)
-        }
+        setLibrary(libRes)
+        setMediaType(libRes.type)
+        setMedia(libMedia)
+        setFilteredMedia(libMedia)
+      } else {
+        setInvalidPage(true)
       }
     }
+    setMedia([])
+    setFilteredMedia([])
     fetch()
-  }, [library])
+  }, [tag])
 
   React.useEffect(() => {
     const filteredCards = filteredMedia.slice(cards.length, debouncedCardDisplayAmount).map((m) => createMediaCard(m, mediaType))
     setCards(c => c.concat(filteredCards))
   }, [filteredMedia, debouncedCardDisplayAmount, mediaType])
-
-  React.useEffect(() => {
-    if (libraries) {
-      setLibrary(libraries.find((e) => e.tag === tag))
-    }
-    setMedia([])
-  }, [tag, libraries])
 
   const filterHandler = (event) => {
     setFilteredText(event.target.value)
@@ -85,20 +81,31 @@ const Library = (props) => {
     setCards(filteredMedia)
   }, [debouncedFilteredText, media, mediaType])
 
-  if (!library) {
+  if (invalidPage) {
     return <Redirect from={`/library/${tag}`} to="/404" />
   }
-  return (
-    <>
-      <Grid container justifyContent="center">
-        <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
-          <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler} />
-        </Paper>
+  if (!library) {
+    return (
+      <Grid sx={{pt: 9}} container>
+        <Grid sx={{ height: '50vh '}} container item justifyContent="center" alignItems="center">
+          <Loading disableShrink size={100} />
+        </Grid>
       </Grid>
+    )
+  }
+  return (
+    <Box sx={{pt: 3, flexGrow: 1}}>
+      { cards.length !== 0 &&
+        <Grid container item justifyContent="center">
+          <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
+            <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler} />
+          </Paper>
+        </Grid>
+      }
       <Grid sx={{ pt: 9 }} container>
         {cards.length === 0 ?
           <Grid sx={{ height: '50vh' }} container justifyContent="center" alignItems="center" item>
-            <Loading disableShrink size={100} />
+            <Loading size={100} />
           </Grid>
           :
           <Grid container justifyContent="center" item spacing={1}>
@@ -106,7 +113,7 @@ const Library = (props) => {
           </Grid>
         }
       </Grid>
-    </>
+    </Box>
   )
 }
 

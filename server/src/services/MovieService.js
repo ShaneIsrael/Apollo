@@ -86,7 +86,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
                 tmdb_backdrop_path: details.backdrop_path,
                 local_poster_path: posterPath ? posterPath.split('/').pop() : null,
                 local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
-                release_date: details.first_air_date,
+                release_date: details.release_date,
                 tmdb_rating: details.vote_average,
                 overview: details.overview,
                 genres: details.genres.map((g) => g.name).join(','),

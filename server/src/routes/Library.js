@@ -1,11 +1,12 @@
 const {
-  getLibraries, getLibrary, createLibrary, updateLibrary, deleteLibrary, validateLibraryPath, getAllLibrarySeries, getAllLibraryMovies, crawl, isLibraryCrawling
+  getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, deleteLibrary, validateLibraryPath, getAllLibrarySeries, getAllLibraryMovies, crawl, isLibraryCrawling
 } = require('../controllers')
 
 
 module.exports = (app) => {
   app.get('/api/v1/libraries/', getLibraries)
   app.get('/api/v1/library/', getLibrary)
+  app.get('/api/v1/library/tag', getLibraryByTag)
   app.get('/api/v1/library/crawling', isLibraryCrawling)
   app.get('/api/v1/library/series', getAllLibrarySeries)
   app.get('/api/v1/library/movies', getAllLibraryMovies)

@@ -41,6 +41,19 @@ service.getLibrary = async (id) => {
   }
 }
 
+service.getLibraryByTag = async (tag) => {
+  try {
+    const res = await Library.findOne({
+      where: {
+        tag
+      }
+    })
+    return res
+  } catch (err) {
+    throw err
+  }
+}
+
 service.createLibrary = async (name, path, type, description, misc) => {
   try {
     const res = await Library.create({
