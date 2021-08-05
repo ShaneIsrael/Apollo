@@ -106,9 +106,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'flex-end',
+  minHeight: '48px',
   padding: theme.spacing(0, 1),
   // necessary for content to be below app bar
-  ...theme.mixins.toolbar,
+  // ...theme.mixins.toolbar,
 }))
 
 const AppBar = styled(MuiAppBar, {
@@ -196,10 +197,6 @@ export default function Navigation(props) {
 
   let libraryPages = createLibraryPages(libraries)
 
-  // const handleLibraryChange = (library) => {
-  //   setSelectedPage(library.tag)
-  // }
-
   React.useEffect(() => {
     setSelectedPage(tag || page)
   }, [tag, page])
@@ -210,7 +207,9 @@ export default function Navigation(props) {
 
   const lp = libraryPages.filter((library) => library.tag === tag)[0]
   if (lp) {
-    title = `Library / ${lp.name}`
+    title = lp.name
+  } else if(tag) {
+    title = `Library / ${capitalize(tag.split('-').join(' '))}`
   }
 
   const handleDrawerOpen = () => {
@@ -276,7 +275,7 @@ export default function Navigation(props) {
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader>
+        <DrawerHeader >
           <IconButton onClick={handleDrawerClose}>
             {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
@@ -352,7 +351,7 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 3, paddingRight: 3, paddingTop: 8 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 5 }}>
         {childrenWithProps}
       </Box>
     </Box>

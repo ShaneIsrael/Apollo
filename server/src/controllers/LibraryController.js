@@ -1,7 +1,7 @@
 
 /* eslint-disable no-restricted-globals */
 const { existsSync, lstatSync } = require('fs')
-const { getLibraries, getLibrary, createLibrary, updateLibrary, 
+const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, 
   deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
   crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
 
@@ -35,7 +35,16 @@ controller.getLibraries = async (req, res, next) => {
 
 controller.getLibrary = async (req, res, next) => {
   try {
-    const result = await getLibrary(res.query.id)
+    const result = await getLibrary(req.query.id)
+    return res.status(200).send(result)
+  } catch (err) {
+    return next(err)
+  }
+}
+
+controller.getLibraryByTag = async (req, res, next) => {
+  try {
+    const result = await getLibraryByTag(req.query.tag)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)

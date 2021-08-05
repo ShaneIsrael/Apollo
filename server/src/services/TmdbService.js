@@ -18,7 +18,8 @@ function sleep(ms) {
 
 const service = {}
 
-service.searchTv = async (query) => {
+service.searchTv = async (string) => {
+  const query = string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   try {
     const res = (await api.get('search/tv', {
       params: { 
@@ -33,7 +34,8 @@ service.searchTv = async (query) => {
     throw err
   }
 }
-service.searchMovie = async (query) => {
+service.searchMovie = async (string) => {
+  const query = string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   try {
     const res = (await api.get('search/movie', {
       params: { 
