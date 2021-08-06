@@ -69,7 +69,9 @@ const Library = () => {
   React.useEffect(() => {
     const filteredCards = filteredMedia.slice(cards.length, debouncedCardDisplayAmount).map((m) => createMediaCard(m, mediaType))
     setCards(c => c.concat(filteredCards))
-  }, [filteredMedia, debouncedCardDisplayAmount, mediaType])
+  }, 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  [filteredMedia, debouncedCardDisplayAmount, mediaType])
 
   const filterHandler = (event) => {
     setFilteredText(event.target.value)

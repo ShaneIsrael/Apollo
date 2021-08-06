@@ -122,7 +122,8 @@ controller.getAllLibrarySeries = async (req, res, next) => {
       media.push({
         id: `${library.tag}-${series.id}`,
         uuid: series.uuid,
-        title: series.Metadatum ? series.Metadatum.name || series.name : '',
+        title: series.name,
+        metaTitle: series.Metadatum ? series.Metadatum.name : null,
         poster: series.Metadatum ? series.Metadatum.local_poster_path : '',
         seasons: seasonCount,
         episodes: episodeCount,
@@ -156,7 +157,8 @@ controller.getAllLibraryMovies = async (req, res, next) => {
       media.push({
         id: `${library.tag}-${movie.id}`,
         uuid: movie.uuid,
-        title: movie.Metadatum ? movie.Metadatum.name || movie.name : '',
+        title: movie.name,
+        metaTitle: movie.Metadatum ? movie.Metadatum.name : null,
         poster: movie.Metadatum ? movie.Metadatum.local_poster_path : '',
         runtime,
         width,

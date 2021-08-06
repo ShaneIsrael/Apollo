@@ -49,10 +49,59 @@ const getFiles = source =>
 service.getSeriesByUuid = async (uuid) => {
   try {
     const series = await Series.findOne({
-      where: {uuid},
-      include: [{model: Metadata}, {model: Season, include: [EpisodeFile]}]
+      where: { uuid },
+      include: [{ model: Metadata }, { model: Season, include: [EpisodeFile] }]
     })
     return series
+  } catch (err) {
+    throw err
+  }
+}
+
+service.searchSeriesById = async (id, amount) => {
+  try {
+    const series = await Series.findByPk(id)
+    const search = await searchTv(series.name)
+    return search.results.slice(amount)
+  } catch (err) {
+    throw err
+  }
+}
+
+/**
+ * 
+ * @param {*} seriesId The series Metadata we are updating
+ * @param {*} tmdbId The new series to update to
+ * @returns 
+ */
+service.changeSeriesMetadata = async (seriesId, tmdbId) => {
+  try {
+    const newMeta = await getTv(tmdbId)
+
+    const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
+    const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
+
+    await Metadata.update({
+        tmdbId: newMeta.id,
+        imdbId: newMeta.imdbId,
+        tmdb_poster_path: newMeta.poster_path,
+        tmdb_backdrop_path: newMeta.backdrop_path,
+        local_poster_path: posterPath ? posterPath.split('/').pop() : null,
+        local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
+        release_date: newMeta.first_air_date,
+        tmdb_rating: newMeta.vote_average,
+        overview: newMeta.overview,
+        genres: newMeta.genres.map((g) => g.name).join(','),
+        name: newMeta.name,
+      },
+      { where: { seriesId }
+    })
+    const updatedMeta = await Metadata.findOne({
+      where: {
+        seriesId
+      }
+    })
+    return updatedMeta
   } catch (err) {
     throw err
   }
@@ -88,8 +137,8 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
           const details = await getTv(search.results[0].id)
           if (details) {
             // console.log('download image')
-            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path) : null
-            const posterPath = details.poster_path ? await downloadImage(details.poster_path) : null
+            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
+            const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
             const meta = (await Metadata.findOrCreate({
               where: { seriesId: series[0].id },
               defaults: {
@@ -153,7 +202,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
           } else {
             console.error(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
             wss.broadcast(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
-          } 
+          }
         }
       }
     }

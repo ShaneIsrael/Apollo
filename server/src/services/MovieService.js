@@ -45,6 +45,56 @@ service.getMovieByUuid = async (uuid) => {
     throw err
   }
 }
+
+service.searchMovieById = async (id, amount) => {
+  try {
+    const movie = await Movie.findByPk(id)
+    const search = await searchMovie(movie.name.replace(/(\([0-9]{4}\))/g, ''))
+    return search.results.slice(amount)
+  } catch (err) {
+    throw err
+  }
+}
+
+/**
+ * 
+ * @param {*} movieId The series Metadata we are updating
+ * @param {*} tmdbId The new series to update to
+ * @returns 
+ */
+ service.changeMovieMetadata = async (movieId, tmdbId) => {
+  try {
+    const newMeta = await getMovie(tmdbId)
+
+    const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
+    const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
+
+    await Metadata.update({
+        tmdbId: newMeta.id,
+        imdbId: newMeta.imdbId,
+        tmdb_poster_path: newMeta.poster_path,
+        tmdb_backdrop_path: newMeta.backdrop_path,
+        local_poster_path: posterPath ? posterPath.split('/').pop() : null,
+        local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
+        release_date: newMeta.release_date,
+        tmdb_rating: newMeta.vote_average,
+        overview: newMeta.overview,
+        genres: newMeta.genres.map((g) => g.name).join(','),
+        name: newMeta.name,
+      },
+      { where: { movieId }
+    })
+    const updatedMeta = await Metadata.findOne({
+      where: {
+        movieId
+      }
+    })
+    return updatedMeta
+  } catch (err) {
+    throw err
+  }
+}
+
 service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)
   wss.broadcast(`crawling initiated: ${library.name}`)
@@ -74,8 +124,8 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
           const details = await getMovie(search.results[0].id)
           if (details) {
             // console.log('download image')
-            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path) : null
-            const posterPath = details.poster_path ? await downloadImage(details.poster_path) : null
+            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
+            const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
             const meta = (await Metadata.findOrCreate({
               where: { movieId: movie[0].id },
               defaults: {

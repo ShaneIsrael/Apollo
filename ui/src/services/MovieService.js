@@ -9,4 +9,13 @@ export default {
       }
     })
   },
+  searchById(id, amount) {
+    return Api().get(`/api/v1/movie/search/${id}/${amount}`)
+  },
+  changeMetadata(movieId, tmdbId) {
+    return Api().put('/api/v1/movie/metadata', {
+      movieId,
+      tmdbId,
+    })
+  }
 }
