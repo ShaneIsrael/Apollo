@@ -7,26 +7,24 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 async function main() {
+  let tempVal
   try {
     // await crawlSeries(2)
-    const series = await Series.findAll({
+    const movies = await Movie.findAll({
       include: [Metadata]
     })
-    for (const serie of series) {
-      if (!serie.Metadatum) {
-        continue
-      }
-      if (!serie.Metadatum.release_date) {
-        console.log(`updating: ${serie.name}`)
-        await sleep(100)
-        const details = await getTv(serie.Metadatum.tmdbId)
-        if (details) {
-          serie.Metadatum.release_date = details.first_air_date
-          serie.Metadatum.save()
-        }
-      }
+    for (const movie of movies) {
+      // const details = await getTv(serie.Metadatum.tmdbId)
+      tempVal = movie
+      console.log(`working: ${movie.name}`)
+      if (movie.Metadatum && movie.Metadatum.tmdb_poster_path)
+        await downloadImage(movie.Metadatum.tmdb_poster_path, 'w780')
+      if (movie.Metadatum && movie.Metadatum.tmdb_backdrop_path)
+        await downloadImage(movie.Metadatum.tmdb_backdrop_path, 'original')
+      await sleep(100)
     }
   } catch (err) {
+    console.log(tempVal.Metadatum)
     console.log(err)
   }
 }

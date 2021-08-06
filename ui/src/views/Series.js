@@ -1,23 +1,29 @@
 import React from 'react';
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
+import { isMobile } from 'react-device-detect'
 import { SeasonCoverCard, GeneralCoverCard, Loading } from '../components'
 import { useParams } from 'react-router-dom'
 import { SeriesService } from '../services'
+import FixMatch from '../components/widgets/FixMatch';
 
 
 const Series = () => {
   const { uuid } = useParams()
   const [series, setSeries] = React.useState(null)
+  const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
 
   React.useEffect(() => {
     async function fetch() {
       const resp = (await SeriesService.getByUuid(uuid)).data
-      console.log(resp)
       setSeries(resp)
     }
     fetch()
   }, [uuid])
+
+  const handleFixMatch = () => {
+    setFixMatchOpen(true)
+  }
 
   const backdropImage = series ? `http://shaneisrael.net:1338/api/v1/image/${series.Metadatum.local_backdrop_path}` : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
@@ -30,11 +36,12 @@ const Series = () => {
   )
   return (
     <>
+      <FixMatch open={fixMatchOpen} close={() => setFixMatchOpen(false)} setMatch={setSeries} current={series}/>
       <Box sx={{
         position: 'absolute',
         left: 0,
         right: 0,
-        filter: 'blur(3px)',
+        // filter: 'blur(0px) brightness(100%)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '325px',
         backgroundPosition: '50% 15%'
       }}>
@@ -48,7 +55,7 @@ const Series = () => {
             <Grid item>
               <Rating
                 name="rating-read-only"
-                defaultValue={series.Metadatum.tmdb_rating / 2} precision={0.5} readOnly
+                value={series.Metadatum.tmdb_rating / 2} precision={0.5} readOnly
                 size="large"
               />
             </Grid>
@@ -61,7 +68,7 @@ const Series = () => {
                   <Button variant="outlined" size="small">
                     Refresh Metadata
                   </Button>
-                  <Button variant="outlined" size="small">
+                  <Button onClick={handleFixMatch} variant="outlined" size="small">
                     Fix Match
                   </Button>
                 </Stack>
@@ -74,13 +81,15 @@ const Series = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            <Grid container justifyContent="center" alignItems="center" sx={{ pl: 4, height: '325px' }}>
-              <Grid item>
-                <Typography sx={{position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
-                  {series.Metadatum.name}
-                </Typography>
+            { !isMobile && 
+              <Grid container justifyContent="center" alignItems="center" sx={{ pl: 4, height: '325px' }}>
+                <Grid item>
+                  <Typography sx={{position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' , color: 'white' }} variant="h1">
+                    {series.Metadatum.name}
+                  </Typography>
+                </Grid>
               </Grid>
-            </Grid>
+            }
             <Grid item>
               <Paper sx={{ width: '100%', pl: 2, pt: 2, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
                 <Grid container justifyContent="flex-start" alignItems="center">

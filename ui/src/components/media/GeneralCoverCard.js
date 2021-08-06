@@ -10,7 +10,9 @@ const GeneralCoverCard = (props) => {
 
   return (
     <>
-      <Card sx={{ maxWidth: width, minWidth: width }}>
+      <Card sx={{
+        position: 'relative',
+        maxWidth: width, minWidth: width, borderColor: 'white', borderWidth: '1px' }} variant="outlined">
         <CardActionArea>
           <CardMedia
             sx={{ height: height }}

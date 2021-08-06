@@ -1,38 +1,45 @@
 import React from 'react';
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
+import { isMobile } from 'react-device-detect'
 import { GeneralCoverCard } from '../components'
 import { useParams } from 'react-router-dom'
 import { MovieService } from '../services';
+import FixMatch from '../components/widgets/FixMatch';
 
 const Movie = () => {
   const { uuid } = useParams()
   const [movie, setMovie] = React.useState(null)
+  const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
 
   React.useEffect(() => {
     async function fetch() {
       const resp = (await MovieService.getByUuid(uuid)).data
-      console.log(resp)
       setMovie(resp)
     }
     fetch()
   }, [uuid])
 
+  const handleFixMatch = () => {
+    setFixMatchOpen(true)
+  }
+
   const backdropImage = movie ? `http://shaneisrael.net:1338/api/v1/image/${movie.Metadatum.local_backdrop_path}` : ''
   const genres = movie ? movie.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
   if (!movie) return <div>loading...</div>
-  return  (
+  return (
     <>
+      <FixMatch open={fixMatchOpen} close={() => setFixMatchOpen(false)} setMatch={setMovie} current={movie}/>
       <Box sx={{
         position: 'absolute',
         left: 0,
         right: 0,
-        filter: 'blur(3px)',
+        // filter: 'blur(2px)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '325px',
         backgroundPosition: '50% 15%'
       }}>
       </Box>
-      <Box sx={{zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
+      <Box sx={{ zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4}>
             <Grid item>
@@ -41,7 +48,7 @@ const Movie = () => {
             <Grid item>
               <Rating
                 name="rating-read-only"
-                defaultValue={movie.Metadatum.tmdb_rating / 2} precision={0.5} readOnly
+                value={movie.Metadatum.tmdb_rating / 2} precision={0.5} readOnly
                 size="large"
               />
             </Grid>
@@ -54,7 +61,7 @@ const Movie = () => {
                   <Button variant="outlined" size="small">
                     Refresh Metadata
                   </Button>
-                  <Button variant="outlined" size="small">
+                  <Button onClick={handleFixMatch} variant="outlined" size="small">
                     Fix Match
                   </Button>
                 </Stack>
@@ -67,20 +74,22 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            <Grid container justifyContent="center" alignItems="center" sx={{ pl: 4, height: '325px' }}>
-              <Grid item>
-                <Typography sx={{position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
-                  {movie.Metadatum.name}
-                </Typography>
+            {!isMobile &&
+              <Grid container justifyContent="center" alignItems="center" sx={{ pl: 4, height: '325px' }}>
+                <Grid item>
+                  <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
+                    {movie.Metadatum.name}
+                  </Typography>
+                </Grid>
               </Grid>
-            </Grid>
+            }
             <Grid item>
-              <Paper sx={{ width: '100%', pl: 2, pt: 2, pr: 1, height: '285px' }}>
+              <Paper sx={{ width: '100%', pl: 2, pt: 2, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body1" sx={{ maxHeight: '180px', overflowY: 'auto', pr: 1 }}>
+                <Typography variant="body1" sx={{ maxHeight: '200px', overflowY: 'auto', pr: 1 }}>
                   {movie.Metadatum.overview}
                 </Typography>
               </Paper>

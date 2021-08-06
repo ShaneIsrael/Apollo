@@ -23,7 +23,7 @@ service.searchTv = async (string) => {
   try {
     const res = (await api.get('search/tv', {
       params: { 
-        language: 'en-US',
+        language: 'en-US,null',
         query,
         include_adult: true
       },
@@ -39,7 +39,7 @@ service.searchMovie = async (string) => {
   try {
     const res = (await api.get('search/movie', {
       params: { 
-        language: 'en-US',
+        language: 'en-US,null',
         query,
         include_adult: true,
       },
@@ -54,8 +54,8 @@ service.getMovie = async (tmdbId) => {
   try {
     const res = (await api.get(`movie/${tmdbId}`, {
       params: { 
-        language: 'en-US',
-        // append_to_response: 'images'
+        language: 'en-US,null',
+        append_to_response: 'images'
       },
       ...options
     })).data
@@ -68,7 +68,8 @@ service.getTv = async (tmdbId) => {
   try {
     const res = (await api.get(`tv/${tmdbId}`, {
       params: { 
-        language: 'en-US',
+        language: 'en-US,null',
+        append_to_response: 'images'
       },
       ...options
     })).data
@@ -78,9 +79,46 @@ service.getTv = async (tmdbId) => {
   }
 }
 
-service.downloadImage = async (tmdbSrc) => {
+// "backdrop_sizes": [
+//   "w300",
+//   "w780",
+//   "w1280",
+//   "original"
+// ],
+// "logo_sizes": [
+//   "w45",
+//   "w92",
+//   "w154",
+//   "w185",
+//   "w300",
+//   "w500",
+//   "original"
+// ],
+// "poster_sizes": [
+//   "w92",
+//   "w154",
+//   "w185",
+//   "w342",
+//   "w500",
+//   "w780",
+//   "original"
+// ],
+// "profile_sizes": [
+//   "w45",
+//   "w185",
+//   "h632",
+//   "original"
+// ],
+// "still_sizes": [
+//   "w92",
+//   "w185",
+//   "w300",
+//   "original"
+// ]
+service.downloadImage = async (tmdbSrc, size) => {
   try {
-    const url = `https://image.tmdb.org/t/p/w500${tmdbSrc}`
+    if (!tmdbSrc) return null
+    const url = `https://image.tmdb.org/t/p/${size}/${tmdbSrc}`
     const checkPath = path.resolve(__dirname, `../../images${tmdbSrc}`)
     if (fs.existsSync(checkPath)) {
       return checkPath
