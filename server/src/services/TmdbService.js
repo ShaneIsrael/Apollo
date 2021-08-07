@@ -118,7 +118,7 @@ service.getTv = async (tmdbId) => {
 service.downloadImage = async (tmdbSrc, size) => {
   try {
     if (!tmdbSrc) return null
-    const url = `https://image.tmdb.org/t/p/${size}/${tmdbSrc}`
+    const url = `https://image.tmdb.org/t/p/${size ? size : 'w500'}/${tmdbSrc}`
     const checkPath = path.resolve(__dirname, `../../images${tmdbSrc}`)
     if (fs.existsSync(checkPath)) {
       return checkPath

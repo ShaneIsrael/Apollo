@@ -50,7 +50,16 @@ service.searchMovieById = async (id, amount) => {
   try {
     const movie = await Movie.findByPk(id)
     const search = await searchMovie(movie.name.replace(/(\([0-9]{4}\))/g, ''))
-    return search.results.slice(amount)
+    return search.results
+  } catch (err) {
+    throw err
+  }
+}
+
+service.searchMovieByTitle = async (title, amount) => {
+  try {
+    const search = await searchMovie(title)
+    return search.results
   } catch (err) {
     throw err
   }
@@ -62,14 +71,22 @@ service.searchMovieById = async (id, amount) => {
  * @param {*} tmdbId The new series to update to
  * @returns 
  */
- service.changeMovieMetadata = async (movieId, tmdbId) => {
+ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
   try {
     const newMeta = await getMovie(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
-    await Metadata.update({
+    if (create) {
+      const old = await Metadata.findOne({
+        where: { movieId }
+      })
+      if (old)
+        old.destroy()
+
+      await Metadata.create({
+        movieId,
         tmdbId: newMeta.id,
         imdbId: newMeta.imdbId,
         tmdb_poster_path: newMeta.poster_path,
@@ -80,16 +97,30 @@ service.searchMovieById = async (id, amount) => {
         tmdb_rating: newMeta.vote_average,
         overview: newMeta.overview,
         genres: newMeta.genres.map((g) => g.name).join(','),
-        name: newMeta.name,
-      },
-      { where: { movieId }
+        name: newMeta.title,
+      })
+      const meta = await Metadata.findOne({
+        where: { movieId }
+      })
+      return meta
+    }
+
+    const meta = await Metadata.findOne({
+      where: { movieId }
     })
-    const updatedMeta = await Metadata.findOne({
-      where: {
-        movieId
-      }
-    })
-    return updatedMeta
+    meta.tmdbId = newMeta.id
+    meta.imdbId = newMeta.imdbId
+    meta.tmdb_poster_path = newMeta.poster_path
+    meta.tmdb_backdrop_path = newMeta.backdrop_path
+    meta.local_poster_path = posterPath ? posterPath.split('/').pop() : null
+    meta.local_backdrop_path = backdropPath ? backdropPath.split('/').pop() : null
+    meta.release_date = newMeta.first_air_date
+    meta.tmdb_rating = newMeta.vote_average
+    meta.overview = newMeta.overview
+    meta.genres = newMeta.genres.map((g) => g.name).join(',')
+    meta.name = newMeta.title
+    meta.save()
+    return meta
   } catch (err) {
     throw err
   }
@@ -140,7 +171,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
                 tmdb_rating: details.vote_average,
                 overview: details.overview,
                 genres: details.genres.map((g) => g.name).join(','),
-                name: details.name
+                name: details.title
               }
             }))[0]
           }

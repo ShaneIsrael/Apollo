@@ -5,6 +5,10 @@ import AccordionDetails from '@material-ui/core/AccordionDetails'
 import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
+const URL = window.location.port ? 
+  window.location.port == 6969 ? `ws://${window.location.hostname}:6969` : 'ws://localhost:3001'
+  : `ws://${window.location.host}${window.location.pathname}`
+  
 const LiveServerLogs = () => {
   const [logs, setLogs] = React.useState([])
   const webSocket = React.useRef(null)
@@ -14,7 +18,7 @@ const LiveServerLogs = () => {
     setLogs(l => l.concat(parsed).slice(-50))
   }
   React.useEffect(() => {
-    webSocket.current = new WebSocket('ws://shaneisrael.net:1338')
+    webSocket.current = new WebSocket(URL)
     webSocket.current.onmessage = appendLog
     return () => webSocket.current.close()
   }, [])

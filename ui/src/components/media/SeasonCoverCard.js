@@ -3,6 +3,7 @@ import Card from '@material-ui/core/Card'
 import CardMedia from '@material-ui/core/CardMedia'
 import { CardActionArea, Box } from '@material-ui/core'
 import { styled } from '@material-ui/core/styles'
+import { getImagePath } from '../utils'
 
 const StyledBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -14,14 +15,15 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const SeasonCoverCard = (props) => {
   const { cover, season, episodes, width, height } = props
-
   return (
     <>
       <Card sx={{ maxWidth: width, minWidth: width }}>
         <CardActionArea>
           <CardMedia
-            sx={{ height: height, filter: 'grayscale(60%)' }}
-            image={`http://shaneisrael.net:1338/api/v1/image/${cover}`}
+            sx={{ height: height, 
+              // filter: 'grayscale(60%)' 
+            }}
+            image={getImagePath(`/api/v1/image/${cover}`)}
             title={"title"}
           >
             <StyledBox>

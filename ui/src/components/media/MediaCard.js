@@ -9,6 +9,9 @@ import FourKIcon from '@material-ui/icons/FourK'
 
 import { orange } from '@material-ui/core/colors'
 import { NavLink } from 'react-router-dom'
+import { getImagePath } from '../utils'
+
+import Image from 'material-ui-image'
 
 const StyledBox = styled(Box)(({ theme }) => ({
   position: 'absolute',
@@ -22,26 +25,33 @@ const StyledBox = styled(Box)(({ theme }) => ({
 
 const MediaCard = (props) => {
   const { data, type} = props
-  const hms = new Date(data.runtime * 1000).toISOString().substr(11, 8).split(':')
+  // const hms = new Date(data.runtime * 1000).toISOString().substr(11, 8).split(':')
 
-  const QualityIcon = data.width >= 3840 ? 
-    <FourKIcon sx={{color: 'gold'}} fontSize="medium" /> 
-    : 
-      data.width >= 1080 ?
-      <HdIcon sx={{color: 'white'}} fontSize="medium"/>
-      :
-      <SdIcon sx={{color: 'gray'}} fontSize="medium"/>
+  // const QualityIcon = data.width >= 3840 ? 
+  //   <FourKIcon sx={{color: 'gold'}} fontSize="medium" /> 
+  //   : 
+  //     data.width >= 1080 ?
+  //     <HdIcon sx={{color: 'white'}} fontSize="medium"/>
+  //     :
+  //     <SdIcon sx={{color: 'gray'}} fontSize="medium"/>
   return (
     <>
       <Card sx={{ maxWidth: 200, minWidth: 200 }}>
         <CardActionArea component={NavLink} 
             to={`/${type}/view/${data.uuid}`}>
-          <CardMedia
+          <Image
+            src={data.poster ? getImagePath(`/api/v1/image/${data.poster}`) : ''}
+            style={{height: 300}}
+            aspectRatio={(16/9)}
+            color="#121212"
+            disableSpinner
+          />
+          {/* <CardMedia
             sx={{ height: 300 }}
-            image={data.poster ? `http://shaneisrael.net:1338/api/v1/image/${data.poster}` : ''}
+            image={data.poster ? getImagePath(`/api/v1/image/${data.poster}`) : ''}
             title={data.title}
-          >
-            <StyledBox>
+          > */}
+            {/* <StyledBox>
               <Grid container alignItems="center">
               { type === 'series' ?
                 <>
@@ -83,8 +93,8 @@ const MediaCard = (props) => {
                 </>
               } 
               </Grid>
-            </StyledBox>
-          </CardMedia>
+            </StyledBox> */}
+          {/* </CardMedia> */}
         </CardActionArea>
 
       </Card>

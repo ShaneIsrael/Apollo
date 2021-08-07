@@ -12,10 +12,14 @@ export default {
   searchById(id, amount) {
     return Api().get(`/api/v1/series/search/${id}/${amount}`)
   },
-  changeMetadata(seriesId, tmdbId) {
+  searchByTitle(title) {
+    return Api().get(`/api/v1/series/search/${title}`)
+  },
+  changeMetadata(seriesId, tmdbId, create) {
     return Api().put('/api/v1/series/metadata', {
       seriesId,
       tmdbId,
+      create
     })
   }
 }

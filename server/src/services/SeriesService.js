@@ -2,6 +2,7 @@ const { readdirSync, writeFileSync, readFileSync } = require('fs')
 const path = require('path')
 const ffprobe = require('ffprobe')
 const ffprobeStatic = require('ffprobe-static')
+const short = require('short-uuid')
 
 const { searchTv, getTv, downloadImage } = require('./TmdbService')
 const { Library, Series, Metadata, Season, EpisodeFile } = require('../database/models')
@@ -23,7 +24,11 @@ async function probe(path) {
   return info
 }
 
-async function findOrCreateSeason(seriesId, season) {
+async function findOrCreateSeason(seriesId, season, tmdbSeason) {
+  let localPath
+  if (tmdbSeason) {
+    localPath = await downloadImage(tmdbSeason.poster_path, 'w342')
+  }
   return (await Season.findOrCreate({
     where: {
       seriesId,
@@ -32,6 +37,8 @@ async function findOrCreateSeason(seriesId, season) {
     default: {
       seriesId,
       season,
+      tmdb_poster_path: tmdbSeason ? tmdbSeason.poster_path : null,
+      local_poster_path: localPath ? localPath.split('/').pop() : null
     }
   }))[0]
 }
@@ -62,7 +69,16 @@ service.searchSeriesById = async (id, amount) => {
   try {
     const series = await Series.findByPk(id)
     const search = await searchTv(series.name)
-    return search.results.slice(amount)
+    return search.results
+  } catch (err) {
+    throw err
+  }
+}
+
+service.searchSeriesByTitle = async (title, amount) => {
+  try {
+    const search = await searchTv(title)
+    return search.results
   } catch (err) {
     throw err
   }
@@ -74,14 +90,22 @@ service.searchSeriesById = async (id, amount) => {
  * @param {*} tmdbId The new series to update to
  * @returns 
  */
-service.changeSeriesMetadata = async (seriesId, tmdbId) => {
+service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
   try {
+    // If no metadata on series lookup, create new metadata else update current
     const newMeta = await getTv(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
-    await Metadata.update({
+    if (create) {
+      const old = await Metadata.findOne({
+        where: { seriesId }
+      })
+      if (old)
+        old.destroy()
+      await Metadata.create({
+        seriesId: seriesId,
         tmdbId: newMeta.id,
         imdbId: newMeta.imdbId,
         tmdb_poster_path: newMeta.poster_path,
@@ -93,15 +117,28 @@ service.changeSeriesMetadata = async (seriesId, tmdbId) => {
         overview: newMeta.overview,
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.name,
-      },
-      { where: { seriesId }
+      })
+      const meta = await Metadata.findOne({
+        where: { seriesId }
+      })
+      return meta
+    }
+    const meta = await Metadata.findOne({
+      where: { seriesId }
     })
-    const updatedMeta = await Metadata.findOne({
-      where: {
-        seriesId
-      }
-    })
-    return updatedMeta
+    meta.tmdbId = newMeta.id
+    meta.imdbId = newMeta.imdbId
+    meta.tmdb_poster_path = newMeta.poster_path
+    meta.tmdb_backdrop_path = newMeta.backdrop_path
+    meta.local_poster_path = posterPath ? posterPath.split('/').pop() : null
+    meta.local_backdrop_path = backdropPath ? backdropPath.split('/').pop() : null
+    meta.release_date = newMeta.first_air_date
+    meta.tmdb_rating = newMeta.vote_average
+    meta.overview = newMeta.overview
+    meta.genres = newMeta.genres.map((g) => g.name).join(',')
+    meta.name = newMeta.name
+    meta.save()
+    return meta
   } catch (err) {
     throw err
   }
@@ -130,11 +167,13 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
       }))
 
       console.log(`working: ${series[0].name}`)
+      let seasonData
       if (series[1]) { // if it was newly created
         const search = await searchTv(series[0].name)
         await sleep(500)
         if (search.results.length > 0) {
           const details = await getTv(search.results[0].id)
+          seasonData = details.seasons
           if (details) {
             // console.log('download image')
             const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
@@ -177,7 +216,8 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
               episodeTitle = episodeTitleSplit[1]
             }
 
-            const seasonRow = await findOrCreateSeason(series[0].id, seasonNumber)
+            const tmdbSeason = seasonData ? seasonData.find((s) => s.season_number === Number(seasonNumber)) : null
+            const seasonRow = await findOrCreateSeason(series[0].id, seasonNumber, tmdbSeason)
             const episodeRow = (await EpisodeFile.findOrCreate({
               where: {
                 seasonId: seasonRow.id,

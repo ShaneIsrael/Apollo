@@ -1,16 +1,17 @@
 import React from 'react';
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
-import { isMobile } from 'react-device-detect'
 import { GeneralCoverCard } from '../components'
-import { useParams } from 'react-router-dom'
+import { useHistory, useParams } from 'react-router-dom'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
+import { getImagePath } from '../components/utils';
 
 const Movie = () => {
   const { uuid } = useParams()
   const [movie, setMovie] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
+  const history = useHistory()
 
   React.useEffect(() => {
     async function fetch() {
@@ -24,12 +25,24 @@ const Movie = () => {
     setFixMatchOpen(true)
   }
 
-  const backdropImage = movie ? `http://shaneisrael.net:1338/api/v1/image/${movie.Metadatum.local_backdrop_path}` : ''
-  const genres = movie ? movie.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
+  const handleFixMatchClose = (goback) => {
+    if (goback) {
+      return history.goBack()
+    }
+    return setFixMatchOpen(false)
+  }
+
   if (!movie) return <div>loading...</div>
+  
+  if (!movie.Metadatum) {
+    return <FixMatch 
+    open={true} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
+  }
+  const genres = movie ? movie.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
+  const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
   return (
     <>
-      <FixMatch open={fixMatchOpen} close={() => setFixMatchOpen(false)} setMatch={setMovie} current={movie}/>
+      <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
       <Box sx={{
         position: 'absolute',
         left: 0,
@@ -74,15 +87,13 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            {!isMobile &&
-              <Grid container justifyContent="center" alignItems="center" sx={{ pl: 4, height: '325px' }}>
-                <Grid item>
-                  <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
-                    {movie.Metadatum.name}
-                  </Typography>
-                </Grid>
+            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '325px', display: { xs: 'none', sm: 'none', md: 'inherit'} }}>
+              <Grid item>
+                <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
+                  {movie.Metadatum.name}
+                </Typography>
               </Grid>
-            }
+            </Grid>
             <Grid item>
               <Paper sx={{ width: '100%', pl: 2, pt: 2, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
