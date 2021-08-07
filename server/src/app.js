@@ -1,3 +1,4 @@
+require('dotenv').config()
 const express = require('express')
 const compression = require('compression')
 const bodyParser = require('body-parser')
@@ -80,8 +81,9 @@ function formatConsoleDate(date) {
 }
 
 // Start the server
-console.log('Listening on port 3001')
-const server = app.listen(3001)
+const port = process.env.ENVIRONMENT === 'dev' ? 3001 : process.env.SERVER_PORT
+console.log(`Listening on port ${port}`)
+const server = app.listen(port)
 const wss = new WebSocket.Server({ server })
 wss.on('connection', ws => {
   ws.on('message', async (message) => {
@@ -98,6 +100,10 @@ wss.broadcast = function broadcast(msg) {
 }
 app.set('wss', wss)
 
+// serve our react build
+if (process.env.ENVIRONMENT !== 'dev') {
+  app.use('/', express.static(path.join(__dirname, '../../ui/build')))
+}
 // routes
 require('./routes/Library')(app)
 require('./routes/Media')(app)
