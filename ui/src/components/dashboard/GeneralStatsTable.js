@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
   Accordion, AccordionDetails, AccordionSummary, Table, TableBody,
-  TableContainer, TableHead, TableRow, Typography, Paper, Divider
+  TableContainer, TableHead, TableRow, Typography, Paper, Divider, Grid
 } from '@material-ui/core'
 import TableCell, { tableCellClasses } from '@material-ui/core/TableCell'
 import LocalMoviesIcon from '@material-ui/icons/LocalMovies'
@@ -53,7 +53,7 @@ const GeneralStatsTable = (props) => {
   }
   const LibraryIcon = library.type === 'series' ? <TvIcon sx={{ mr: 2 }} /> : <LocalMoviesIcon sx={{ mr: 2 }} />
   return (
-    <Accordion>
+    <Accordion sx={{ width: '100%' }}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`library-${library.tag}-content`}
@@ -65,34 +65,38 @@ const GeneralStatsTable = (props) => {
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {!stats && <Loading size={250} />}
-        {stats && 
-          Object.keys(stats).map((table, i) => (
-            <div key={i}>
-              <Typography color="secondary" variant="subtitle1" sx={{fontWeight: 'bold'}}>{table.toUpperCase()}</Typography>
-              <TableContainer  component={Paper}>
-                <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
-                  <TableBody>
-                    {Object.keys(stats[table]).map((key) => (
-                      <StyledTableRow
-                        key={key}
-                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                      >
-                        <StyledTableCell component="th" scope="row">
-                          {key}
-                        </StyledTableCell>
-                        <StyledTableCell align="right">{stats[table][key]}</StyledTableCell>
-                      </StyledTableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </div>
-          ))
+        {!stats && 
+          <Grid container justifyContent="center">
+            <Loading size={250} />
+          </Grid>
         }
+      {stats &&
+        Object.keys(stats).map((table, i) => (
+          <div key={i}>
+            <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{table.toUpperCase()}</Typography>
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
+                <TableBody>
+                  {Object.keys(stats[table]).map((key) => (
+                    <StyledTableRow
+                      key={key}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                    >
+                      <StyledTableCell component="th" scope="row">
+                        {key}
+                      </StyledTableCell>
+                      <StyledTableCell align="right">{stats[table][key]}</StyledTableCell>
+                    </StyledTableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
+        ))
+      }
 
       </AccordionDetails>
-    </Accordion>
+    </Accordion >
   )
 
 }

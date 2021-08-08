@@ -27,20 +27,53 @@ function secondsToDhms(seconds) {
   let sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : ""
   return (dDisplay + hDisplay + mDisplay).replace(/,\s*$/, "")
 }
+const capitalize = ([firstLetter, ...restOfWord]) => {
+  const capitalizedFirstLetter = firstLetter.toUpperCase()
+  const restOfWordString = restOfWord.join('')
+  return capitalizedFirstLetter + restOfWordString
+}
 
 async function getMovieLibraryStats(library) {
   const stats = {
     general: {},
-    "Top 5 Genres": {}
+    "Longest Movie": {},
+    "Random": {},
+    "Top 5 Genres": {},
   }
   const genreCount = {}
   const movies = await Movie.findAll({
-    include: [Metadata]
+    where: {
+      libraryId: library.id
+    },
+    include: [Metadata, MovieFile]
   })
-  const files = await MovieFile.findAll()
+  let files = []
+
+  let totalRatingsNotZero = {
+    count: 0,
+    ratingsTotal: 0
+  }
+  let longestMovieName = {
+    length: 0,
+    name: null,
+  }
   for (const movie of movies) {
+    files = files.concat(movie.MovieFiles)
+    if (movie.name && movie.name.length > longestMovieName.length) {
+      longestMovieName.length = movie.name.length
+      longestMovieName.name = capitalize(movie.name)
+      longestMovieName.movieId = movie.movieId
+    }
+    if (movie.Metadatum && movie.Metadatum.tmdb_rating && movie.Metadatum.tmdb_rating > 0) {
+      totalRatingsNotZero.count++
+      totalRatingsNotZero.ratingsTotal += movie.Metadatum.tmdb_rating
+    }
+    if (movie.Metadatum.rating && movie.Metadatum.tmdb_rating > highestRatedMovie.rating) {
+      highestRatedMovie.rating = movie.Metadatum.tmdb_rating
+      highestRatedMovie.name = movie.Metadatum.name
+    }
     movie.Metadatum.genres.split(',').forEach((genre) => {
-      if (genre) {
+      if (genre && genre !== 'Animation') {
         if (!genreCount[genre]) {
           genreCount[genre] = 1
         }
@@ -53,14 +86,23 @@ async function getMovieLibraryStats(library) {
 
   let totalGbs = 0
   let totalDuration = 0
-  let notCounted = 0
-  for (const movie of files) {
-    if (movie.metadata) {
-      if (movie.metadata.streams[0].tags) {
-        totalDuration += calculateDuration(movie.metadata.streams[0].tags["DURATION-eng"])
+  let longestMovie = {
+    movieId: null,
+    duration: 0,
+
+  }
+  for (const file of files) {
+
+    if (file.metadata) {
+      if (file.metadata.streams[0].tags) {
+        let duration = calculateDuration(file.metadata.streams[0].tags["DURATION-eng"])
+        totalDuration += duration
+        if (duration > longestMovie.duration) {
+          longestMovie.duration = duration
+          longestMovie.movieId = file.movieId
+        }
       }
-      console.log(movie.metadata.streams[0].tags)
-      for (const stream of movie.metadata.streams) {
+      for (const stream of file.metadata.streams) {
         if (!stream.tags) {
           continue
         }
@@ -73,8 +115,8 @@ async function getMovieLibraryStats(library) {
       }
     }
   }
-  console.log(`Not Counter: ${notCounted}`)
 
+  const longestMovieRow = await Movie.findByPk(longestMovie.movieId)
   let sortable = []
   for (const genre of Object.keys(genreCount)) {
     sortable.push([genre, genreCount[genre]])
@@ -85,22 +127,43 @@ async function getMovieLibraryStats(library) {
   stats.general["Total Movie Files"] = files.length
   stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
   stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+  stats.general["Average Movie Length"] = secondsToDhms(totalDuration/movies.length)
+  stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
+  stats.Random["Longest Movie Name"] = longestMovieName.name
+  stats["Longest Movie"]["Movie"] = longestMovieRow.name
+  stats["Longest Movie"]["Movie Length"] = secondsToDhms(longestMovie.duration)
   return stats
 }
 
 async function getSeriesLibraryStats(library) {
   const stats = {
     general: {},
-    "Top 5 Genres": {}
+    "Longest Episode": {},
+    "Random": {},
+    "Top 5 Genres": {},
   }
 
   const genreCount = {}
   const series = await Series.findAll({
-    include: [Metadata]
+    where: {
+      libraryId: library.id
+    },
+    include: [Metadata, Season, {model: EpisodeFile, include: [Season]}]
   })
-  const seasons = await Season.findAll()
-  const episodes = await EpisodeFile.findAll()
+  let seasons = []
+  let episodes = []
+
+  let totalSeriesRatingsNotZero = {
+    seriesCount: 0,
+    ratingsTotal: 0
+  }
   for (const serie of series) {
+    seasons = seasons.concat(serie.Seasons)
+    episodes = episodes.concat(serie.EpisodeFiles)
+    if (serie.Metadatum && serie.Metadatum.tmdb_rating && serie.Metadatum.tmdb_rating > 0) {
+      totalSeriesRatingsNotZero.seriesCount++
+      totalSeriesRatingsNotZero.ratingsTotal += serie.Metadatum.tmdb_rating
+    }
     serie.Metadatum.genres.split(',').forEach((genre) => {
       if (genre && genre !== 'Animation') {
         if (!genreCount[genre]) {
@@ -116,10 +179,31 @@ async function getSeriesLibraryStats(library) {
 
   let totalGbs = 0
   let totalDuration = 0
+  let longestEpisode = {
+    seriesId: null,
+    duration: 0,
+    seasonEpisodeName: null
+  }
+  let longestEpisodeName = {
+    length: 0,
+    name: null,
+    seriesId: null
+  }
   for (const episode of episodes) {
+    if (episode.title && episode.title.length > longestEpisodeName.length) {
+      longestEpisodeName.length = episode.title.length
+      longestEpisodeName.name = capitalize(episode.title)
+      longestEpisodeName.seriesId = episode.seriesId
+    }
     if (episode.metadata) {
       if (episode.metadata.streams[0].tags) {
-        totalDuration += calculateDuration(episode.metadata.streams[0].tags["DURATION-eng"])
+        let duration = calculateDuration(episode.metadata.streams[0].tags["DURATION-eng"])
+        totalDuration += duration
+        if (episode.Season.season > 0 && duration > longestEpisode.duration) {
+          longestEpisode.duration = duration
+          longestEpisode.seriesId = episode.seriesId
+          longestEpisode.seasonEpisodeName = `Season ${episode.Season.season} Episode ${episode.episode}`
+        }
       }
       for (const stream of episode.metadata.streams) {
         if (!stream.tags) continue
@@ -133,6 +217,8 @@ async function getSeriesLibraryStats(library) {
     }
   }
 
+  const longestEpisodeSeries = await Series.findByPk(longestEpisode.seriesId)
+  const longestEpisodeNameSeries = await Series.findByPk(longestEpisodeName.seriesId)
   let sortable = []
   for (const genre of Object.keys(genreCount)) {
     sortable.push([genre, genreCount[genre]])
@@ -144,6 +230,13 @@ async function getSeriesLibraryStats(library) {
   stats.general["Total Episodes"] = episodes.length
   stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
   stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+  stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
+  stats.general["Average Episode Length"] = secondsToDhms(totalDuration/episodes.length)
+  stats.Random["Longest Episode Name"] = longestEpisodeName.name
+  stats.Random["Longest Episode Name Series"] = longestEpisodeNameSeries.name
+  stats["Longest Episode"]["Series"] = longestEpisodeSeries.name
+  stats["Longest Episode"]["Episode Length"] = secondsToDhms(longestEpisode.duration)
+  stats["Longest Episode"]["Episode Details"] = longestEpisode.seasonEpisodeName
   return stats
 }
 

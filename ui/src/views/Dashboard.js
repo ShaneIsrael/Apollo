@@ -21,7 +21,7 @@ const Dashboard = () => {
   return (
     <Box sx={{pt: 3, pl: 3, pr: 3}}>
       <Grid container>
-        <Grid item>
+        <Grid item xs={12}>
           {
             libraries.map(l => <GeneralStatsTable key={l.id} library={l}/>)
           }
