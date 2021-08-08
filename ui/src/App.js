@@ -64,7 +64,7 @@ export default function App() {
             </Route>
             <Route exact path="/">
               <Navigation toggleTheme={handleToggleTheme}  title="Media Browser">
-                <Dashboard/>
+                <Dashboard />
               </Navigation>
             </Route>
             <Route>

@@ -4,6 +4,7 @@ const MediaController = require('./MediaController')
 const ImageController = require('./ImageController')
 const SeriesController = require('./SeriesController')
 const MovieController = require('./MovieController')
+const StatsController = require('./StatsController')
 
 module.exports = {
   ...LibraryController,
@@ -11,4 +12,5 @@ module.exports = {
   ...ImageController,
   ...SeriesController,
   ...MovieController,
+  ...StatsController
 }
