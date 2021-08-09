@@ -6,7 +6,7 @@ const HOSTNAME = window.location.href
 // const URL = window.location.port == 6969 ? `${window.location.protocol}//${window.location.hostname}:6969`: 'http://localhost:3001'
 
 const URL = window.location.port ? 
-  window.location.port == 6969 ? `${window.location.protocol}//${window.location.hostname}:6969` : 'http://localhost:3001'
+  window.location.port == 6969 ? `${window.location.protocol}//${window.location.hostname}:6969` : `http://${window.location.hostname}:3001`
   : `${window.location.protocol}//${window.location.host}${window.location.pathname}`
 
 console.log(`BASE_URL=${URL}`)

@@ -1,4 +1,4 @@
-const { Library, Series, Movie, MovieFile, Metadata, Season, EpisodeFile } = require('../database/models')
+const { Library, Series, Movie, MovieFile, Metadata, Season, EpisodeFile, Op } = require('../database/models')
 
 const service = {}
 
@@ -72,16 +72,18 @@ async function getMovieLibraryStats(library) {
       highestRatedMovie.rating = movie.Metadatum.tmdb_rating
       highestRatedMovie.name = movie.Metadatum.name
     }
-    movie.Metadatum.genres.split(',').forEach((genre) => {
-      if (genre && genre !== 'Animation') {
-        if (!genreCount[genre]) {
-          genreCount[genre] = 1
+    if (movie.Metadatum && movie.Metadatum.genres) {
+      movie.Metadatum.genres.split(',').forEach((genre) => {
+        if (genre && genre !== 'Animation') {
+          if (!genreCount[genre]) {
+            genreCount[genre] = 1
+          }
+          else {
+            genreCount[genre]++
+          }
         }
-        else {
-          genreCount[genre]++
-        }
-      }
-    })
+      })
+    }
   }
 
   let totalGbs = 0
@@ -127,7 +129,7 @@ async function getMovieLibraryStats(library) {
   stats.general["Total Movie Files"] = files.length
   stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
   stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
-  stats.general["Average Movie Length"] = secondsToDhms(totalDuration/movies.length)
+  stats.general["Average Movie Length"] = secondsToDhms(totalDuration / movies.length)
   stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
   stats.Random["Longest Movie Name"] = longestMovieName.name
   stats["Longest Movie"]["Movie"] = longestMovieRow.name
@@ -148,7 +150,7 @@ async function getSeriesLibraryStats(library) {
     where: {
       libraryId: library.id
     },
-    include: [Metadata, Season, {model: EpisodeFile, include: [Season]}]
+    include: [Metadata, Season, { model: EpisodeFile, include: [Season] }]
   })
   let seasons = []
   let episodes = []
@@ -164,16 +166,18 @@ async function getSeriesLibraryStats(library) {
       totalSeriesRatingsNotZero.seriesCount++
       totalSeriesRatingsNotZero.ratingsTotal += serie.Metadatum.tmdb_rating
     }
-    serie.Metadatum.genres.split(',').forEach((genre) => {
-      if (genre && genre !== 'Animation') {
-        if (!genreCount[genre]) {
-          genreCount[genre] = 1
+    if (serie.Metadatum && serie.Metadatum.genres) {
+      serie.Metadatum.genres.split(',').forEach((genre) => {
+        if (genre && genre !== 'Animation') {
+          if (!genreCount[genre]) {
+            genreCount[genre] = 1
+          }
+          else {
+            genreCount[genre]++
+          }
         }
-        else {
-          genreCount[genre]++
-        }
-      }
-    })
+      })
+    }
 
   }
 
@@ -231,7 +235,7 @@ async function getSeriesLibraryStats(library) {
   stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
   stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
   stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
-  stats.general["Average Episode Length"] = secondsToDhms(totalDuration/episodes.length)
+  stats.general["Average Episode Length"] = secondsToDhms(totalDuration / episodes.length)
   stats.Random["Longest Episode Name"] = longestEpisodeName.name
   stats.Random["Longest Episode Name Series"] = longestEpisodeNameSeries.name
   stats["Longest Episode"]["Series"] = longestEpisodeSeries.name
@@ -249,6 +253,115 @@ service.getLibraryStats = async (id) => {
     if (library.type === 'movie') {
       return (await getMovieLibraryStats(library))
     }
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getSeriesYears = async () => {
+  try {
+    let years = []
+    const metadatas = (await Metadata.findAll({
+      where: {
+        seriesId: {
+          [Op.not]: null
+        }
+      },
+      attributes: ['release_date']
+    }))
+    for (const meta of metadatas) {
+      year = Number(meta.release_date.split('-')[0])
+      if (year < 1900) continue
+      if (years[year]) {
+        years[year]++
+      } else {
+        years[year] = 1
+      }
+    }
+    return Object.keys(years).map(year => ({ x1: year, y1: years[year] }))
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getMovieYears = async () => {
+  try {
+    let years = {}
+    const metadatas = (await Metadata.findAll({
+      where: {
+        movieId: {
+          [Op.not]: null
+        }
+      },
+      attributes: ['release_date']
+    }))
+    for (const meta of metadatas) {
+      year = Number(meta.release_date.split('-')[0])
+      if (year < 1900) continue
+      if (years[year]) {
+        years[year]++
+      } else {
+        years[year] = 1
+      }
+    }
+    return Object.keys(years).map(year => ({ x1: year, y1: years[year] }))
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getMediaYears = async () => {
+  try {
+    let syears = {}
+    let myears = {}
+    const mdatas = (await Metadata.findAll({
+      where: {
+        movieId: {
+          [Op.not]: null
+        }
+      },
+      attributes: ['release_date']
+    }))
+    for (const meta of mdatas) {
+      const year = Number(meta.release_date.split('-')[0])
+      if (year < 1900) continue
+      if (myears[year]) {
+        myears[year]++
+      } else {
+        myears[year] = 1
+      }
+    }
+
+    const sdatas = (await Metadata.findAll({
+      where: {
+        seriesId: {
+          [Op.not]: null
+        }
+      },
+      attributes: ['release_date']
+    }))
+    for (const meta of sdatas) {
+      const year = Number(meta.release_date.split('-')[0])
+      if (year < 1900) continue
+      if (syears[year]) {
+        syears[year]++
+      } else {
+        syears[year] = 1
+      }
+    }
+    let combined = []
+    for (let year = 1900; year < 2100; year++) {
+      if (!myears[year] && !syears[year]) {
+        continue
+      }
+      combined.push({
+        x1: year,
+        x2: year,
+        y1: syears[year],
+        y2: myears[year]
+      })
+    }
+    return combined
   } catch (err) {
     throw err
   }

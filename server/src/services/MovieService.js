@@ -148,7 +148,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
         raw: true
       }))
       if (movie[1]) { // if it was newly created
-        console.log(`working: ${movie[0].name}`)
+        wss.broadcast(`\tfetching metadata -- ${movie[0].name}`)
         const search = await searchMovie(movie[0].name.replace(/(\([0-9]{4}\))/g, '')) // remove trailing (1000) year
         await sleep(500)
         if (search.results.length > 0) {
@@ -193,7 +193,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
           }
         }))
         if (fileRow[1]) {
-          wss.broadcast(`\tprobing metadata -- ${file}`)
+          wss.broadcast(`\tprobing file data -- ${file}`)
           const filedata = await probe(path.join(library.path, movie[0].name, file))
           fileRow[0].metadata = filedata
           fileRow[0].save()

@@ -104,31 +104,12 @@ controller.getAllLibrarySeries = async (req, res, next) => {
     const media = []
     
     for(const series of library.Series) {
-      // let seasonCount = 0, episodeCount = 0, runtime = 0, width = 0
-      // if (!series.Metadatum) {
-      //   continue
-      // }
-      // for (const season of series.Seasons) {
-      //   if (season.season > 0) seasonCount++
-      //   episodeCount += season.EpisodeFiles.length
-      //   for (const episode of season.EpisodeFiles) {
-      //     const meta = episode.metadata
-      //     if (meta && meta.streams[0].tags) {
-      //       runtime += calculateDuration(meta.streams[0].tags["DURATION"] || meta.streams[0].tags["DURATION-eng"])
-      //       width = meta.streams[0].width || meta.streams[0].codec_width
-      //     }
-      //   }
-      // }
       media.push({
         id: `${library.tag}-${series.id}`,
         uuid: series.uuid,
         title: series.name,
         metaTitle: series.Metadatum ? series.Metadatum.name : null,
         poster: series.Metadatum ? series.Metadatum.local_poster_path : '',
-        // seasons: seasonCount,
-        // episodes: episodeCount,
-        // runtime,
-        // width
       })
     }
     return res.status(200).send(media)
@@ -143,25 +124,12 @@ controller.getAllLibraryMovies = async (req, res, next) => {
     const media = []
     
     for(const movie of library.Movies) {
-      let runtime = 0, width = 0
-      // if (!movie.Metadatum) {
-      //   continue
-      // }
-      // for (const file of movie.MovieFiles) {
-      //   if (file.metadata && file.metadata.streams[0].tags) {
-      //     runtime = calculateDuration(file.metadata.streams[0].tags["DURATION"] || file.metadata.streams[0].tags["DURATION-eng"])
-      //     const filewidth = file.metadata.streams[0].width || file.metadata.streams[0].codec_width
-      //     if (filewidth > width) width = filewidth
-      //   }
-      // } 
       media.push({
         id: `${library.tag}-${movie.id}`,
         uuid: movie.uuid,
         title: movie.name,
         metaTitle: movie.Metadatum ? movie.Metadatum.name : null,
         poster: movie.Metadatum ? movie.Metadatum.local_poster_path : '',
-        // runtime,
-        // width,
       })
     }
     return res.status(200).send(media)
