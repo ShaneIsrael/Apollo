@@ -6,7 +6,7 @@ import Typography from '@material-ui/core/Typography'
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 
 const URL = window.location.port ? 
-  window.location.port == 6969 ? `ws://${window.location.hostname}:6969` : 'ws://localhost:3001'
+  window.location.port == 6969 ? `ws://${window.location.hostname}:6969` : `ws://${window.location.hostname}:3001`
   : `ws://${window.location.host}${window.location.pathname}`
   
 const LiveServerLogs = () => {

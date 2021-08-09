@@ -37,16 +37,14 @@ const GeneralStatsTable = (props) => {
   const [stats, setStats] = useState(null)
 
   React.useEffect(() => {
-    async function fetch() {
-      try {
-        const resp = (await StatsService.getGeneralLibraryStats(library.id)).data
-        setStats(resp)
-      } catch (err) {
-        console.error(err)
-      }
+    function fetch() {
+      StatsService.getGeneralLibraryStats(library.id)
+        .then(resp => setStats(resp.data))
+        .catch(err => console.error(err))
     }
     fetch()
-  }, [])
+    return () => StatsService.cancel()
+  }, [library.id, setStats])
 
   if (!library) {
     return <div></div>

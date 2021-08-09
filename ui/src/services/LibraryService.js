@@ -1,5 +1,8 @@
 /* eslint-disable import/no-anonymous-default-export */
+import Axios from 'axios'
 import Api from './Api'
+
+const cancelToken = Axios.CancelToken.source()
 
 export default {
   getLibraries() {
@@ -60,4 +63,7 @@ export default {
       id
     })
   },
+  cancel() {
+    return cancelToken.cancel()
+  }
 }

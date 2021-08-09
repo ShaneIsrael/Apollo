@@ -11,6 +11,8 @@
     "@material-ui/styles": "^4.11.4",
     "axios": "^0.21.1",
     "clsx": "^1.1.1",
+    "devextreme": "^21.1.5",
+    "devextreme-react": "^21.1.5",
     "material-ui-image": "^3.3.2",
     "moment": "^2.29.1",
     "react": "^17.0.2",

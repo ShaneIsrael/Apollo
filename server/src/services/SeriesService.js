@@ -169,6 +169,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
       console.log(`working: ${series[0].name}`)
       let seasonData
       if (series[1]) { // if it was newly created
+        wss.broadcast(`\tfetching metadata -- ${series[0].name}`)
         const search = await searchTv(series[0].name)
         await sleep(500)
         if (search.results.length > 0) {
@@ -232,7 +233,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
               }
             }))
             if (episodeRow[1]) { // if it was created
-              wss.broadcast(`\tprobing metadata -- ${episode}`)
+              wss.broadcast(`\tprobing file data -- ${episode}`)
               const epmeta = await probe(path.join(library.path, series[0].name, seasonDir, episode))
               episodeRow[0].metadata = epmeta
               episodeRow[0].save()

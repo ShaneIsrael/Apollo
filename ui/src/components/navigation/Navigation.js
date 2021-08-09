@@ -174,10 +174,10 @@ const capitalize = ([firstLetter, ...restOfWord]) => {
   return capitalizedFirstLetter + restOfWordString
 }
 export default function Navigation(props) {
-  const { toggleTheme, children } = props
+  const { defaultLibraries, toggleTheme, children } = props
   let { title } = props
 
-  const [libraries, setLibraries] = React.useState([])
+  const [libraries, setLibraries] = React.useState(defaultLibraries)
   const theme = useTheme()
   const location = useLocation()
   let { tag, page } = useParams()
@@ -189,10 +189,11 @@ export default function Navigation(props) {
 
   React.useEffect(() => {
     async function fetch() {
-      const resp = (await LibraryService.getLibraries()).data
-      setLibraries(resp)
+      LibraryService.getLibraries().then(resp => setLibraries(resp.data))
+        .catch(err => console.error(err))
     }
     fetch()
+    return () => LibraryService.cancel()
   }, [setLibraries])
 
   let libraryPages = createLibraryPages(libraries)
