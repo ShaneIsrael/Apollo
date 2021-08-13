@@ -64,3 +64,15 @@ export function getUser() {
   }
   return null
 }
+
+export function getLocalConfig() {
+  const config = JSON.parse(localStorage.getItem('config'))
+  if (config) {
+    return config
+  }
+  return {}
+}
+
+export function setLocalConfig(config) {
+  localStorage.setItem('config', JSON.stringify(config))
+}

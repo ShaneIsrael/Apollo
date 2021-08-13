@@ -24,9 +24,13 @@ import HomeIcon from '@material-ui/icons/Home'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import LoginIcon from '@material-ui/icons/Login'
+import LogoutIcon from '@material-ui/icons/Logout'
+
 // import { Fade, Tooltip } from '@material-ui/core'
 import { LibraryService } from '../../services'
 import logo from '../../assets/logo.png'
+import { getUser } from '../utils'
+import AuthService from '../../services/AuthService'
 
 const drawerWidth = 240
 
@@ -176,8 +180,9 @@ const capitalize = ([firstLetter, ...restOfWord]) => {
   const restOfWordString = restOfWord.join('')
   return capitalizedFirstLetter + restOfWordString
 }
+
 export default function Navigation(props) {
-  const { defaultLibraries, toggleTheme, children } = props
+  const { defaultLibraries, toggleTheme, logout, children } = props
   let { title } = props
 
   const [libraries, setLibraries] = React.useState(defaultLibraries)
@@ -189,6 +194,7 @@ export default function Navigation(props) {
   }
   const [open, setOpen] = React.useState(false)
   const [selectedPage, setSelectedPage] = React.useState(tag || page || '') //empty is root home page
+  const [user, setUser] = React.useState(getUser())
 
   React.useEffect(() => {
     async function fetch() {
@@ -282,16 +288,28 @@ export default function Navigation(props) {
             </IconButton>
           </Box>
           <Box sx={{ display: { xs: 'flex', md: 'flex' }, pl: 1 }}>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="theme toggle"
-              component={NavLink}
-              to={`/login`}
-              color="secondary"
-            >
-              <LoginIcon />
-            </IconButton>
+            {user ?
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="theme toggle"
+                onClick={logout}
+                color="secondary"
+              >
+                <LogoutIcon />
+              </IconButton>
+              :
+              <IconButton
+                size="large"
+                edge="end"
+                aria-label="theme toggle"
+                component={NavLink}
+                to={`/login`}
+                color="secondary"
+              >
+                <LoginIcon />
+              </IconButton>
+            }
           </Box>
         </Toolbar>
       </AppBar>

@@ -23,7 +23,7 @@ const verifyAdmin = (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
-    return res.status(401).send("Invalid Token")
+    return res.status(401).send("Invalid Authorization Token")
   }
 }
 
@@ -33,7 +33,7 @@ const verifyStandard = (req, res, next) => {
 
   // check db for config settings
   // if Restrict Access is FALSE
-  // return next()
+  return next()
   // else check token
   // end configuration check
 
@@ -45,7 +45,7 @@ const verifyStandard = (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
-    return res.status(401).send("Invalid Token")
+    return res.status(401).send("Invalid Authorization Token")
   }
 }
 

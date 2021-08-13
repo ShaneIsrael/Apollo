@@ -5,7 +5,8 @@ const { User } = require ('../database/models')
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 
 module.exports = (app) => {
-  app.get('/api/v1/image/:id', serveImage)
+  app.get('/api/v1/image/:id', verifyStandard, serveImage)
+  
   app.post('/api/v1/register', async (req, res, next) => {
     try {
       const { username, password, role } = req.body
@@ -38,7 +39,7 @@ module.exports = (app) => {
         { userId: user.id, username, role},
         process.env.TOKEN_KEY,
         {
-          expiresIn: "2h"
+          expiresIn: "12h"
         }
       )
       user.token = token
@@ -67,7 +68,7 @@ module.exports = (app) => {
           { userId: user.id, username, role: user.role },
           process.env.TOKEN_KEY,
           {
-            expiresIn: "2h",
+            expiresIn: "12h",
           }
         )
         
@@ -84,4 +85,5 @@ module.exports = (app) => {
       next(err)
     }
   })
+
 }

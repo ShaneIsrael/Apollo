@@ -11,13 +11,15 @@ const LoginForm = ({setUser, forwardPage}) => {
   const [password, setPassword] = React.useState(null)
   const [error, setError] = React.useState(null)
   const history = useHistory()
+
   const handleLogin = async () => {
     try {
       const user = await AuthService.login(username, password)
       setUser(user)
-      history.push(forwardPage)
+      if (forwardPage) {
+        history.push(forwardPage)
+      }
     } catch (error) {
-      console.log(error.response)
       if (error.response) {
         setError(error.response.data)
       } else {
