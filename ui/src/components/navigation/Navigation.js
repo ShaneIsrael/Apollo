@@ -23,8 +23,11 @@ import TvIcon from '@material-ui/icons/Tv'
 import HomeIcon from '@material-ui/icons/Home'
 import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
-import { Fade, Tooltip } from '@material-ui/core'
+import LoginIcon from '@material-ui/icons/Login'
+// import { Fade, Tooltip } from '@material-ui/core'
 import { LibraryService } from '../../services'
+import logo from '../../assets/logo.png'
+
 const drawerWidth = 240
 
 
@@ -209,7 +212,7 @@ export default function Navigation(props) {
   const lp = libraryPages.filter((library) => library.tag === tag)[0]
   if (lp) {
     title = lp.name
-  } else if(tag) {
+  } else if (tag) {
     title = `Library / ${capitalize(tag.split('-').join(' '))}`
   }
 
@@ -219,6 +222,10 @@ export default function Navigation(props) {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  }
+
+  const gotoDashboard = () => {
+    console.log('test')
   }
 
   const childrenWithProps = React.Children.map(children, child => {
@@ -244,6 +251,7 @@ export default function Navigation(props) {
           >
             <MenuIcon />
           </IconButton>
+          <img src={logo} style={{ height: 35, paddingRight: 10 }} />
           <Typography
             variant="h6"
             noWrap
@@ -254,14 +262,14 @@ export default function Navigation(props) {
           </Typography>
           <Search>
             <SearchIconWrapper>
-              <SearchIcon size="small"/>
+              <SearchIcon size="small" />
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
             />
           </Search>
-          <Box sx={{ display: { xs: 'flex', md: 'flex' } }}>
+          <Box sx={{ display: { xs: 'flex', md: 'flex' }, pl: 1 }}>
             <IconButton
               size="large"
               edge="end"
@@ -271,6 +279,18 @@ export default function Navigation(props) {
               color="inherit"
             >
               {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon />}
+            </IconButton>
+          </Box>
+          <Box sx={{ display: { xs: 'flex', md: 'flex' }, pl: 1 }}>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="theme toggle"
+              component={NavLink}
+              to={`/login`}
+              color="secondary"
+            >
+              <LoginIcon />
             </IconButton>
           </Box>
         </Toolbar>

@@ -4,12 +4,14 @@
   "description": "Track local media library",
   "main": "src/app.js",
   "scripts": {
-    "start": "NODE_ENV=dev && nodemon src/app.js"
+    "start": "NODE_ENV=dev && nodemon src/app.js",
+    "production": "NODE_ENV=production && sequelize db:migrate && node app.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.21.1",
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
@@ -18,7 +20,9 @@
     "ffprobe": "^1.1.2",
     "ffprobe-static": "^3.0.0",
     "image-downloader": "^4.0.3",
+    "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
+    "node-cron": "^3.0.0",
     "sequelize": "^6.6.5",
     "sequelize-cli": "^6.2.0",
     "short-uuid": "^4.2.0",

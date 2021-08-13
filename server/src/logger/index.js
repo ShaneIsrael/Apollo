@@ -1,13 +1,13 @@
 const { transports, createLogger, format } = require('winston')
 const { combine, splat, timestamp, printf } = format
-
+const path = require('path')
 const environment = process.env.NODE_ENV
-
+const config = require('../config')[environment || 'dev']
 // define the custom settings for each transport (file, console)
 const options = {
   file: {
     level: 'info',
-    filename: `../../logs/app.log`,
+    filename: path.join(config.appdata, config.logsDir, '/apollo.info.log'),
     handleExceptions: true,
     json: true,
     maxsize: 5242880, // 5MB
@@ -17,7 +17,7 @@ const options = {
   },
   errorFile: {
     level: 'error',
-    filename: `../../logs/error.log`,
+    filename: path.join(config.appdata, config.logsDir, '/apollo.errors.log'),
     handleExceptions: true,
     json: true,
     maxsize: 5242880, // 5MB
@@ -40,6 +40,8 @@ const devTransports = [
 
 const prodTransports = [
   new transports.Console(options.console),
+  new transports.File(options.file),
+  new transports.File(options.errorFile)
 ]
 
 const myFormat = printf( ({ level, message, timestamp , ...metadata}) => {

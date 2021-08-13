@@ -14,14 +14,15 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }))
 
 const SeasonCoverCard = (props) => {
-  const { cover, season, episodes, width, height } = props
+  const { cover, season, 
+    // episodes, 
+    width, height } = props
   return (
     <>
       <Card sx={{ maxWidth: width, minWidth: width }}>
         <CardActionArea>
           <CardMedia
             sx={{ height: height, 
-              // filter: 'grayscale(60%)' 
             }}
             image={getImagePath(`/api/v1/image/${cover}`)}
             title={"title"}

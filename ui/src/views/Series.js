@@ -1,5 +1,5 @@
 import React from 'react';
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, Hidden } from '@material-ui/core'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
 import { SeasonCoverCard, GeneralCoverCard, Loading } from '../components'
 import { useHistory, useParams } from 'react-router-dom'

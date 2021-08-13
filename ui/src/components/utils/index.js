@@ -42,8 +42,25 @@ export function useInterval(callback, delay) {
 }
 
 export function getImagePath(path) {
-  if (window.location.port == 3000) {
+  if (Number(window.location.port) === 3000) {
     return `http://${window.location.hostname}:3001${path}`
   }
   return `${window.location.protocol}//${window.location.host}${path}`
+}
+
+export function authHeader() {
+  const user = JSON.parse(localStorage.getItem('user'))
+  if (user && user.accessToken) {
+    return { 'x-access-token': user.accessToken }
+  } else {
+    return {}
+  }
+}
+
+export function getUser() {
+  const user = JSON.parse(localStorage.getItem('user'))
+  if (user) {
+    return user
+  }
+  return null
 }
