@@ -23,12 +23,16 @@ const LibraryWidget = (props) => {
   const [addLibrarySucceeded, setAddLibrarySucceeded] = React.useState(false)
 
   const validatePath = async() => {
-    const validPath = (await LibraryService.validateLibraryPath(libraryPathText)).data
-    setLibraryFieldValid(validPath)
-    setLibraryPathFieldColor(validPath ? 'success' : 'error')
-    if (!validPath) {
-      setNotificationOpen(true)
-      setNotificationText('Invalid Library Path!')
+    try {
+      const validPath = (await LibraryService.validateLibraryPath(libraryPathText)).data
+      setLibraryFieldValid(validPath)
+      setLibraryPathFieldColor(validPath ? 'success' : 'error')
+      if (!validPath) {
+        setNotificationOpen(true)
+        setNotificationText('Invalid Library Path!')
+      }
+    } catch (error) {
+      console.error(error.response.data)
     }
   }
   const handleSubmit = async (event) => {

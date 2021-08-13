@@ -3,56 +3,46 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class Library extends Model {
+  class User extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Library.hasMany(models.Series)
-      Library.hasMany(models.Movie)
-      Library.hasMany(models.Stats)
+
     }
-  };
-  Library.init({
-    name: {
+  }
+  User.init({
+    username: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
-        notEmpty: false,
-      }
+        notEmpty: true,
+      },
+      unique: true
     },
-    path: {
+    password: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
-        notEmpty: false,
+        notEmpty: true,
       }
     },
-    tag: {
+    role: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
-        notEmpty: false,
+        notEmpty: true,
       }
     },
-    type: {
-      type: DataTypes.ENUM,
-      values: ['series', 'movie']
-    },
-    description: DataTypes.STRING,
-    misc: DataTypes.JSON,
-    crawling: {
-      type: DataTypes.BOOLEAN
+    token: {
+      type: DataTypes.STRING
     }
   }, {
     sequelize,
     freezeTableName: true,
-    modelName: 'Library',
+    modelName: 'User',
   });
-  return Library
+  return User
 }

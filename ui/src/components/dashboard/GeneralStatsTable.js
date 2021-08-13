@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
   Accordion, AccordionDetails, AccordionSummary, Table, TableBody,
-  TableContainer, TableHead, TableRow, Typography, Paper, Divider, Grid
+  TableContainer, TableRow, Typography, Paper, Grid, Alert, AlertTitle
 } from '@material-ui/core'
 import TableCell, { tableCellClasses } from '@material-ui/core/TableCell'
 import LocalMoviesIcon from '@material-ui/icons/LocalMovies'
@@ -34,12 +34,16 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const GeneralStatsTable = (props) => {
   const { library } = props
-  const [stats, setStats] = useState(null)
+  const [stats, setStats] = useState([])
+  const [loading, setLoading] = useState(true)
 
   React.useEffect(() => {
     function fetch() {
       StatsService.getGeneralLibraryStats(library.id)
-        .then(resp => setStats(resp.data))
+        .then(resp => {
+          setStats(resp.data)
+          setLoading(false)
+        })
         .catch(err => console.error(err))
     }
     fetch()
@@ -63,36 +67,42 @@ const GeneralStatsTable = (props) => {
         </Typography>
       </AccordionSummary>
       <AccordionDetails>
-        {!stats && 
+        {
+          loading &&
           <Grid container justifyContent="center">
             <Loading size={250} />
           </Grid>
         }
-      {stats &&
-        Object.keys(stats).map((table, i) => (
-          <div key={i}>
-            <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{table.toUpperCase()}</Typography>
-            <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
-                <TableBody>
-                  {Object.keys(stats[table]).map((key) => (
-                    <StyledTableRow
-                      key={key}
-                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                      <StyledTableCell component="th" scope="row">
-                        {key}
-                      </StyledTableCell>
-                      <StyledTableCell align="right">{stats[table][key]}</StyledTableCell>
-                    </StyledTableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          </div>
-        ))
-      }
-
+        {
+          stats ?
+            Object.keys(stats).map((table, i) => (
+              <div key={i}>
+                <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{table.toUpperCase()}</Typography>
+                <TableContainer component={Paper}>
+                  <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
+                    <TableBody>
+                      {Object.keys(stats[table]).map((key) => (
+                        <StyledTableRow
+                          key={key}
+                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        >
+                          <StyledTableCell component="th" scope="row">
+                            {key}
+                          </StyledTableCell>
+                          <StyledTableCell align="right">{stats[table][key]}</StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </div>
+            ))
+            :
+            <Alert sx={{ width: '100%' }} variant="filled" severity="info">
+              <AlertTitle>No Stats Generated</AlertTitle>
+              Stats for this library have not yet been generated.
+            </Alert>
+        }
       </AccordionDetails>
     </Accordion >
   )

@@ -8,16 +8,26 @@ import { createTheme, ThemeProvider } from '@material-ui/core/styles'
 import { CssBaseline } from "@material-ui/core"
 import { blue, pink } from "@material-ui/core/colors"
 import { Navigation } from './components'
-import { Dashboard, Library, Configure, FourOhFour, Series, Movie } from './views'
+import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login } from './views'
 
 import 'devextreme/dist/css/dx.dark.css'
 import { LibraryService } from "./services"
+import { getUser } from "./components/utils"
 
 export default function App() {
   const [themeMode, setThemeMode] = React.useState('dark')
   const [libraries, setLibraries] = React.useState([])
-
+  const [user, setUser] = React.useState(getUser())
   
+  // TODO Get admin settings, if restricted require a logged in user
+  // to see anything other than the login page. Do not fetch libraries if not logged in.
+
+  // TODO If admin enabled. Do not show configure page unless signed in with
+  // a role of admin. 
+
+  // TODO automatically expire jwt token
+  // https://www.bezkoder.com/react-jwt-auth/
+
   React.useEffect(() => {
     async function fetch() {
       const resp = (await LibraryService.getLibraries()).data
@@ -66,22 +76,31 @@ export default function App() {
               </Navigation>
             </Route>
             <Route exact path="/configure">
-              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  >
-                <Configure libraries={libraries} setLibraries={setLibraries} />
+              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}>
+                {user && user.role === 'admin' ? 
+                  <Configure libraries={libraries} setLibraries={setLibraries} />
+                  :
+                  <Login setUser={setUser} forwardPage="/configure" />
+                }
               </Navigation>
             </Route>
             <Route path="/404">
-              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Media Browser">
+              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Apollo">
                 <FourOhFour />
               </Navigation>
             </Route>
+            <Route exact path="/login">
+              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Apollo">
+                <Login setUser={setUser} forwardPage="/" />
+              </Navigation>
+            </Route>
             <Route exact path="/">
-              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Media Browser">
+              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Apollo">
                 <Dashboard libraries={libraries} />
               </Navigation>
             </Route>
             <Route>
-              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Media Browser">
+              <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme}  title="Apollo">
                 <FourOhFour />
               </Navigation>
             </Route>

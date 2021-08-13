@@ -3,14 +3,14 @@ import {
   Chart,
   Series,
   CommonSeriesSettings,
-  Point,
   Legend,
   ValueAxis,
   ArgumentAxis,
   MinorGrid,
   CommonPaneSettings,
   Label,
-  Border
+  Border,
+  Tooltip,
 } from 'devextreme-react/chart'
 import { Grid as ChartGrid } from 'devextreme-react/chart'
 import { Typography, Grid, Paper } from '@material-ui/core';
@@ -48,6 +48,11 @@ const ScatterPoint = (props) => {
             <ValueAxis title="Number of Media" tickInterval={valueInterval}>
             </ValueAxis>
             <Legend visible={true} />
+            <Tooltip
+              enabled={true}
+              shared={true}
+              // customizeTooltip={customizeTooltip}
+            />
             <CommonPaneSettings>
               <Border visible={true} />
             </CommonPaneSettings>

@@ -1,7 +1,8 @@
+const config = require('../../config')[process.env.NODE_ENV || 'dev']
 module.exports = {
   development: {
     dialect: 'sqlite',
-    storage: 'dev.sqlite',
+    storage: config.appdata +'/'+ config.dbname,
     retry: {
       match: [
         /SQLITE_BUSY/
@@ -21,13 +22,22 @@ module.exports = {
   },
   production: {
     dialect: 'sqlite',
-    storage: 'prod.sqlite',
+    storage: config.appdata +'/'+ config.dbname,
+    retry: {
+      match: [
+        /SQLITE_BUSY/
+      ],
+      name: 'query',
+      max: 5
+    },
+    transactionType: 'IMMEDIATE',
     logging: false,
     pool: {
-      max: 1,
+      max: 5,
       min: 0,
+      maxactive: 1,
       acquire: 30000,
-      idle: 10000
+      idle: 20000
     }
   },
 }

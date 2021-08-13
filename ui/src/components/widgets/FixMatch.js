@@ -42,7 +42,7 @@ export default function FixMatch(props) {
     }
     if (debouncedText)
       fetch()
-  }, [debouncedText])
+  }, [debouncedText, type])
   React.useEffect(() => {
     async function fetch() {
       if (open) {

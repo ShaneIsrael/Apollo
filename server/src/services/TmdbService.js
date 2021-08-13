@@ -2,8 +2,8 @@ const path = require('path')
 const fs = require('fs')
 const axios = require('axios')
 const download = require('image-downloader')
-
-const { tmdb_api_key, tmdb_read_access_token } = require('../config/config.json')[process.env.NODE_ENV || 'dev']
+const config = require('../config')[process.env.NODE_ENV || 'dev']
+const { tmdb_api_key, tmdb_read_access_token } = require('../config/index')[process.env.NODE_ENV || 'dev']
 const api = axios.create({ baseURL: 'https://api.themoviedb.org/3' })
 
 const options = {
@@ -119,13 +119,13 @@ service.downloadImage = async (tmdbSrc, size) => {
   try {
     if (!tmdbSrc) return null
     const url = `https://image.tmdb.org/t/p/${size ? size : 'w500'}/${tmdbSrc}`
-    const checkPath = path.resolve(__dirname, `../../images${tmdbSrc}`)
+    const checkPath = path.join(config.appdata, config.imageDir, tmdbSrc)
     if (fs.existsSync(checkPath)) {
       return checkPath
     }
     const { filename } = await download.image({
       url,
-      dest: path.resolve(__dirname, '../../images/')
+      dest: path.join(config.appdata, config.imageDir)
     })
     return filename
   } catch (err) {

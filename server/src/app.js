@@ -4,10 +4,19 @@ const compression = require('compression')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
+const fs = require('fs')
 const WebSocket = require('ws')
 const path = require('path')
 const logger = require('./logger')
-// const { environment } = require('./config')
+const config = require('./config')[process.env.NODE_ENV || 'dev']
+
+// setup data folders
+fs.mkdirSync(path.join(config.appdata, config.imageDir), { recursive: true })
+fs.mkdirSync(path.join(config.appdata, config.logsDir), { recursive: true })
+// if no db file exists, copy our blank db file over
+if (!fs.existsSync(path.join(config.appdata, config.dbname))) {
+  fs.copyFileSync(path.resolve(__dirname, './database', config.dbname), path.join(config.appdata, config.dbname))
+}
 
 const environment = process.env.NODE_ENV
 
@@ -120,6 +129,7 @@ app.set('wss', wss)
 if (process.env.ENVIRONMENT !== 'dev') {
   app.use('/', express.static(path.join(__dirname, '../../ui/build')))
 }
+
 // routes
 require('./routes/Library')(app)
 require('./routes/Media')(app)
@@ -127,3 +137,4 @@ require('./routes/Misc')(app)
 require('./routes/Series')(app)
 require('./routes/Movie')(app)
 require('./routes/Stats')(app)
+require('./cron').start()
