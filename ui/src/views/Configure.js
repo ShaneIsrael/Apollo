@@ -52,7 +52,7 @@ const Configure = (props) => {
         indicatorColor="primary"
         value={tab} onChange={handleTabChange}>
         <Tab label="Library" {...a11yProps(0)} />
-        <Tab label="Admin" {...a11yProps(1)} />
+        <Tab label="Admin Setup" {...a11yProps(1)} />
       </Tabs>
       <TabPanel value={tab} index={0}>
         <Grid container spacing={1}>
