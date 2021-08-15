@@ -1,4 +1,3 @@
-// require('dotenv').config()
 const express = require('express')
 const compression = require('compression')
 const bodyParser = require('body-parser')
@@ -135,7 +134,12 @@ const umzug = new Umzug({
   storage: new SequelizeStorage({ sequelize }),
   logger: console,
 })
-umzug.up().catch(err => console.error('An error occurred while trying to update the database'))
+umzug.up().then(() => {
+  if (ENVIRONMENT === 'production') {
+    let start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
+    require('child_process').exec(start + ' ' + `http://localhost:${port}`)
+  }
+}).catch(err => console.error('An error occurred while trying to update the database'))
 
 // routes
 require('./routes/Library')(app)
