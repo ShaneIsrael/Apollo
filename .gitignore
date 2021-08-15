@@ -13,12 +13,11 @@ build
 node_modules
 logs
 images
-database.example
-media.json
 server/src/config/index.js
 .env
 /certs
-/server/dist
+/dist
+config.json
 
 # misc
 .DS_Store

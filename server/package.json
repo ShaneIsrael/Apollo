@@ -1,5 +1,5 @@
 {
-  "name": "media-browser",
+  "name": "apollo",
   "version": "1.0.0",
   "description": "Track local media library",
   "main": "src/app.js",
@@ -38,11 +38,8 @@
     "ws": "^8.0.0"
   },
   "pkg": {
+    "scripts": "src/database/models/*.js",
     "assets": [
-      "node_modules/sqlite3/lib/binding/**/*",
-      "src/database/migrations/*",
-      "src/database/models/*",
-      "src/database/config/*",
       "../ui/build/**/*"
     ],
     "targets": [],

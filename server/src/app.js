@@ -11,7 +11,6 @@ const logger = require('./logger')
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const config = require('./config')[ENVIRONMENT]
 
-
 let userConfig
 if (ENVIRONMENT === 'production') {
   userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
@@ -19,14 +18,10 @@ if (ENVIRONMENT === 'production') {
   userConfig = require('../config.json')
 }
 
-
 // setup data folders
 fs.mkdirSync(path.join(config.appdata, config.imageDir), { recursive: true })
 fs.mkdirSync(path.join(config.appdata, config.logsDir), { recursive: true })
-// if no db file exists, copy our blank db file over
-// if (!fs.existsSync(path.join(config.appdata, config.dbname))) {
-//   fs.copyFileSync(path.resolve(__dirname, './database', config.dbname), path.join(config.appdata, config.dbname))
-// }
+
 
 const app = express()
 
@@ -61,7 +56,9 @@ if (ENVIRONMENT !== 'development') {
 }
 
 var whitelist = userConfig.ALLOWED_DOMAINS.split(',')
+console.log('------ CORS WHITELIST ------')
 console.log(whitelist)
+console.log('------ CORS WHITELIST ------')
 
 app.use(bodyParser.json())
 if (ENVIRONMENT === 'development') {
@@ -71,11 +68,6 @@ if (ENVIRONMENT === 'development') {
     origin: whitelist
   }))
 }
-
-// app.use((req, res, next) => {
-//   res.locals.db = db
-//   next()
-// })
 
 // Error Handler Middleware
 app.use((err, req, res, next) => {
@@ -103,7 +95,8 @@ function formatConsoleDate(date) {
 
 // Start the server
 const port = ENVIRONMENT === 'development' ? 3001 : userConfig.SERVER_PORT
-console.log(`Listening on port ${port}`)
+console.log(`Apollo is running at http://localhost:${port}`)
+
 const server = app.listen(port)
 const wss = new WebSocket.Server({ server })
 wss.on('connection', ws => {
@@ -129,7 +122,7 @@ if (ENVIRONMENT === 'production') {
 // Run Migrations
 const { Sequelize } = require('sequelize')
 const { Umzug, SequelizeStorage } = require('umzug')
-const dbconfig = require(path.join(__dirname, './database/config/config.js'))[ENVIRONMENT]
+const dbconfig = require('./database/config/config.js')[ENVIRONMENT]
 dbconfig.storage = path.join(config.appdata, config.dbname)
 
 const sequelize = new Sequelize(dbconfig)
@@ -142,8 +135,7 @@ const umzug = new Umzug({
   storage: new SequelizeStorage({ sequelize }),
   logger: console,
 })
-console.log('running migrations')
-umzug.up().then(() => console.log('migrations done!'))
+umzug.up().catch(err => console.error('An error occurred while trying to update the database'))
 
 // routes
 require('./routes/Library')(app)
