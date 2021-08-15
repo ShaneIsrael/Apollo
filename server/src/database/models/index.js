@@ -1,12 +1,15 @@
 'use strict';
-const fs = require('fs');
-const path = require('path');
-const Sequelize = require('sequelize');
-const basename = path.basename(__filename);
-const appConfig = require('../../config')[process.env.NODE_ENV || 'dev']
-const config = require(__dirname + '/../config/config')[process.env.NODE_ENV || 'development']
+const fs = require('fs')
+const path = require('path')
+const Sequelize = require('sequelize')
+const basename = path.basename(__filename)
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
+const appConfig = require('../../config')[ENVIRONMENT]
+const config = require(path.join(__dirname, '../config/config.js'))[ENVIRONMENT]
+
 config.storage = path.join(appConfig.appdata, appConfig.dbname)
-const db = {};
+
+const db = {}
 
 const sequelize = new Sequelize(config)
 

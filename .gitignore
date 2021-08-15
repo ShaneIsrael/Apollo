@@ -17,6 +17,8 @@ database.example
 media.json
 server/src/config/index.js
 .env
+/certs
+/server/dist
 
 # misc
 .DS_Store

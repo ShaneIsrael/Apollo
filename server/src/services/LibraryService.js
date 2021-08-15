@@ -104,7 +104,8 @@ service.deleteLibrary = async (id) => {
 service.getAllLibrarySeries = async (id) => {
   try {
     const info = await Library.findByPk(id, {
-      include: [{ model: Series, include: [{ model: Metadata}]}]
+      include: [{ model: Series, include: [{ model: Metadata}]}],
+      order: [['Series', 'name', 'ASC']]
     })
     return info
   } catch (err) {
@@ -115,7 +116,8 @@ service.getAllLibrarySeries = async (id) => {
 service.getAllLibraryMovies = async (id) => {
   try {
     const info = await Library.findByPk(id, {
-      include: [{ model: Movie, include: [{ model: Metadata}]}]
+      include: [{ model: Movie, include: [{ model: Metadata}]}],
+      order: [['Movies', 'name', 'ASC']]
     })
     return info
   } catch (err) {

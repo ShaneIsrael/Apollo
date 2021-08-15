@@ -4,7 +4,8 @@ const { existsSync, lstatSync } = require('fs')
 const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, 
   deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
   crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
-
+const { Library } = require('../database/models'
+)
 const controller = {}
 
 function calculateDuration(duration) {
@@ -91,6 +92,10 @@ controller.updateLibrary = async (req, res, next) => {
 
 controller.deleteLibrary = async (req, res, next) => {
   try {
+    const library = await Library.findByPk(req.body.id)
+    if (library.crawling) {
+      return res.status(400).send('Cannot delete during an active crawl.')
+    }
     await deleteLibrary(req.body.id)
     return res.status(200).send('ok')
   } catch (err) {
@@ -174,7 +179,7 @@ controller.isLibraryCrawling = async (req, res, next) => {
   const { id } = req.query
   try {
     const library = await getLibrary(id)
-    return res.status(200).send(library.crawling)
+    return res.status(200).send(library ? library.crawling : false)
   } catch (err) {
     return next(err)
   }

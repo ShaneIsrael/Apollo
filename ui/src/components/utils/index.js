@@ -1,5 +1,11 @@
 import React from 'react'
 
+export const capitalize = ([firstLetter, ...restOfWord]) => {
+  const capitalizedFirstLetter = firstLetter.toUpperCase()
+  const restOfWordString = restOfWord.join('')
+  return capitalizedFirstLetter + restOfWordString
+}
+
 export const useDebounce = (value, delay) => {
   const [debouncedValue, setDebouncedValue] = React.useState(value)
   

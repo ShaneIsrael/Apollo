@@ -4,11 +4,11 @@ import { Box, Button, Grid, Paper, TextField, Typography } from '@material-ui/co
 
 import { LoginForm } from '../components'
 
-const Login = ({setUser, forwardPage}) => {
+const Login = ({setUser, forwardPage, prelabel}) => {
   return (
-    <Grid container sx={{height: '95vh'}} justifyContent="center" alignItems="center">
+    <Grid container sx={{height: '75vh'}} justifyContent="center" alignItems="center">
       <Grid item sx={{maxWidth: 450}}>
-        <LoginForm setUser={setUser} forwardPage={forwardPage} />
+        <LoginForm setUser={setUser} forwardPage={forwardPage} prelabel={prelabel} />
       </Grid>
     </Grid>
   )

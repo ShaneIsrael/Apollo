@@ -2,7 +2,7 @@ const { transports, createLogger, format } = require('winston')
 const { combine, splat, timestamp, printf } = format
 const path = require('path')
 const environment = process.env.NODE_ENV
-const config = require('../config')[environment || 'dev']
+const config = require('../config')[environment || 'development']
 // define the custom settings for each transport (file, console)
 const options = {
   file: {

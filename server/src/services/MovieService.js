@@ -1,8 +1,9 @@
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const { readdirSync, writeFileSync, readFileSync } = require('fs')
 const path = require('path')
 const short = require('short-uuid')
 const ffprobe = require('ffprobe')
-const ffprobeStatic = require('ffprobe-static')
+const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-static') : require('ffprobe-static')
 
 const { VALID_EXTENSIONS } = require('../constants')
 const { searchMovie, getMovie, downloadImage } = require('./TmdbService')

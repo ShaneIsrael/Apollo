@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from '@material-ui/core/styles'
 import { CssBaseline } from "@material-ui/core"
 import { blue, pink } from "@material-ui/core/colors"
 import { Navigation } from './components'
-import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login } from './views'
+import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login, About } from './views'
 
 import 'devextreme/dist/css/dx.dark.css'
 import { ConfigService, LibraryService } from "./services"
@@ -17,7 +17,7 @@ import AuthVerify from "./components/utils/AuthVerify"
 import AuthService from "./services/AuthService"
 
 export default function App() {
-  const [themeMode, setThemeMode] = React.useState('dark')
+  const [themeMode, setThemeMode] = React.useState(localStorage.getItem('theme') || 'dark')
   const [libraries, setLibraries] = React.useState([])
  
   const [user, setUser] = React.useState(getUser())
@@ -67,15 +67,15 @@ export default function App() {
   })
 
   const handleToggleTheme = () => {
-    if (themeMode === 'dark') setThemeMode('light')
-    else setThemeMode('dark')
+    const theme = themeMode === 'dark' ? 'light' : 'dark'
+    setThemeMode(theme)
+    localStorage.setItem('theme', theme)
   }
 
   const logOut = () => {
     try {
       AuthService.logout()
       setUser(null)
-      console.log('wtf')
     } catch (err) {
       console.error(err)
     }
@@ -97,46 +97,51 @@ export default function App() {
           <Router>
             <Switch>
               <Route exact path="/library/:tag">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} logout={logOut} user={user}>
                   <Library />
                 </Navigation>
               </Route>
               <Route exact path="/series/view/:uuid">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut} user={user}>
                   <Series />
                 </Navigation>
               </Route>
               <Route exact path="/movie/view/:uuid">
-                <Navigation defaultLibraries={libraries} oggleTheme={handleToggleTheme} title="Movie View" logout={logOut}>
+                <Navigation defaultLibraries={libraries} oggleTheme={handleToggleTheme} title="Movie View" logout={logOut} user={user}>
                   <Movie />
                 </Navigation>
               </Route>
               <Route exact path="/configure">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} logout={logOut} user={user}>
                   {(!config.enableAdmin) || (config.enableAdmin && user && user.role === 'admin') ?
                     <Configure libraries={libraries} setLibraries={setLibraries} />
                     :
-                    <Login setUser={setUser} />
+                    <Login setUser={setUser} prelabel="Admin" />
                   }
                 </Navigation>
               </Route>
-              <Route path="/404">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut}>
-                  <FourOhFour />
-                </Navigation>
-              </Route>
               <Route exact path="/login">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut} user={user}>
                   <Login setUser={setUser} forwardPage="/" />
                 </Navigation>
               </Route>
+              <Route exact path="/about">
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} logout={logOut} user={user}>
+                  <About theme={themeMode} />
+                </Navigation>
+              </Route>
+              <Route path="/404">
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut} user={user}>
+                  <FourOhFour />
+                </Navigation>
+              </Route>
               <Route exact path="/">
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut} user={user}>
                   <Dashboard libraries={libraries} />
                 </Navigation>
               </Route>
               <Route>
-                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut}>
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Apollo" logout={logOut} user={user}>
                   <FourOhFour />
                 </Navigation>
               </Route>

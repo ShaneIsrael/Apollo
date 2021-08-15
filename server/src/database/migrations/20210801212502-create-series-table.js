@@ -1,7 +1,7 @@
-'use strict';
+const { Sequelize } = require('sequelize')
 // https://stackoverflow.com/questions/23128816/sequelize-js-ondelete-cascade-is-not-deleting-records-sequelize/55323664#55323664
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: ({ context: queryInterface }) => {
     return queryInterface.createTable('Series', {
       id: {
         allowNull: false,
@@ -43,7 +43,7 @@ module.exports = {
       }
     });
   },
-  down: (queryInterface, Sequelize) => {
+  down: ({ context: queryInterface }) => {
     return queryInterface.dropTable('Series');
   }
 };

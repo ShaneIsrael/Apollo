@@ -1,4 +1,4 @@
-require('dotenv').config()
+// require('dotenv').config()
 const express = require('express')
 const compression = require('compression')
 const bodyParser = require('body-parser')
@@ -8,29 +8,32 @@ const fs = require('fs')
 const WebSocket = require('ws')
 const path = require('path')
 const logger = require('./logger')
-const config = require('./config')[process.env.NODE_ENV || 'dev']
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
+const config = require('./config')[ENVIRONMENT]
+
+
+let userConfig
+if (ENVIRONMENT === 'production') {
+  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
+} else {
+  userConfig = require('../config.json')
+}
+
 
 // setup data folders
 fs.mkdirSync(path.join(config.appdata, config.imageDir), { recursive: true })
 fs.mkdirSync(path.join(config.appdata, config.logsDir), { recursive: true })
 // if no db file exists, copy our blank db file over
-if (!fs.existsSync(path.join(config.appdata, config.dbname))) {
-  fs.copyFileSync(path.resolve(__dirname, './database', config.dbname), path.join(config.appdata, config.dbname))
-}
-
-const environment = process.env.NODE_ENV
-
-// console.log('Loading db...')
-// const { readFileSync } = require('fs')
-// const db = JSON.parse(readFileSync(path.resolve(__dirname, 'media.json')))
-// console.log('db loaded!')
+// if (!fs.existsSync(path.join(config.appdata, config.dbname))) {
+//   fs.copyFileSync(path.resolve(__dirname, './database', config.dbname), path.join(config.appdata, config.dbname))
+// }
 
 const app = express()
+
 app.use(compression({ filter: shouldCompress }))
 function shouldCompress(req, res) {
   if (req.headers['x-no-compression']) {
     // don't compress responses with this request header
-    console.log('no compress')
     return false
   }
   // fallback to standard filter function
@@ -46,7 +49,7 @@ app.use(
     stream: logger.stream,
   }),
 )
-if (environment !== 'dev') {
+if (ENVIRONMENT !== 'development') {
   app.use(
     morgan('combined', {
       skip(req, res) {
@@ -57,23 +60,16 @@ if (environment !== 'dev') {
   )
 }
 
-var whitelist = process.env.ALLOWED_DOMAINS.split(',')
+var whitelist = userConfig.ALLOWED_DOMAINS.split(',')
 console.log(whitelist)
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
 
 app.use(bodyParser.json())
-if (process.env.ENVIRONMENT === 'dev') {
+if (ENVIRONMENT === 'development') {
   app.use(cors())
-} else{
-  app.use(cors(corsOptions))
+} else {
+  app.use(cors({
+    origin: whitelist
+  }))
 }
 
 // app.use((req, res, next) => {
@@ -106,7 +102,7 @@ function formatConsoleDate(date) {
 }
 
 // Start the server
-const port = process.env.ENVIRONMENT === 'dev' ? 3001 : process.env.SERVER_PORT
+const port = ENVIRONMENT === 'development' ? 3001 : userConfig.SERVER_PORT
 console.log(`Listening on port ${port}`)
 const server = app.listen(port)
 const wss = new WebSocket.Server({ server })
@@ -126,13 +122,31 @@ wss.broadcast = function broadcast(msg) {
 app.set('wss', wss)
 
 // serve our react build
-if (process.env.ENVIRONMENT !== 'dev') {
+if (ENVIRONMENT === 'production') {
   app.use('/', express.static(path.join(__dirname, '../../ui/build')))
 }
 
+// Run Migrations
+const { Sequelize } = require('sequelize')
+const { Umzug, SequelizeStorage } = require('umzug')
+const dbconfig = require(path.join(__dirname, './database/config/config.js'))[ENVIRONMENT]
+dbconfig.storage = path.join(config.appdata, config.dbname)
+
+const sequelize = new Sequelize(dbconfig)
+
+const umzug = new Umzug({
+  migrations: {
+    glob: __dirname + '/database/migrations/*.js',
+  },
+  context: sequelize.getQueryInterface(),
+  storage: new SequelizeStorage({ sequelize }),
+  logger: console,
+})
+console.log('running migrations')
+umzug.up().then(() => console.log('migrations done!'))
+
 // routes
 require('./routes/Library')(app)
-require('./routes/Media')(app)
 require('./routes/Misc')(app)
 require('./routes/Series')(app)
 require('./routes/Movie')(app)
