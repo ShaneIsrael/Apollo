@@ -1,8 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Box, Tabs, Tab, Typography} from '@material-ui/core'
-import { AddLibrary, EditLibraries, LiveServerLogs } from '../components'
-import AdminSetup from '../components/widgets/AdminSetup';
+import { AddLibrary, EditLibraries, LiveServerLogs, ConfigForm } from '../components'
 
 function TabPanel(props) {
   const { children, value, index, ...other } = props;
@@ -52,7 +51,7 @@ const Configure = (props) => {
         indicatorColor="primary"
         value={tab} onChange={handleTabChange}>
         <Tab label="Library" {...a11yProps(0)} />
-        <Tab label="Admin Setup" {...a11yProps(1)} />
+        <Tab label="System Config" {...a11yProps(1)} />
       </Tabs>
       <TabPanel value={tab} index={0}>
         <Grid container spacing={1}>
@@ -69,8 +68,8 @@ const Configure = (props) => {
       </TabPanel>
       <TabPanel value={tab} index={1}>
         <Grid container spacing={1} justifyContent="center">
-          <Grid item>
-            <AdminSetup/>
+          <Grid item xs={12} md={6}>
+            <ConfigForm />
           </Grid>
         </Grid>
       </TabPanel>

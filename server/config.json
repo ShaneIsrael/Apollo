@@ -1,0 +1,5 @@
+{
+  "SERVER_PORT": 6969,
+  "ALLOWED_DOMAINS": "http://localhost:3000,http://localhost:6969,http://shaneisrael.net:6969",
+  "TOKEN_KEY": "super_secret"
+}

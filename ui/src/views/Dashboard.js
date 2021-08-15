@@ -1,15 +1,22 @@
 import { Alert, AlertTitle, Box, Grid } from '@material-ui/core'
 import React, { useState } from 'react'
-import { GeneralStatsTable, ScatterPoint } from '../components'
+import { GeneralStatsTable, ScatterPoint, MediaYearsStats, LibrarySizeStats } from '../components'
 import { LibraryService, StatsService } from '../services'
 
 const Dashboard = (props) => {
   const { libraries } = props
   const [releaseYears, setReleaseYears] = useState([])
+  const [librarySizes, setLibrarySizes] = useState([])
+
+  // store in different variable so that when we
+  // sort them the oder in the sidebar doesn't change
+  const statLibraries = [...libraries]
 
   React.useEffect(() => {
     async function fetch() {
       StatsService.getMediaReleaseYears().then(resp => setReleaseYears(resp.data))
+        .catch(err => console.error(err))
+      StatsService.getLibrarySizes().then(resp => setLibrarySizes(resp.data))
         .catch(err => console.error(err))
     }
     fetch()
@@ -18,21 +25,41 @@ const Dashboard = (props) => {
 
   return (
     <Box sx={{ pt: 3, pl: 3, pr: 3 }}>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          {libraries.length > 0 ?
-            libraries.map(l => <GeneralStatsTable key={l.id} library={l} />)
-            : <div></div>
-          }
-        </Grid>
+      <Grid container direction="row" spacing={1}>
+        {statLibraries.length > 0 ?
+          statLibraries.sort((a, b) => a.type === 'movie').map(l => <Grid key={l.id} item xs={12} md={6} lg={3}><GeneralStatsTable library={l} /></Grid>)
+          : <div></div>
+        }
         <Grid item xs={12}>
           {
             releaseYears ?
-              <ScatterPoint name="Series" name2="Movies" title="Media Release Years" data={releaseYears} valueInterval={5} argumentInterval={5} />
+              <MediaYearsStats data={releaseYears} />
               :
               <Alert sx={{ width: '100%' }} variant="filled" severity="info">
                 <AlertTitle>No Release Years Stats</AlertTitle>
                 Release year stats have not yet been generated.
+              </Alert>
+          }
+        </Grid>
+        <Grid item xs={12} md={6}>
+          {
+            librarySizes ?
+              <LibrarySizeStats data={librarySizes} type="series" slice={10}/>
+              :
+              <Alert sx={{ width: '100%' }} variant="filled" severity="info">
+                <AlertTitle>No Library Size Stats</AlertTitle>
+                Library size stats have not yet been generated.
+              </Alert>
+          }
+        </Grid>
+        <Grid item xs={12} md={6}>
+        {
+            librarySizes ?
+              <LibrarySizeStats data={librarySizes} type="movie" slice={10}/>
+              :
+              <Alert sx={{ width: '100%' }} variant="filled" severity="info">
+                <AlertTitle>No Library Size Stats</AlertTitle>
+                Library size stats have not yet been generated.
               </Alert>
           }
         </Grid>

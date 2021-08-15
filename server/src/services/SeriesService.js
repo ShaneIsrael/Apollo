@@ -1,13 +1,13 @@
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const { readdirSync, writeFileSync, readFileSync } = require('fs')
 const path = require('path')
 const ffprobe = require('ffprobe')
-const ffprobeStatic = require('ffprobe-static')
+const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-static') : require('ffprobe-static')
 const short = require('short-uuid')
 
 const { searchTv, getTv, downloadImage } = require('./TmdbService')
 const { Library, Series, Metadata, Season, EpisodeFile } = require('../database/models')
 const { VALID_EXTENSIONS } = require('../constants')
-
 const service = {}
 
 function sleep(ms) {
@@ -68,7 +68,7 @@ service.getSeriesByUuid = async (uuid) => {
 service.searchSeriesById = async (id, amount) => {
   try {
     const series = await Series.findByPk(id)
-    const search = await searchTv(series.name)
+    const search = await searchTv(series.name.replace(/(\([0-9]{4}\))/g, ''))
     return search.results
   } catch (err) {
     throw err

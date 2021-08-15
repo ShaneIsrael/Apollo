@@ -1,4 +1,4 @@
-import * as React from 'react'
+import React from 'react'
 import { styled, alpha, useTheme } from '@material-ui/core/styles'
 import { NavLink, useParams, useLocation } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
@@ -25,12 +25,13 @@ import BrightnessHighIcon from '@material-ui/icons/BrightnessHigh'
 import Brightness4Icon from '@material-ui/icons/Brightness4'
 import LoginIcon from '@material-ui/icons/Login'
 import LogoutIcon from '@material-ui/icons/Logout'
+import InfoIcon from '@material-ui/icons/Info'
+import Zoom from '@material-ui/core/Zoom'
 
 // import { Fade, Tooltip } from '@material-ui/core'
 import { LibraryService } from '../../services'
 import logo from '../../assets/logo.png'
-import { getUser } from '../utils'
-import AuthService from '../../services/AuthService'
+import { Popover, Tooltip } from '@material-ui/core'
 
 const drawerWidth = 240
 
@@ -172,6 +173,12 @@ const pages2 = [
     tag: 'configure',
     path: '/configure',
     icon: <SettingsIcon />
+  },
+  {
+    title: 'About',
+    tag: 'about',
+    path: '/about',
+    icon: <InfoIcon />
   }
 ]
 
@@ -182,7 +189,7 @@ const capitalize = ([firstLetter, ...restOfWord]) => {
 }
 
 export default function Navigation(props) {
-  const { defaultLibraries, toggleTheme, logout, children } = props
+  const { defaultLibraries, toggleTheme, logout, user, children } = props
   let { title } = props
 
   const [libraries, setLibraries] = React.useState(defaultLibraries)
@@ -194,7 +201,10 @@ export default function Navigation(props) {
   }
   const [open, setOpen] = React.useState(false)
   const [selectedPage, setSelectedPage] = React.useState(tag || page || '') //empty is root home page
-  const [user, setUser] = React.useState(getUser())
+  // const [user, setUser] = React.useState(user)
+
+  const [navSearchText, setNavSearchText] = React.useState('')
+  const [navSearchAnchorEl, setNavSearchAnchorEl] = React.useState(null)
 
   React.useEffect(() => {
     async function fetch() {
@@ -234,6 +244,10 @@ export default function Navigation(props) {
     console.log('test')
   }
 
+  const handleSearchTextChange = (e) => {
+    setNavSearchText(e.target.value)
+  }
+
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
       return React.cloneElement(child, { libraries, setLibraries })
@@ -262,20 +276,39 @@ export default function Navigation(props) {
             variant="h6"
             noWrap
             component="div"
-            sx={{ flexGrow: 1, display: { xs: 'none', sm: 'block' } }}
+            sx={{ flex: 1, display: { xs: 'block', sm: 'block' } }}
           >
             {title}
           </Typography>
-          <Search>
+          {/* <Search aria-describedby="navigation-search" onFocus={(e) => setNavSearchAnchorEl(e.currentTarget)}>
             <SearchIconWrapper>
               <SearchIcon size="small" />
             </SearchIconWrapper>
             <StyledInputBase
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
+              onChange={handleSearchTextChange}
             />
           </Search>
-          <Box sx={{ display: { xs: 'flex', md: 'flex' }, pl: 1 }}>
+          <Popover
+            id={Boolean(navSearchAnchorEl) ? "navigation-search" : undefined}
+            open={Boolean(navSearchAnchorEl)}
+            disableAutoFocus={true}
+            disableEnforceFocus={true}
+            anchorEl={navSearchAnchorEl}
+            onClose={() => setNavSearchAnchorEl(null)}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            Some Search Text Goes Here
+          </Popover> */}
+          <Box sx={{pl: 1 }}>
             <IconButton
               size="large"
               edge="end"
@@ -287,16 +320,18 @@ export default function Navigation(props) {
               {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon />}
             </IconButton>
           </Box>
-          <Box sx={{ display: { xs: 'flex', md: 'flex' }, pl: 1 }}>
+          <Box sx={{pl: 1 }}>
             {user ?
               <IconButton
                 size="large"
                 edge="end"
                 aria-label="theme toggle"
                 onClick={logout}
+                component={NavLink}
+                to={`/`}
                 color="secondary"
               >
-                <LogoutIcon />
+                <Tooltip title={`Signed in as ${user.username}`} placement="bottom-start"><LogoutIcon /></Tooltip>
               </IconButton>
               :
               <IconButton
@@ -357,15 +392,17 @@ export default function Navigation(props) {
                 libraryPages.map((library, index) => {
                   const selected = selectedPage === library.tag
                   const Li = selected ? ListItemSelected : ListItemDefault
-                  return <Li key={library.tag} button
-                    // onClick={() => handleLibraryChange(library)}
-                    component={NavLink} to={`/library/${library.tag}`}
-                  >
-                    <ListItemIcon sx={selected ? { color: 'primary.main' } : {}}>
-                      {library.icon}
-                    </ListItemIcon>
-                    <ListItemText primary={library.name} />
-                  </Li>
+                  return <Tooltip key={library.tag} title={library.name} placement="right" TransitionComponent={Zoom}>
+                    <Li button
+                      // onClick={() => handleLibraryChange(library)}
+                      component={NavLink} to={`/library/${library.tag}`}
+                    >
+                      <ListItemIcon sx={selected ? { color: 'primary.main' } : {}}>
+                        {library.icon}
+                      </ListItemIcon>
+                      <ListItemText primary={library.name} />
+                    </Li>
+                  </Tooltip>
                 })
               }
             </List>

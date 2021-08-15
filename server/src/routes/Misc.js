@@ -1,8 +1,17 @@
+const fs = require('fs')
+const path = require('path')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { serveImage } = require('../controllers')
 const { User } = require ('../database/models')
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
+let userConfig
+if (ENVIRONMENT === 'production') {
+  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
+} else {
+  userConfig = require('../../config.json')
+}
 
 module.exports = (app) => {
   app.get('/api/v1/image/:id', verifyStandard, serveImage)
@@ -11,8 +20,12 @@ module.exports = (app) => {
     try {
       const { username, password, role } = req.body
 
-      if (!(username && password)) {
-        return res.status(400).send('Username & Password is required')
+      if (!(username && password && role)) {
+        return res.status(400).send('Username, Password and Role is required')
+      }
+
+      if (password.length < 5) {
+        return res.status(400).send('Password must be at least 5 characters')
       }
 
       const oldUser = await User.findOne({ where: { username } })
@@ -20,7 +33,7 @@ module.exports = (app) => {
       if (oldUser) {
         return res.status(409).send('User Already Exists')
       }
-      if (!role || role === 'admin') {
+      if (role === 'admin') {
         const admin = await User.findOne({
           where: { role: 'admin' }
         }) 
@@ -32,12 +45,12 @@ module.exports = (app) => {
       const user = await User.create({
         username,
         password: encryptedPassword,
-        role: role ? roll : 'admin'
+        role: role ? role : 'admin'
       })
 
       const token = jwt.sign(
         { userId: user.id, username, role},
-        process.env.TOKEN_KEY,
+        userConfig.TOKEN_KEY,
         {
           expiresIn: "12h"
         }
@@ -66,7 +79,7 @@ module.exports = (app) => {
       if (user && (await bcrypt.compare(password, user.password))) {
         const token = jwt.sign(
           { userId: user.id, username, role: user.role },
-          process.env.TOKEN_KEY,
+          userConfig.TOKEN_KEY,
           {
             expiresIn: "12h",
           }

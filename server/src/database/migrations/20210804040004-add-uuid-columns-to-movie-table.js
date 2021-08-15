@@ -1,6 +1,6 @@
-'use strict';
+const { Sequelize } = require('sequelize')
 module.exports = {
-  up: (queryInterface, Sequelize) => {
+  up: ({ context: queryInterface }) => {
     return queryInterface.addColumn(
       'Movie',
       'uuid',
@@ -10,7 +10,7 @@ module.exports = {
     )
   },
 
-  down: (queryInterface, Sequelize) => {
+  down: ({ context: queryInterface }) => {
     return queryInterface.removeColumn('Movie', 'uuid')
   },
 };

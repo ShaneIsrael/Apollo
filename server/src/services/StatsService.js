@@ -24,6 +24,21 @@ service.getLibraryStats = async (id) => {
   }
 }
 
+service.getLibrarySizes = async () => {
+  try {
+    const stats = await Stats.findOne({
+      where: {
+        tag: 'all-library-sizes'
+      },
+      order: [['createdAt', 'DESC']]
+    })
+    if (!stats) return null
+    return stats.json
+  } catch (err) {
+    throw err
+  }
+}
+
 service.getMediaYears = async () => {
   try {
     const stats = await Stats.findOne({

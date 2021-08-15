@@ -11,6 +11,9 @@ export default {
   getMediaReleaseYears() {
     return Api().get('/api/v1/stats/media/years')
   },
+  getLibrarySizes() {
+    return Api().get('/api/v1/stats/library/sizes')
+  },
   cancel() {
     return cancelToken.cancel()
   }

@@ -74,13 +74,16 @@ const Library = () => {
   [filteredMedia, debouncedCardDisplayAmount, mediaType])
 
   const filterHandler = (event) => {
+    if (!event.target.value) {
+      setScrollPosition(0)
+    }
     setFilteredText(event.target.value)
   }
 
   React.useEffect(() => {
-    const filtered = media.filter((m) => m.title.toLowerCase().indexOf(debouncedFilteredText.toLowerCase()) >= 0)
-    const filteredMedia = filtered.slice(0, 50).map((m) => createMediaCard(m, mediaType))
-    setCards(filteredMedia)
+      const filtered = media.filter((m) => m.title.toLowerCase().indexOf(debouncedFilteredText.toLowerCase()) >= 0)
+      const filteredMedia = filtered.slice(0, 50).map((m) => createMediaCard(m, mediaType))
+      setCards(filteredMedia)
   }, [debouncedFilteredText, media, mediaType])
 
   if (invalidPage) {
@@ -97,7 +100,7 @@ const Library = () => {
   }
   return (
     <Box sx={{pt: 3, flexGrow: 1}}>
-      { cards.length !== 0 &&
+      { cards &&
         <Grid container item justifyContent="center">
           <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
             <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler} />
@@ -110,7 +113,7 @@ const Library = () => {
             <Loading size={100} />
           </Grid>
           :
-          <Grid container justifyContent="center" item spacing={1}>
+          <Grid container justifyContent="center" item spacing={2}>
             {cards}
           </Grid>
         }

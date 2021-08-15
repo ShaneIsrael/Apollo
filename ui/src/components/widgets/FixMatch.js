@@ -49,10 +49,10 @@ export default function FixMatch(props) {
         try {
           let resp
           if (type === 'series') {
-            resp = (await SeriesService.searchById(current.id)).data
+            resp = (await SeriesService.searchById(current.id, 20)).data
           }
           if (type === 'movie') {
-            resp = (await MovieService.searchById(current.id)).data
+            resp = (await MovieService.searchById(current.id, 20)).data
           }
           setMatches(resp)
         } catch (err) {

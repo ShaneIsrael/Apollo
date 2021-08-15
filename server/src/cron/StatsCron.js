@@ -1,5 +1,8 @@
 const cron = require('node-cron')
 const logger = require('../logger')
+const util = require("util")
+const getFolderSize = util.promisify(require("get-folder-size"))
+
 const { Stats, Metadata, Series, Movie, MovieFile, Season, EpisodeFile, Library, Op } = require('../database/models')
 
 function calculateDuration(duration) {
@@ -309,16 +312,11 @@ async function createMediaYearsStats() {
   for (let year = 1900; year < 2100; year++) {
     seriesYear = syears[year]
     moviesYear = myears[year]
-    if (seriesYear) {
+    if (seriesYear || moviesYear) {
       combined.push({
-        x1: year,
-        y1: syears[year],
-      })
-    }
-    if (moviesYear) {
-      combined.push({
-        x2: year,
-        y2: myears[year]
+        year,
+        series: seriesYear,
+        movie: moviesYear
       })
     }
   }
@@ -328,6 +326,41 @@ async function createMediaYearsStats() {
   })
 }
 
+async function createLibraryFolderSizeStats() {
+  try {
+    let libraryDataStats = []
+    const libraries = await Library.findAll({
+      include: [Series, Movie]
+    })
+
+    for (const library of libraries) {
+      const libraryStat = {
+        id: library.id,
+        name: library.name,
+        type: library.type,
+        valueUnit: 'MB',
+        items: []
+      }
+      const libraryFolders = library.Movies.length > 0 ? library.Movies : library.Series
+      for (const folder of libraryFolders) {
+        const path = `${library.path}/${folder.name}`
+        const size = await getFolderSize(path)
+        libraryStat.items.push({
+          value: (size / 1000 / 1000).toFixed(2),
+          name: folder.name
+        })
+      }
+      libraryDataStats.push(libraryStat)
+    }
+    return Stats.create({
+      tag: 'all-library-sizes',
+      json: libraryDataStats
+    })
+  } catch (err) {
+    throw err
+  }
+}
+
 async function start() {
   try {
     // Run at midnight
@@ -335,7 +368,10 @@ async function start() {
       logger.info('Running Stats Generation Cronjob...')
       createMediaYearsStats().catch(err => logger.error(err))
       createGeneralLibraryStats().catch(err => logger.error(err))
+      createLibraryFolderSizeStats().catch(err => logger.error(err))
     })
+    // console.log('creating')
+    // createMediaYearsStats().catch(err => logger.error(err))
   } catch (err) {
     logger.error(err)
   }

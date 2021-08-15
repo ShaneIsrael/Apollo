@@ -1,21 +1,31 @@
+const fs = require('fs')
+const path = require('path')
 const jwt = require("jsonwebtoken");
+const { User, Config } = require('../database/models')
 
-const TOKEN_KEY = process.env.TOKEN_KEY
+const ENVIRONMENT = process.env.NODE_ENV || 'production'
+let userConfig
+if (ENVIRONMENT === 'production') {
+  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
+} else {
+  userConfig = require('../../config.json')
+}
 
-const verifyAdmin = (req, res, next) => {
+const TOKEN_KEY = userConfig.TOKEN_KEY
+
+const verifyAdmin = async (req, res, next) => {
   const token =
     req.body.token || req.query.token || req.headers["x-access-token"]
 
-  // check db for config settings
-  // if Enable Admin is FALSE
-  // return next()
-  // else check token and make sure role is admin
-  // end configuration check
-
-  if (!token) {
-    return res.status(403).send("A token is required for authentication")
-  }
   try {
+    const config = await Config.findOne({ order: [['createdAt', 'DESC']] })
+    if (!config || !config.enableAdmin) {
+      return next()
+    }
+    if (!token) {
+      return res.status(403).send("A token is required for authentication")
+    }
+
     const decoded = jwt.verify(token, TOKEN_KEY)
     if (!decoded.role || decoded.role !== 'admin') {
       return res.status(401).send('Your account does not have the required role for that action.')
@@ -27,24 +37,23 @@ const verifyAdmin = (req, res, next) => {
   }
 }
 
-const verifyStandard = (req, res, next) => {
+const verifyStandard = async (req, res, next) => {
   const token =
     req.body.token || req.query.token || req.headers["x-access-token"]
 
-  // check db for config settings
-  // if Restrict Access is FALSE
-  return next()
-  // else check token
-  // end configuration check
-
-  if (!token) {
-    return res.status(403).send("A token is required for authentication")
-  }
   try {
+    const config = await Config.findOne({ order: [['createdAt', 'DESC']] })
+    if (!config || !config.restrictAccess) {
+      return next()
+    }
+    if (!token) {
+      return res.status(403).send("A token is required for authentication")
+    }
     const decoded = jwt.verify(token, TOKEN_KEY)
     req.user = decoded
     return next()
   } catch (err) {
+    console.log(err)
     return res.status(401).send("Invalid Authorization Token")
   }
 }

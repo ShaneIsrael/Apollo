@@ -5,7 +5,7 @@ import logo from '../../assets/logo.png'
 import AuthService from '../../services/AuthService'
 import { useHistory } from 'react-router-dom'
 
-const LoginForm = ({setUser, forwardPage}) => {
+const LoginForm = ({setUser, forwardPage, prelabel}) => {
 
   const [username, setUsername] = React.useState(null)
   const [password, setPassword] = React.useState(null)
@@ -27,6 +27,13 @@ const LoginForm = ({setUser, forwardPage}) => {
       }
     }
   }
+  const handleSubmit = (event) => {
+    if (event.which === 13) {
+      handleLogin()
+    }
+  }
+
+  console.log(prelabel)
   return (
     <Box sx={{ flexGrow: 1, p: 2, width: '100%' }}>
       <Grid container justifyContent="center" sx={{ pt: 2 }}>
@@ -38,8 +45,8 @@ const LoginForm = ({setUser, forwardPage}) => {
         </Grid>
         <Box sx={{ display: 'flex', flexDirection: 'column', p: 4, pt: 2, width: '100%' }}>
           {error && <Alert sx={{ mb: 2 }} variant="filled" severity="error">{error}</Alert>}
-          <TextField onChange={(e) => setUsername(e.target.value)} sx={{ pb: 2 }} required label="Username" />
-          <TextField onChange={(e) => setPassword(e.target.value)} sx={{ pb: 2 }} required label="Password" type="password" />
+          <TextField onKeyPress={handleSubmit} onChange={(e) => setUsername(e.target.value)} sx={{ pb: 2 }} required label={prelabel ? `${prelabel} Username` : "Username"} />
+          <TextField onKeyPress={handleSubmit} onChange={(e) => setPassword(e.target.value)} sx={{ pb: 2 }} required label={prelabel ? `${prelabel} Password` : "Password"} type="password" />
           <Button onClick={handleLogin} disabled={!(username && password)} variant="outlined" size="large" startIcon={<LoginIcon />}>Login</Button>
         </Box>
       </Grid>
