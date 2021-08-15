@@ -36,6 +36,9 @@ cp -f ./build-deps/binaries/sqlite3/napi-v3-darwin-x64/node_sqlite3.node ./dist/
 cp -f ./build-deps/binaries/sqlite3/napi-v3-win32-x64/node_sqlite3.node ./dist/win32/x64/
 cp -f ./build-deps/binaries/sqlite3/napi-v3-win32-ia32/node_sqlite3.node ./dist/win32/ia32/
 
+# build the ui
+cd ui && npm run build && cd ..
+
 # package the app into executables
 pkg ./server/package.json
 
