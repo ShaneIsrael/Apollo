@@ -38,9 +38,10 @@
     "ws": "^8.0.0"
   },
   "pkg": {
-    "scripts": "src/database/models/*.js",
+    "scripts": "src/database/models/**/*.js",
     "assets": [
-      "node_modules/open/**/*",
+      "node_modules/sqlite3/lib/binding/**/*",
+      "src/database/migrations/*",
       "../ui/build/**/*"
     ],
     "targets": [],

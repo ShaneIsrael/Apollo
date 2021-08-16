@@ -17,9 +17,6 @@ var ffprobePath = path.join(
   path.dirname(process.execPath),
   'binaries',
   'ffprobe-static',
-  'bin',
-  platform,
-  arch,
   platform === 'win32' ? 'ffprobe.exe' : 'ffprobe'
 )
 

@@ -134,12 +134,16 @@ const umzug = new Umzug({
   storage: new SequelizeStorage({ sequelize }),
   logger: console,
 })
+
+// race condition here needs to be solved. Need to run migrations before we start listening on port.
 umzug.up().then(() => {
   if (ENVIRONMENT === 'production') {
     let start = (process.platform == 'darwin'? 'open': process.platform == 'win32'? 'start': 'xdg-open');
     require('child_process').exec(start + ' ' + `http://localhost:${port}`)
   }
-}).catch(err => console.error('An error occurred while trying to update the database'))
+  // RUN SETUP
+  require('./utils/checkConfigFlags')
+}).catch(err => console.error('An error occurred while trying to update the database', err))
 
 // routes
 require('./routes/Library')(app)

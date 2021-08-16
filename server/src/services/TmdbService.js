@@ -121,14 +121,15 @@ service.downloadImage = async (tmdbSrc, size) => {
     const url = `https://image.tmdb.org/t/p/${size ? size : 'w500'}/${tmdbSrc}`
     const checkPath = path.join(config.appdata, config.imageDir, tmdbSrc)
     if (fs.existsSync(checkPath)) {
-      return checkPath
+      return checkPath.split(path.sep).join(path.posix.sep)
     }
     const { filename } = await download.image({
       url,
       dest: path.join(config.appdata, config.imageDir)
     })
-    return tmdbSrc
+    return filename.split(path.sep).join(path.posix.sep)
   } catch (err) {
+    console.log('error')
     throw err
   }
 }
