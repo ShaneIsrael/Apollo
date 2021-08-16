@@ -179,6 +179,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
             // console.log('download image')
             const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
             const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
+            
             const meta = (await Metadata.findOrCreate({
               where: { seriesId: series[0].id },
               defaults: {
