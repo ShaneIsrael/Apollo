@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Season.belongsTo(models.Series)
-      Season.hasMany(models.EpisodeFile)
+      Season.hasMany(models.Episode)
     }
   }
   Season.init({

@@ -3,7 +3,7 @@ const logger = require('../logger')
 const util = require("util")
 const getFolderSize = util.promisify(require("get-folder-size"))
 
-const { Stats, Metadata, Series, Movie, MovieFile, Season, EpisodeFile, Library, Op } = require('../database/models')
+const { Stats, Metadata, Series, Movie, MovieFile, Season, Episode, Library, Op } = require('../database/models')
 
 function calculateDuration(duration) {
   if (duration) {
@@ -54,7 +54,7 @@ async function createGeneralLibraryStats() {
         where: {
           libraryId: library.id
         },
-        include: [Metadata, Season, { model: EpisodeFile, include: [Season] }]
+        include: [Metadata, Season, { model: Episode, include: [Season] }]
       })
       let seasons = []
       let episodes = []
@@ -65,7 +65,7 @@ async function createGeneralLibraryStats() {
       }
       for (const serie of series) {
         seasons = seasons.concat(serie.Seasons)
-        episodes = episodes.concat(serie.EpisodeFiles)
+        episodes = episodes.concat(serie.Episodes)
         if (serie.Metadatum && serie.Metadatum.tmdb_rating && serie.Metadatum.tmdb_rating > 0) {
           totalSeriesRatingsNotZero.seriesCount++
           totalSeriesRatingsNotZero.ratingsTotal += serie.Metadatum.tmdb_rating
@@ -97,14 +97,14 @@ async function createGeneralLibraryStats() {
         seriesId: null
       }
       for (const episode of episodes) {
-        if (episode.title && episode.title.length > longestEpisodeName.length) {
-          longestEpisodeName.length = episode.title.length
-          longestEpisodeName.name = capitalize(episode.title)
+        if (episode.name && episode.name.length > longestEpisodeName.length) {
+          longestEpisodeName.length = episode.name.length
+          longestEpisodeName.name = episode.name
           longestEpisodeName.seriesId = episode.seriesId
         }
-        if (episode.metadata) {
-          if (episode.metadata.streams[0].tags) {
-            let duration = calculateDuration(episode.metadata.streams[0].tags["DURATION-eng"])
+        if (episode.file_probe_data) {
+          if (episode.file_probe_data.streams[0].tags) {
+            let duration = calculateDuration(episode.file_probe_data.streams[0].tags["DURATION-eng"])
             totalDuration += duration
             if (episode.Season.season > 0 && duration > longestEpisode.duration) {
               longestEpisode.duration = duration
@@ -112,7 +112,7 @@ async function createGeneralLibraryStats() {
               longestEpisode.seasonEpisodeName = `Season ${episode.Season.season} Episode ${episode.episode}`
             }
           }
-          for (const stream of episode.metadata.streams) {
+          for (const stream of episode.file_probe_data.streams) {
             if (!stream.tags) continue
             if (stream.tags['NUMBER_OF_BYTES-eng']) {
               totalGbs += (Number(stream.tags['NUMBER_OF_BYTES-eng']) / 1024 / 1024 / 1024 / 1024)

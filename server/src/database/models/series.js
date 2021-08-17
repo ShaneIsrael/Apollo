@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       Series.belongsTo(models.Library)
       Series.hasOne(models.Metadata)
       Series.hasMany(models.Season)
-      Series.hasMany(models.EpisodeFile)
+      Series.hasMany(models.Episode)
     }
   }
   Series.init({
