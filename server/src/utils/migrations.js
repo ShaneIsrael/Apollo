@@ -13,7 +13,7 @@ module.exports = {
       
       const umzug = new Umzug({
         migrations: {
-          glob: __dirname + '../database/migrations/*.js',
+          glob: __dirname + '/../database/migrations/*.js',
         },
         context: sequelize.getQueryInterface(),
         storage: new SequelizeStorage({ sequelize }),

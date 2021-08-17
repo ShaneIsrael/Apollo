@@ -5,8 +5,8 @@ const ffprobe = require('ffprobe')
 const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-static') : require('ffprobe-static')
 const short = require('short-uuid')
 
-const { searchTv, getTv, downloadImage } = require('./TmdbService')
-const { Library, Series, Metadata, Season, EpisodeFile } = require('../database/models')
+const { searchTv, getTv, getEpisode, downloadImage } = require('./TmdbService')
+const { Library, Series, Metadata, Season, Episode } = require('../database/models')
 const { VALID_EXTENSIONS } = require('../constants')
 const service = {}
 
@@ -57,7 +57,7 @@ service.getSeriesByUuid = async (uuid) => {
   try {
     const series = await Series.findOne({
       where: { uuid },
-      include: [{ model: Metadata }, { model: Season, include: [EpisodeFile] }]
+      include: [{ model: Metadata }, { model: Season, include: [Episode] }]
     })
     return series
   } catch (err) {
@@ -179,7 +179,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
             // console.log('download image')
             const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
             const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
-            
+
             const meta = (await Metadata.findOrCreate({
               where: { seriesId: series[0].id },
               defaults: {
@@ -202,7 +202,9 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
       }
       const seasonDirs = getDirectories(path.resolve(library.path, series[0].name))
       for (let seasonDir of seasonDirs) {
+        console.log(`\tchecking ${seasonDir}`)
         const episodeFiles = getFiles(path.resolve(library.path, series[0].name, seasonDir))
+        console.log(`\tseason has ${episodeFiles.length} files at path: ${path.resolve(library.path, series[0].name, seasonDir)}`)
         for (let episode of episodeFiles) {
           const { ext } = path.parse(episode)
           if (VALID_EXTENSIONS.indexOf(ext) === -1) continue // not a valid video file
@@ -220,27 +222,44 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
 
             const tmdbSeason = seasonData ? seasonData.find((s) => s.season_number === Number(seasonNumber)) : null
             const seasonRow = await findOrCreateSeason(series[0].id, seasonNumber, tmdbSeason)
-            const episodeRow = (await EpisodeFile.findOrCreate({
+            const seriesMeta = await Metadata.findOne({
+              attributes: ['tmdbId'],
+              where: {
+                seriesId: series[0].id 
+              }
+            })
+            let episodeRow = await Episode.findOne({
               where: {
                 seasonId: seasonRow.id,
-                filename: episode,
-              },
-              defaults: {
-                seasonId: seasonRow.id,
-                seriesId: series[0].id,
-                filename: episode,
-                episode: episodeNumber,
-                title: episodeTitle,
+                episode_number: episodeNumber
               }
-            }))
-            if (episodeRow[1]) { // if it was created
-              wss.broadcast(`\tprobing file data -- ${episode}`)
-              const epmeta = await probe(path.join(library.path, series[0].name, seasonDir, episode))
-              episodeRow[0].metadata = epmeta
-              episodeRow[0].save()
-            } else {
-              continue
+            })
+            if (!episodeRow) {
+              const tmdbEpisode = await getEpisode(seriesMeta.tmdbId, seasonRow.season, episodeNumber)
+              const stillPath = tmdbEpisode.still_path ? await downloadImage(tmdbEpisode.still_path, 'w300') : null
+              await Episode.create({
+                seriesId: series[0].id,
+                seasonId: seasonRow.id,
+                tmdbId: tmdbEpisode.id,
+                filename: episode,
+                name: tmdbEpisode ? tmdbEpisode.name : null,
+                overview: tmdbEpisode ? tmdbEpisode.overview : null,
+                tmdb_still_path: tmdbEpisode ? tmdbEpisode.still_path : null,
+                local_still_path: stillPath ? stillPath.split('/').pop() : null,
+                air_date: tmdbEpisode ? tmdbEpisode.air_date : null,
+                season_number: seasonNumber,
+                episode_number: episodeNumber,
+                tmdb_rating: tmdbEpisode ? tmdbEpisode.vote_average : null,
+              })
+              episodeRow = await Episode.findOne({
+                where: { seasonId: seasonRow.id, episode_number: episodeNumber }
+              })
             }
+
+            wss.broadcast(`\tprobing file data -- ${episode}`)
+            const probeData = await probe(path.join(library.path, series[0].name, seasonDir, episode))
+            episodeRow.file_probe_data = probeData
+            episodeRow.save()
           } else {
             console.error(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
             wss.broadcast(`\t\t\tUnable to parse episode: ${series[0].name} -- ${episode}`)
@@ -253,7 +272,7 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
     library.save()
     return resolve()
   } catch (err) {
-    library.crawling = true
+    library.crawling = false
     library.save()
     return reject(err)
   }

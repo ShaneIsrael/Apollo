@@ -1,4 +1,4 @@
-const { Library, Series, Movie, MovieFile, Metadata, Season, EpisodeFile } = require('../database/models')
+const { Library, Series, Movie, Metadata } = require('../database/models')
 
 const service = {}
 

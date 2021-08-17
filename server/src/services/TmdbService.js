@@ -78,6 +78,20 @@ service.getTv = async (tmdbId) => {
     throw err
   }
 }
+service.getEpisode = async (tmdbId, season, episode) => {
+  try {
+    const res = (await api.get(`tv/${tmdbId}/season/${season}/episode/${episode}`, {
+      params: { 
+        language: 'en-US,null',
+        // append_to_response: 'images'
+      },
+      ...options
+    })).data
+    return res
+  } catch (err) {
+    throw err
+  }
+}
 
 // "backdrop_sizes": [
 //   "w300",
