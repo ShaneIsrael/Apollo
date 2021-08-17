@@ -26,7 +26,7 @@ const options = {
     timestamp: true,
   },
   console: {
-    level: 'error',
+    level: 'info',
     handleExceptions: true,
     json: false,
     colorize: true,

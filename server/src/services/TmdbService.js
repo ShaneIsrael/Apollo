@@ -31,7 +31,7 @@ service.searchTv = async (string) => {
     })).data
     return res
   } catch (err) {
-    throw err
+    throw new Error(`search/tv/${string} - ${err.response.status} - ${err.response.statusText}`)
   }
 }
 service.searchMovie = async (string) => {
@@ -47,7 +47,7 @@ service.searchMovie = async (string) => {
     })).data
     return res
   } catch (err) {
-    throw err
+    throw new Error(`search/movie/${string} - ${err.response.status} - ${err.response.statusText}`)
   }
 }
 service.getMovie = async (tmdbId) => {
@@ -61,7 +61,7 @@ service.getMovie = async (tmdbId) => {
     })).data
     return res
   } catch (err) {
-    throw err
+    throw new Error(`movie/${tmdbId} - ${err.response.status} - ${err.response.statusText}`)
   }
 }
 service.getTv = async (tmdbId) => {
@@ -75,12 +75,12 @@ service.getTv = async (tmdbId) => {
     })).data
     return res
   } catch (err) {
-    throw err
+    throw new Error(`tv/${tmdbId} - ${err.response.status} - ${err.response.statusText}`)
   }
 }
-service.getEpisode = async (tmdbId, season, episode) => {
+service.getSeason = async (tmdbId, season) => {
   try {
-    const res = (await api.get(`tv/${tmdbId}/season/${season}/episode/${episode}`, {
+    const res = (await api.get(`tv/${tmdbId}/season/${season}`, {
       params: { 
         language: 'en-US,null',
         // append_to_response: 'images'
@@ -89,7 +89,7 @@ service.getEpisode = async (tmdbId, season, episode) => {
     })).data
     return res
   } catch (err) {
-    throw err
+    throw new Error(`tv/${tmdbId}/season/${season} - ${err.response.status} - ${err.response.statusText}`)
   }
 }
 
@@ -143,7 +143,6 @@ service.downloadImage = async (tmdbSrc, size) => {
     })
     return filename.split(path.sep).join(path.posix.sep)
   } catch (err) {
-    console.log('error')
     throw err
   }
 }

@@ -113,7 +113,7 @@ const Series = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
-          <Grid container item direction="column" md={12} alignItems="center">
+          <Grid container item direction="column" sx={{display: { md: series.Seasons.length > 0 ? 12 : 'none'}}} alignItems="center">
             <Paper sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto' }}>
               <Grid container spacing={2} justifyContent="center">
                 {
