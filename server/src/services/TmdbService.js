@@ -130,9 +130,9 @@ service.getSeason = async (tmdbId, season) => {
 //   "original"
 // ]
 service.downloadImage = async (tmdbSrc, size) => {
+  if (!tmdbSrc) return null
+  const url = `https://image.tmdb.org/t/p/${size ? size : 'w500'}/${tmdbSrc}`
   try {
-    if (!tmdbSrc) return null
-    const url = `https://image.tmdb.org/t/p/${size ? size : 'w500'}/${tmdbSrc}`
     const checkPath = path.join(config.appdata, config.imageDir, tmdbSrc)
     if (fs.existsSync(checkPath)) {
       return checkPath.split(path.sep).join(path.posix.sep)
@@ -143,7 +143,7 @@ service.downloadImage = async (tmdbSrc, size) => {
     })
     return filename.split(path.sep).join(path.posix.sep)
   } catch (err) {
-    throw err
+    throw new Error(`Error occurred downloading image: src=${url}, ${err}`)
   }
 }
 

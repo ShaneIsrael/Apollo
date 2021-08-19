@@ -6,7 +6,9 @@ import { useHistory, useParams } from 'react-router-dom'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
+import background from '../assets/blurred-background-01.png'
 
+// blurred-texture-background02
 
 const Series = () => {
   const { uuid } = useParams()
@@ -41,7 +43,7 @@ const Series = () => {
     </Grid>
   )
   if (!series.Metadatum) {
-    return <FixMatch 
+    return <FixMatch
       open={true} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
   }
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
@@ -54,11 +56,21 @@ const Series = () => {
         left: 0,
         right: 0,
         // filter: 'blur(0px) brightness(100%)',
-        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '325px',
+        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',
         backgroundPosition: '50% 15%'
       }}>
       </Box>
-      <Box sx={{ zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
+      <Box sx={{
+        position: 'absolute',
+        top: 405,
+        left: 0,
+        right: 0,
+        backgroundImage: (theme) => theme.palette.mode === 'dark' ? `url("${background}")` : '',
+        backgroundSize: 'cover', width: '100%', height: '100vh',
+        filter: 'brightness(35%)',
+        // filter: 'opacity(35%)'
+      }} />
+      <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4}>
             <Grid item>
@@ -93,15 +105,22 @@ const Series = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '325px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
-              <Grid item>
+            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '360px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+              {/* <Grid item>
                 <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray', color: 'white' }} variant="h1">
+                  {series.Metadatum.name}
+                </Typography>
+              </Grid> */}
+            </Grid>
+            <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+              <Grid container justifyContent="flex-start">
+                <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36}} variant="h1">
                   {series.Metadatum.name}
                 </Typography>
               </Grid>
             </Grid>
             <Grid item>
-              <Paper sx={{ width: '100%', pl: 2, pt: 2, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto' }}>
+              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto' }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
@@ -109,18 +128,18 @@ const Series = () => {
                 <Typography variant="body1" sx={{ pr: 1 }}>
                   {series.Metadatum.overview}
                 </Typography>
-              </Paper>
+              </Box>
             </Grid>
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
-          <Grid container item direction="column" sx={{display: { md: series.Seasons.length > 0 ? 12 : 'none'}}} alignItems="center">
-            <Paper sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto' }}>
+          <Grid container item direction="column" sx={{ display: { md: series.Seasons.length > 0 ? 12 : 'none' } }} alignItems="center">
+            <Box sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto' }}>
               <Grid container spacing={2} justifyContent="center">
                 {
-                  series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
+                  series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard seriesUuid={uuid} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
                 }
               </Grid>
-            </Paper>
+            </Box>
           </Grid>
         </Grid>
       </Box>

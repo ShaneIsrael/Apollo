@@ -1,12 +1,21 @@
 
 /* eslint-disable no-restricted-globals */
-const { searchSeriesById, searchSeriesByTitle, getSeriesByUuid, changeSeriesMetadata } = require('../services')
+const { searchSeriesById, searchSeriesByTitle, getSeriesByUuid, changeSeriesMetadata, getSeriesSeason } = require('../services')
 
 const controller = {}
 
 controller.getSeriesByUuid = async (req, res, next) => {
   try {
     const result = await getSeriesByUuid(req.query.uuid)
+    return res.status(200).send(result)
+  } catch (err) {
+    return next(err)
+  }
+}
+
+controller.getSeriesSeason = async (req, res, next) => {
+  try {
+    const result = await getSeriesSeason(req.params.uuid, req.params.season)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)

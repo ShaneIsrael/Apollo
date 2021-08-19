@@ -8,7 +8,7 @@ import { createTheme, ThemeProvider } from '@material-ui/core/styles'
 import { CssBaseline } from "@material-ui/core"
 import { blue, pink } from "@material-ui/core/colors"
 import { Navigation } from './components'
-import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login, About } from './views'
+import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login, About, Season } from './views'
 
 import 'devextreme/dist/css/dx.dark.css'
 import { ConfigService, LibraryService } from "./services"
@@ -101,12 +101,17 @@ export default function App() {
                   <Library />
                 </Navigation>
               </Route>
-              <Route exact path="/series/view/:uuid">
+              <Route exact path="/series/:uuid">
                 <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut} user={user}>
                   <Series />
                 </Navigation>
               </Route>
-              <Route exact path="/movie/view/:uuid">
+              <Route exact path="/series/:uuid/season/:season">
+                <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut} user={user}>
+                  <Season />
+                </Navigation>
+              </Route>
+              <Route exact path="/movie/:uuid">
                 <Navigation defaultLibraries={libraries} oggleTheme={handleToggleTheme} title="Movie View" logout={logOut} user={user}>
                   <Movie />
                 </Navigation>
