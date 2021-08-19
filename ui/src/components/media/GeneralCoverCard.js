@@ -6,12 +6,16 @@ import { getImagePath } from '../utils'
 
 
 const GeneralCoverCard = (props) => {
-  const { cover, width, height } = props
+  let { cover, width, height } = props
+
+  if (width && !height) {
+    height = (width/2) * 3
+  }
 
   return (
     <>
       <Card sx={{
-        position: 'relative',
+        // position: 'relative',
         maxWidth: width, minWidth: width, borderColor: 'white', borderWidth: '1px' }} variant="outlined">
         <CardActionArea>
           <CardMedia

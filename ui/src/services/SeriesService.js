@@ -9,6 +9,9 @@ export default {
       }
     })
   },
+  getSeasonAndEpisodes(uuid, season) {
+    return Api().get(`/api/v1/series/${uuid}/season/${season}`)
+  },
   searchById(id, amount) {
     return Api().get(`/api/v1/series/search/${id}/${amount}`)
   },

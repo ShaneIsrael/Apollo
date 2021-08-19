@@ -1,11 +1,12 @@
 import React from 'react';
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
-import { GeneralCoverCard } from '../components'
+import { GeneralCoverCard, Loading } from '../components'
 import { useHistory, useParams } from 'react-router-dom'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
+import background from '../assets/blurred-background-01.png'
 
 const Movie = () => {
   const { uuid } = useParams()
@@ -32,11 +33,17 @@ const Movie = () => {
     return setFixMatchOpen(false)
   }
 
-  if (!movie) return <div>loading...</div>
-  
+  if (!movie) return (
+    <Grid sx={{ pt: 9 }} container>
+      <Grid sx={{ height: '50vh ' }} container item justifyContent="center" alignItems="center">
+        <Loading disableShrink size={100} />
+      </Grid>
+    </Grid>
+  )
+
   if (!movie.Metadatum) {
-    return <FixMatch 
-    open={true} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
+    return <FixMatch
+      open={true} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
   }
   const genres = movie ? movie.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
@@ -48,11 +55,20 @@ const Movie = () => {
         left: 0,
         right: 0,
         // filter: 'blur(2px)',
-        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '325px',
+        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',
         backgroundPosition: '50% 15%'
       }}>
+        <Box sx={{
+          position: 'absolute',
+          top: 365,
+          left: 0,
+          right: 0,
+          backgroundImage: (theme) => theme.palette.mode === 'dark' ? `url("${background}")` : '', 
+          backgroundSize: 'cover', width: '100%', height: '100vh',
+          filter: 'brightness(35%)',
+        }} />
       </Box>
-      <Box sx={{ zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
+      <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4}>
             <Grid item>
@@ -87,15 +103,22 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '325px', display: { xs: 'none', sm: 'none', md: 'inherit'} }}>
-              <Grid item>
+            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '365px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+              {/* <Grid item>
                 <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
+                  {movie.Metadatum.name}
+                </Typography>
+              </Grid> */}
+            </Grid>
+            <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+              <Grid container justifyContent="flex-start">
+                <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36 }} variant="h1">
                   {movie.Metadatum.name}
                 </Typography>
               </Grid>
             </Grid>
             <Grid item>
-              <Paper sx={{ width: '100%', pl: 2, pt: 2, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
+              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
@@ -103,7 +126,7 @@ const Movie = () => {
                 <Typography variant="body1" sx={{ maxHeight: '200px', overflowY: 'auto', pr: 1 }}>
                   {movie.Metadatum.overview}
                 </Typography>
-              </Paper>
+              </Box>
             </Grid>
           </Grid>
         </Grid>

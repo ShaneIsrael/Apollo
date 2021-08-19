@@ -7,7 +7,7 @@ import { useDebounce } from '../components/utils'
 
 function createMediaCard(media, type) {
   return (
-    <Grid key={media.id} item>
+    <Grid key={media.uuid} item>
       <MediaCard data={media} type={type} />
     </Grid>
   )
@@ -31,6 +31,25 @@ const Library = () => {
   const [invalidPage, setInvalidPage] = React.useState(false)
   
   const [scrollPosition, setScrollPosition] = React.useState(null)
+
+  function initializeCards() {
+    const filtered = media.filter((m) => m.title.toLowerCase().indexOf(debouncedFilteredText.toLowerCase()) >= 0)
+    const cards = filtered.slice(0, 50).map((m) => createMediaCard(m, mediaType))
+    setCards(cards)
+  }
+
+  function filterAndSetCards() {
+    const filteredCards = filteredMedia.slice(cards.length, debouncedCardDisplayAmount).map((m) => createMediaCard(m, mediaType))
+    setCards(c => c.concat(filteredCards))
+  }
+
+  const filterHandler = (event) => {
+    if (!event.target.value) {
+      setScrollPosition(0)
+    }
+    setFilteredText(event.target.value)
+  }
+
   React.useEffect(() => {
     const onScroll = e => {
       if (e.target.documentElement.scrollTop >= scrollPosition) {
@@ -61,34 +80,27 @@ const Library = () => {
         setInvalidPage(true)
       }
     }
-    setMedia([])
-    setFilteredMedia([])
+    // setCards([])
+    // setMedia([])
+    // setFilteredMedia([])
     fetch()
+    setFilteredText('')
   }, [tag])
 
   React.useEffect(() => {
-    const filteredCards = filteredMedia.slice(cards.length, debouncedCardDisplayAmount).map((m) => createMediaCard(m, mediaType))
-    setCards(c => c.concat(filteredCards))
+    filterAndSetCards()
   }, 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  [filteredMedia, debouncedCardDisplayAmount, mediaType])
-
-  const filterHandler = (event) => {
-    if (!event.target.value) {
-      setScrollPosition(0)
-    }
-    setFilteredText(event.target.value)
-  }
+  [debouncedCardDisplayAmount])
 
   React.useEffect(() => {
-      const filtered = media.filter((m) => m.title.toLowerCase().indexOf(debouncedFilteredText.toLowerCase()) >= 0)
-      const filteredMedia = filtered.slice(0, 50).map((m) => createMediaCard(m, mediaType))
-      setCards(filteredMedia)
-  }, [debouncedFilteredText, media, mediaType])
+    initializeCards()
+  }, [debouncedFilteredText, media])
 
   if (invalidPage) {
     return <Redirect from={`/library/${tag}`} to="/404" />
   }
+
   if (!library) {
     return (
       <Grid sx={{pt: 9}} container>
@@ -98,12 +110,13 @@ const Library = () => {
       </Grid>
     )
   }
+
   return (
     <Box sx={{pt: 3, flexGrow: 1}}>
       { cards &&
         <Grid container item justifyContent="center">
           <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
-            <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" onChange={filterHandler} />
+            <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" value={filteredText} onChange={filterHandler} />
           </Paper>
         </Grid>
       }

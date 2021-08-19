@@ -29,8 +29,9 @@ async function findOrCreateSeason(seriesId, season, tmdbSeason) {
   let localPath
   if (tmdbSeason) {
     localPath = await downloadImage(tmdbSeason.poster_path, 'w342')
+    console.log(localPath)
   }
-  return (await Season.findOrCreate({
+  const seasonRow = (await Season.findOrCreate({
     where: {
       seriesId,
       season,
@@ -41,7 +42,14 @@ async function findOrCreateSeason(seriesId, season, tmdbSeason) {
       tmdb_poster_path: tmdbSeason ? tmdbSeason.poster_path : null,
       local_poster_path: localPath ? localPath.split('/').pop() : null
     }
-  }))[0]
+  }))
+  // if we are updating and not creating
+  if (!seasonRow[1]) {
+    seasonRow[0].tmdb_poster_path = tmdbSeason ? tmdbSeason.poster_path : null
+    seasonRow[0].local_poster_path = localPath ? localPath.split('/').pop() : null
+    seasonRow[0].save()
+  }
+  return seasonRow[0]
 }
 
 function getSeasonNumberFromSeasonDir(seasonDir) {
@@ -93,68 +101,75 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
 
       const seasonNumber = getSeasonNumberFromSeasonDir(seasonDir)
       try {
-        const tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
-        for (let episode of episodeFiles) {
-          const { ext } = path.parse(episode)
-          if (VALID_EXTENSIONS.indexOf(ext) === -1) continue // not a valid video file
+        if (series.Metadatum) {
+          const tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
+          for (let episode of episodeFiles) {
+            const { ext } = path.parse(episode)
+            if (VALID_EXTENSIONS.indexOf(ext) === -1) continue // not a valid video file
 
-          const filenameNoExtension = path.parse(episode).name
-          const seasonEpisodeParse = filenameNoExtension.match(/[sS]([0-9]+|[0-9]+)[eE]([0-9]+|[0-9]+)/)
-          if (seasonEpisodeParse) {
-            const episodeNumber = Number(seasonEpisodeParse[2])
-            const episodeTitleSplit = filenameNoExtension.toLowerCase().split(` - ${seasonEpisodeParse[0].toLowerCase()} - `)
-            let episodeTitle = ''
-            if (episodeTitleSplit.length === 2) {
-              episodeTitle = episodeTitleSplit[1]
-            }
-
-            const tmdbSeasonData = seasonData ? seasonData.find((s) => s.season_number === seasonNumber) : null
-            const tmdbEpisodeData = tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber)
-            const seasonRow = await findOrCreateSeason(series.id, seasonNumber, tmdbSeasonData)
-
-            let episodeRow = await Episode.findOne({
-              where: {
-                seasonId: seasonRow.id,
-                episode_number: episodeNumber
+            const filenameNoExtension = path.parse(episode).name
+            const seasonEpisodeParse = filenameNoExtension.match(/[sS]([0-9]+|[0-9]+)[eE]([0-9]+|[0-9]+)/)
+            if (seasonEpisodeParse) {
+              const episodeNumber = Number(seasonEpisodeParse[2])
+              const episodeTitleSplit = filenameNoExtension.toLowerCase().split(` - ${seasonEpisodeParse[0].toLowerCase()} - `)
+              let episodeTitle = ''
+              if (episodeTitleSplit.length === 2) {
+                episodeTitle = episodeTitleSplit[1]
               }
-            })
-            if (!episodeRow) {
-              const stillPath = tmdbEpisodeData ? tmdbEpisodeData.still_path ? await downloadImage(tmdbEpisodeData.still_path, 'w300') : null : null
-              await Episode.create({
-                seriesId: series.id,
-                seasonId: seasonRow.id,
-                tmdbId: tmdbEpisodeData ? tmdbEpisodeData.id : null,
-                filename: episode,
-                name: tmdbEpisodeData ? tmdbEpisodeData.name : null,
-                overview: tmdbEpisodeData ? tmdbEpisodeData.overview : null,
-                tmdb_still_path: tmdbEpisodeData ? tmdbEpisodeData.still_path : null,
-                local_still_path: stillPath ? stillPath.split('/').pop() : null,
-                air_date: tmdbEpisodeData ? tmdbEpisodeData.air_date : null,
-                season_number: seasonNumber,
-                episode_number: episodeNumber,
-                tmdb_rating: tmdbEpisodeData ? tmdbEpisodeData.vote_average : null,
-              })
-              episodeRow = await Episode.findOne({
-                where: { seasonId: seasonRow.id, episode_number: episodeNumber }
-              })
-            }
 
-            // On main crawl, only probe non-existen. 
-            // There will be a function later for refreshing probe data in case of file changes
-            if (!episodeRow.file_probe_data) {
-              logger.stream.write(`probing file data -- ${episode}`)
+              const tmdbSeasonData = seasonData ? seasonData.find((s) => s.season_number === seasonNumber) : null
+              const tmdbEpisodeData = tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber)
+              const seasonRow = await findOrCreateSeason(series.id, seasonNumber, tmdbSeasonData)
+
+              let episodeRow = await Episode.findOne({
+                where: {
+                  seasonId: seasonRow.id,
+                  episode_number: episodeNumber
+                }
+              })
+              if (!episodeRow) {
+                const stillPath = tmdbEpisodeData ? tmdbEpisodeData.still_path ? await downloadImage(tmdbEpisodeData.still_path, 'w300') : null : null
+                await Episode.create({
+                  seriesId: series.id,
+                  seasonId: seasonRow.id,
+                  tmdbId: tmdbEpisodeData ? tmdbEpisodeData.id : null,
+                  filename: episode,
+                  name: tmdbEpisodeData ? tmdbEpisodeData.name : null,
+                  overview: tmdbEpisodeData ? tmdbEpisodeData.overview : null,
+                  tmdb_still_path: tmdbEpisodeData ? tmdbEpisodeData.still_path : null,
+                  local_still_path: stillPath ? stillPath.split('/').pop() : null,
+                  air_date: tmdbEpisodeData ? tmdbEpisodeData.air_date : null,
+                  season_number: seasonNumber,
+                  episode_number: episodeNumber,
+                  tmdb_rating: tmdbEpisodeData ? tmdbEpisodeData.vote_average : null,
+                })
+                episodeRow = await Episode.findOne({
+                  where: { seasonId: seasonRow.id, episode_number: episodeNumber }
+                })
+              }
+
+              // On main crawl, only probe non-existen. 
+              // There will be a function later for refreshing probe data in case of file changes
+              if (!episodeRow.file_probe_data) {
+                logger.stream.write(`probing file data -- ${episode}`)
+                if (wss) {
+                  wss.broadcast(`\tprobing file data -- ${episode}`)
+                }
+                const probeData = await probe(path.join(library.path, series.name, seasonDir, episode))
+                episodeRow.file_probe_data = probeData
+                episodeRow.save()
+              }
+            } else {
+              logger.error(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
               if (wss) {
-                wss.broadcast(`\tprobing file data -- ${episode}`)
+                wss.broadcast(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
               }
-              const probeData = await probe(path.join(library.path, series.name, seasonDir, episode))
-              episodeRow.file_probe_data = probeData
-              episodeRow.save()
             }
-          } else {
-            logger.error(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
-            if (wss) {
-              wss.broadcast(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
-            }
+          }
+        } else {
+          logger.stream.write(`No metadata found for: ${series.name}`)
+          if (wss) {
+            wss.broadcast(`No metadata found for: ${series.name}`)
           }
         }
       } catch (err) {
@@ -175,6 +190,30 @@ service.getSeriesByUuid = async (uuid) => {
       include: [{ model: Metadata }, { model: Season, include: [Episode] }]
     })
     return series
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getSeriesSeason = async (uuid, season) => {
+  try {
+    const series = await Series.findOne({
+      where: { uuid },
+      include: [Metadata]
+    })
+    if (series) {
+      const seasonData = await Season.findOne({
+        where: { seriesId: series.id, season },
+        include: [Episode]
+      })
+      if (seasonData && !seasonData.local_poster_path) {
+        if (series.Metadatum)
+        seasonData.local_poster_path = series.Metadatum.local_poster_path
+      }
+      return seasonData
+    } else {
+      throw new Error(`Could not find series for uuid: ${uuid}`)
+    }
   } catch (err) {
     throw err
   }
@@ -297,8 +336,8 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
         await sleep(500)
         if (search.results.length > 0) {
           const details = await getTv(search.results[0].id)
-          seasonData = details.seasons
           if (details) {
+            seasonData = details.seasons
             // logger.stream.write('download image')
             const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
             const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null

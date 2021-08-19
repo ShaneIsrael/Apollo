@@ -282,6 +282,7 @@ async function createMediaYearsStats() {
     attributes: ['release_date']
   }))
   for (const meta of mdatas) {
+    if (!meta.release_date) continue
     const year = Number(meta.release_date.split('-')[0])
     if (year < 1900) continue
     if (myears[year]) {
@@ -300,6 +301,7 @@ async function createMediaYearsStats() {
     attributes: ['release_date']
   }))
   for (const meta of sdatas) {
+    if (!meta.release_date) continue
     const year = Number(meta.release_date.split('-')[0])
     if (year < 1900) continue
     if (syears[year]) {

@@ -1,5 +1,6 @@
 import React from 'react'
 import Card from '@material-ui/core/Card'
+import { NavLink } from 'react-router-dom'
 import CardMedia from '@material-ui/core/CardMedia'
 import { CardActionArea, Box } from '@material-ui/core'
 import { styled } from '@material-ui/core/styles'
@@ -14,14 +15,14 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }))
 
 const SeasonCoverCard = (props) => {
-  const { cover, season, 
-    // episodes, 
-    width, height } = props
+  const { cover, seriesUuid, season, width, height } = props
   return (
     <>
       <Card sx={{ maxWidth: width, minWidth: width }}>
         <CardActionArea>
           <CardMedia
+            component={NavLink} 
+            to={`/series/${seriesUuid}/season/${season}`}
             sx={{ height: height, 
             }}
             image={getImagePath(`/api/v1/image/${cover}`)}
