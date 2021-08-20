@@ -427,7 +427,7 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 5 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 5}}>
         {childrenWithProps}
       </Box>
     </Box>

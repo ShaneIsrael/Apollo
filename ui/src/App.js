@@ -101,17 +101,17 @@ export default function App() {
                   <Library />
                 </Navigation>
               </Route>
-              <Route exact path="/series/:uuid">
+              <Route exact path="/series/:id">
                 <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut} user={user}>
                   <Series />
                 </Navigation>
               </Route>
-              <Route exact path="/series/:uuid/season/:season">
+              <Route exact path="/series/:id/season/:season">
                 <Navigation defaultLibraries={libraries} toggleTheme={handleToggleTheme} title="Series View" logout={logOut} user={user}>
                   <Season />
                 </Navigation>
               </Route>
-              <Route exact path="/movie/:uuid">
+              <Route exact path="/movie/:id">
                 <Navigation defaultLibraries={libraries} oggleTheme={handleToggleTheme} title="Movie View" logout={logOut} user={user}>
                   <Movie />
                 </Navigation>

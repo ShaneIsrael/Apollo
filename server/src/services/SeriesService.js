@@ -29,7 +29,6 @@ async function findOrCreateSeason(seriesId, season, tmdbSeason) {
   let localPath
   if (tmdbSeason) {
     localPath = await downloadImage(tmdbSeason.poster_path, 'w342')
-    console.log(localPath)
   }
   const seasonRow = (await Season.findOrCreate({
     where: {
@@ -103,6 +102,7 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
       try {
         if (series.Metadatum) {
           const tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
+          console.log(tmdbSeasonMeta.episodes)
           for (let episode of episodeFiles) {
             const { ext } = path.parse(episode)
             if (VALID_EXTENSIONS.indexOf(ext) === -1) continue // not a valid video file
@@ -116,7 +116,7 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
               if (episodeTitleSplit.length === 2) {
                 episodeTitle = episodeTitleSplit[1]
               }
-
+              console.log(tmdbSeasonMeta.episodes)
               const tmdbSeasonData = seasonData ? seasonData.find((s) => s.season_number === seasonNumber) : null
               const tmdbEpisodeData = tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber)
               const seasonRow = await findOrCreateSeason(series.id, seasonNumber, tmdbSeasonData)
@@ -127,8 +127,8 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
                   episode_number: episodeNumber
                 }
               })
+              const stillPath = tmdbEpisodeData ? tmdbEpisodeData.still_path ? await downloadImage(tmdbEpisodeData.still_path, 'w300') : null : null
               if (!episodeRow) {
-                const stillPath = tmdbEpisodeData ? tmdbEpisodeData.still_path ? await downloadImage(tmdbEpisodeData.still_path, 'w300') : null : null
                 await Episode.create({
                   seriesId: series.id,
                   seasonId: seasonRow.id,
@@ -146,6 +146,18 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
                 episodeRow = await Episode.findOne({
                   where: { seasonId: seasonRow.id, episode_number: episodeNumber }
                 })
+              } else {
+                episodeRow.seasonId = seasonRow.id
+                episodeRow.tmdbId = tmdbEpisodeData ? tmdbEpisodeData.id : null
+                episodeRow.filename = episode
+                episodeRow.name = tmdbEpisodeData ? tmdbEpisodeData.name : null
+                episodeRow.overview = tmdbEpisodeData ? tmdbEpisodeData.overview : null
+                episodeRow.tmdb_still_path = tmdbEpisodeData ? tmdbEpisodeData.still_path : null
+                episodeRow.local_still_path = stillPath ? stillPath.split('/').pop() : null
+                episodeRow.air_date = tmdbEpisodeData ? tmdbEpisodeData.air_date : null
+                episodeRow.season_number = seasonNumber
+                episodeRow.tmdb_rating = tmdbEpisodeData ? tmdbEpisodeData.vote_average : null
+                episodeRow.save()
               }
 
               // On main crawl, only probe non-existen. 
@@ -183,6 +195,18 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
   resolve()
 })
 
+service.getSeriesById = async (id) => {
+  try {
+    const series = await Series.findOne({
+      where: { id },
+      include: [{ model: Metadata }, { model: Season, include: [Episode] }]
+    })
+    return series
+  } catch (err) {
+    throw err
+  }
+}
+
 service.getSeriesByUuid = async (uuid) => {
   try {
     const series = await Series.findOne({
@@ -195,10 +219,10 @@ service.getSeriesByUuid = async (uuid) => {
   }
 }
 
-service.getSeriesSeason = async (uuid, season) => {
+service.getSeriesSeason = async (seriesId, season) => {
   try {
     const series = await Series.findOne({
-      where: { uuid },
+      where: { id: seriesId },
       include: [Metadata]
     })
     if (series) {
@@ -208,7 +232,7 @@ service.getSeriesSeason = async (uuid, season) => {
       })
       if (seasonData && !seasonData.local_poster_path) {
         if (series.Metadatum)
-        seasonData.local_poster_path = series.Metadatum.local_poster_path
+          seasonData.local_poster_path = series.Metadatum.local_poster_path
       }
       return seasonData
     } else {

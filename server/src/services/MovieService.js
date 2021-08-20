@@ -35,6 +35,18 @@ const getFiles = source =>
     .filter(dirent => !dirent.isDirectory())
     .map(dirent => dirent.name)
 
+service.getMovieById = async (id) => {
+  try {
+    const movie = await Movie.findOne({
+      where: { id },
+      include: [Metadata]
+    })
+    return movie
+  } catch (err) {
+    throw err
+  }
+}
+
 service.getMovieByUuid = async (uuid) => {
   try {
     const movie = await Movie.findOne({

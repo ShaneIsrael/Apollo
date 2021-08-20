@@ -8,15 +8,15 @@ import Image from 'material-ui-image'
 
 
 const MediaCard = (props) => {
-  const { data, type} = props
+  const { data, alt, type} = props
 
   return (
     <>
       <Card sx={{ maxWidth: 200, minWidth: 200 }}>
         <CardActionArea component={NavLink} 
-            to={`/${type}/${data.uuid}`}>
+            to={`/${type}/${type === 'series' ? data.seriesId : data.movieId}`}>
           <Image
-            src={data.poster ? getImagePath(`/api/v1/image/${data.poster}`) : ''}
+            src={data.poster ? getImagePath(`/api/v1/image/${data.poster}`) : alt}
             style={{height: 300}}
             aspectRatio={(16/9)}
             color="#121212"

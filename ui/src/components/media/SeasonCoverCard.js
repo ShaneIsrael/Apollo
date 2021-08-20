@@ -2,7 +2,7 @@ import React from 'react'
 import Card from '@material-ui/core/Card'
 import { NavLink } from 'react-router-dom'
 import CardMedia from '@material-ui/core/CardMedia'
-import { CardActionArea, Box } from '@material-ui/core'
+import { CardActionArea, Box, Grid } from '@material-ui/core'
 import { styled } from '@material-ui/core/styles'
 import { getImagePath } from '../utils'
 
@@ -15,15 +15,19 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }))
 
 const SeasonCoverCard = (props) => {
-  const { cover, seriesUuid, season, width, height } = props
+  const { cover, seriesId, season, width, height } = props
   return (
     <>
-      <Card sx={{ maxWidth: width, minWidth: width }}>
+      <Card sx={{
+        maxWidth: width, minWidth: width,
+        borderColor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black', borderWidth: '2px'
+      }} variant="outlined">
         <CardActionArea>
           <CardMedia
-            component={NavLink} 
-            to={`/series/${seriesUuid}/season/${season}`}
-            sx={{ height: height, 
+            component={NavLink}
+            to={`/series/${seriesId}/season/${season}`}
+            sx={{
+              height: height,
             }}
             image={getImagePath(`/api/v1/image/${cover}`)}
             title={"title"}
@@ -33,9 +37,11 @@ const SeasonCoverCard = (props) => {
           </CardMedia>
         </CardActionArea>
       </Card>
-      <Box sx={{pt: 1, fontSize: 14, fontWeight: 'bold'}}>
-        {season === 0 ? 'Specials' : `Season ${season}`}
-      </Box>
+      <Grid container justifyContent="center">
+        <Box sx={{ pt: 1, fontSize: 14, fontWeight: 'bold' }}>
+          {season === 0 ? 'Specials' : `Season ${season}`}
+        </Box>
+      </Grid>
     </>
   )
 }

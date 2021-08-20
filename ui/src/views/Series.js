@@ -7,22 +7,21 @@ import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
-
 // blurred-texture-background02
 
 const Series = () => {
-  const { uuid } = useParams()
+  const { id } = useParams()
   const [series, setSeries] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
   const history = useHistory()
 
   React.useEffect(() => {
     async function fetch() {
-      const resp = (await SeriesService.getByUuid(uuid)).data
+      const resp = (await SeriesService.getById(id)).data
       setSeries(resp)
     }
     fetch()
-  }, [uuid])
+  }, [id])
 
   const handleFixMatch = () => {
     setFixMatchOpen(true)
@@ -65,8 +64,8 @@ const Series = () => {
         top: 405,
         left: 0,
         right: 0,
-        backgroundImage: (theme) => theme.palette.mode === 'dark' ? `url("${background}")` : '',
-        backgroundSize: 'cover', width: '100%', height: '100vh',
+        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
+        backgroundSize: '100% 100%', width: '100%', height: '100vh',
         filter: 'brightness(35%)',
         // filter: 'opacity(35%)'
       }} />
@@ -136,7 +135,7 @@ const Series = () => {
             <Box sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto' }}>
               <Grid container spacing={2} justifyContent="center">
                 {
-                  series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard seriesUuid={uuid} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
+                  series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard seriesId={id} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
                 }
               </Grid>
             </Box>

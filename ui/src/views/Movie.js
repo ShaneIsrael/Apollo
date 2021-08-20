@@ -9,18 +9,18 @@ import { getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 
 const Movie = () => {
-  const { uuid } = useParams()
+  const { id } = useParams()
   const [movie, setMovie] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
   const history = useHistory()
 
   React.useEffect(() => {
     async function fetch() {
-      const resp = (await MovieService.getByUuid(uuid)).data
+      const resp = (await MovieService.getById(id)).data
       setMovie(resp)
     }
     fetch()
-  }, [uuid])
+  }, [id])
 
   const handleFixMatch = () => {
     setFixMatchOpen(true)

@@ -1,4 +1,5 @@
 const {
+  getMovieById,
   getMovieByUuid,
   changeMovieMetadata,
   searchMovieById,
@@ -7,6 +8,7 @@ const {
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 
 module.exports = (app) => {
+  app.get('/api/v1/movie', verifyStandard, getMovieById),
   app.get('/api/v1/movie/uuid', verifyStandard, getMovieByUuid),
   app.get('/api/v1/movie/search/:id/:amount', verifyStandard, searchMovieById)
   app.get('/api/v1/movie/search/:title', verifyStandard, searchMovieByTitle)
