@@ -2,6 +2,13 @@
 import Api from './Api'
 
 export default {
+  getById(id) {
+    return Api().get('/api/v1/movie', {
+      params: {
+        id
+      }
+    })
+  },
   getByUuid(uuid) {
     return Api().get('/api/v1/movie/uuid', {
       params: {

@@ -111,6 +111,7 @@ controller.getAllLibrarySeries = async (req, res, next) => {
     for(const series of library.Series) {
       media.push({
         id: `${library.tag}-${series.id}`,
+        seriesId: series.id,
         uuid: series.uuid,
         title: series.name,
         metaTitle: series.Metadatum ? series.Metadatum.name : null,
@@ -131,6 +132,7 @@ controller.getAllLibraryMovies = async (req, res, next) => {
     for(const movie of library.Movies) {
       media.push({
         id: `${library.tag}-${movie.id}`,
+        movieId: movie.id,
         uuid: movie.uuid,
         title: movie.name,
         metaTitle: movie.Metadatum ? movie.Metadatum.name : null,

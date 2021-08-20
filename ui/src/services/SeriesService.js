@@ -2,6 +2,13 @@
 import Api from './Api'
 
 export default {
+  getById(id) {
+    return Api().get('/api/v1/series', {
+      params: {
+        id
+      }
+    })
+  },
   getByUuid(uuid) {
     return Api().get('/api/v1/series/uuid', {
       params: {
@@ -9,8 +16,8 @@ export default {
       }
     })
   },
-  getSeasonAndEpisodes(uuid, season) {
-    return Api().get(`/api/v1/series/${uuid}/season/${season}`)
+  getSeasonAndEpisodes(seriesId, season) {
+    return Api().get(`/api/v1/series/${seriesId}/season/${season}`)
   },
   searchById(id, amount) {
     return Api().get(`/api/v1/series/search/${id}/${amount}`)

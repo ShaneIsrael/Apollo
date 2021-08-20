@@ -4,11 +4,12 @@ import { useParams, Redirect } from 'react-router-dom'
 import { MediaCard, Loading } from '../components'
 import { LibraryService } from '../services'
 import { useDebounce } from '../components/utils'
+import match_not_found from '../assets/match_not_found.png'
 
 function createMediaCard(media, type) {
   return (
     <Grid key={media.uuid} item>
-      <MediaCard data={media} type={type} />
+      <MediaCard data={media} alt={match_not_found} type={type} />
     </Grid>
   )
 }
