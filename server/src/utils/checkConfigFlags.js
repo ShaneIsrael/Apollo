@@ -1,4 +1,5 @@
 const { Library } = require('../database/models')
+const logger = require('../logger')
 
 module.exports = {
   check: async (userConfig) => {
@@ -9,7 +10,7 @@ module.exports = {
           { where: { crawling: true  }}
         )
       }
-      console.log('...user config checks, done.')
+      logger.info('...user config checks, done.')
     } catch (err) {
       throw err
     }

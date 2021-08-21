@@ -5,7 +5,6 @@ const { getSeriesById, searchSeriesById, searchSeriesByTitle, getSeriesByUuid, c
 const controller = {}
 
 controller.getSeriesById = async (req, res, next) => {
-  console.log('test')
   try {
     const result = await getSeriesById(req.query.id)
     return res.status(200).send(result)

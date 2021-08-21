@@ -33,7 +33,6 @@ const LoginForm = ({setUser, forwardPage, prelabel}) => {
     }
   }
 
-  console.log(prelabel)
   return (
     <Box sx={{ flexGrow: 1, p: 2, width: '100%' }}>
       <Grid container justifyContent="center" sx={{ pt: 2 }}>

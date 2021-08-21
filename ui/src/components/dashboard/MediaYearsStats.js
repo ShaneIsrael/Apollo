@@ -4,7 +4,6 @@ import { Grid as ChartGrid } from 'devextreme-react/chart'
 import { Typography, Grid, Paper } from '@material-ui/core';
 
 const customizeTooltip = (arg) => {
-  // console.log(arg)
   return {
     text: `You have ${arg.valueText} ${arg.seriesName === 'Movie' ? 'Movie(s)' : 'Series'} from ${arg.argumentText}`
   };

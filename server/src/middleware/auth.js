@@ -1,7 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const jwt = require("jsonwebtoken");
-const { User, Config } = require('../database/models')
+const { User, Config } = require('../database/models');
+const logger = require('../logger');
 
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
 let userConfig
@@ -33,6 +34,7 @@ const verifyAdmin = async (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
+    logger.warn(err)
     return res.status(401).send("Invalid Authorization Token")
   }
 }
@@ -53,7 +55,7 @@ const verifyStandard = async (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
-    console.log(err)
+    logger.warn(err)
     return res.status(401).send("Invalid Authorization Token")
   }
 }

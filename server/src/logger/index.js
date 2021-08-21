@@ -9,7 +9,7 @@ const options = {
     level: 'info',
     filename: path.join(config.appdata, config.logsDir, '/apollo.info.log'),
     handleExceptions: true,
-    json: true,
+    json: false,
     maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
@@ -19,7 +19,7 @@ const options = {
     level: 'error',
     filename: path.join(config.appdata, config.logsDir, '/apollo.errors.log'),
     handleExceptions: true,
-    json: true,
+    json: false,
     maxsize: 5242880, // 5MB
     maxFiles: 5,
     colorize: false,
@@ -35,7 +35,7 @@ const options = {
 }
 
 const devTransports = [
-  new transports.Console(options.console),
+  new transports.Console(options.console)
 ]
 
 const prodTransports = [

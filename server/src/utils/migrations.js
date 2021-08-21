@@ -1,6 +1,7 @@
 const path = require('path')
 const { Sequelize } = require('sequelize')
 const { Umzug, SequelizeStorage } = require('umzug')
+const logger = require('../logger/index.js')
 
 module.exports = {
   run: async (config, ENVIRONMENT) => {
@@ -21,7 +22,7 @@ module.exports = {
       })
       
       await umzug.up()
-      console.log('...database checks, done.')
+      logger.info('...database checks, done.')
 
     } catch (err) {
       throw err
