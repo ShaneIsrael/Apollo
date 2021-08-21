@@ -4,6 +4,7 @@ import { useParams, Redirect } from 'react-router-dom'
 import { MediaCard, Loading } from '../components'
 import { LibraryService } from '../services'
 import { useDebounce } from '../components/utils'
+import background from '../assets/blurred-background-01.png'
 import match_not_found from '../assets/match_not_found.png'
 
 function createMediaCard(media, type) {
@@ -30,7 +31,8 @@ const Library = () => {
   const [mediaType, setMediaType] = React.useState(null)
   const [library, setLibrary] = React.useState(null)
   const [invalidPage, setInvalidPage] = React.useState(false)
-  
+
+  const [scrollRef, setScrollRef] = React.useState(null)
   const [scrollPosition, setScrollPosition] = React.useState(null)
 
   function initializeCards() {
@@ -53,14 +55,16 @@ const Library = () => {
 
   React.useEffect(() => {
     const onScroll = e => {
-      if (e.target.documentElement.scrollTop >= scrollPosition) {
-        setScrollPosition(e.target.documentElement.scrollTop)
-        setCardDisplayAmount(50 + Math.round(e.target.documentElement.scrollTop / 50))
+      if (e.target.scrollTop >= scrollPosition) {
+        setScrollPosition(e.target.scrollTop)
+        setCardDisplayAmount(50 + Math.round(e.target.scrollTop / 50))
       }
     }
-    window.addEventListener("scroll", onScroll)
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [scrollPosition])
+    if (scrollRef) {
+      scrollRef.addEventListener("scroll", onScroll)
+      return () => scrollRef.removeEventListener("scroll", onScroll)
+    }
+  }, [scrollPosition, scrollRef])
 
   React.useEffect(() => {
     async function fetch() {
@@ -90,9 +94,9 @@ const Library = () => {
 
   React.useEffect(() => {
     filterAndSetCards()
-  }, 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  [debouncedCardDisplayAmount])
+  },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [debouncedCardDisplayAmount])
 
   React.useEffect(() => {
     initializeCards()
@@ -104,8 +108,8 @@ const Library = () => {
 
   if (!library) {
     return (
-      <Grid sx={{pt: 9}} container>
-        <Grid sx={{ height: '50vh '}} container item justifyContent="center" alignItems="center">
+      <Grid sx={{ pt: 9 }} container>
+        <Grid sx={{ height: '50vh ' }} container item justifyContent="center" alignItems="center">
           <Loading disableShrink size={100} />
         </Grid>
       </Grid>
@@ -113,26 +117,38 @@ const Library = () => {
   }
 
   return (
-    <Box sx={{pt: 3, flexGrow: 1}}>
-      { cards &&
-        <Grid container item justifyContent="center">
-          <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600 }}>
-            <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" value={filteredText} onChange={filterHandler} />
-          </Paper>
-        </Grid>
-      }
-      <Grid sx={{ pt: 9 }} container>
-        {cards.length === 0 ?
-          <Grid sx={{ height: '50vh' }} container justifyContent="center" alignItems="center" item>
-            <Loading size={100} />
-          </Grid>
-          :
-          <Grid container justifyContent="center" item spacing={2}>
-            {cards}
+    <>
+      <Box sx={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
+        backgroundSize: '100% 100%', width: '100%', height: '100vh',
+        filter: 'brightness(35%)',
+        // filter: 'opacity(35%)'
+      }} />
+      <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 3, flexGrow: 1, maxHeight: '97vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+        {cards &&
+          <Grid container item justifyContent="center">
+            <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600, opacity: '95%' }}>
+              <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" value={filteredText} onChange={filterHandler} />
+            </Paper>
           </Grid>
         }
-      </Grid>
-    </Box>
+        <Grid sx={{ pt: 9 }} container>
+          {cards.length === 0 ?
+            <Grid sx={{ height: '50vh' }} container justifyContent="center" alignItems="center" item>
+              <Loading size={100} />
+            </Grid>
+            :
+            <Grid container justifyContent="center" item spacing={2}>
+              {cards}
+            </Grid>
+          }
+        </Grid>
+      </Box>
+    </>
   )
 }
 

@@ -6,7 +6,7 @@ import logo_light from '../assets/logo_vertical_light.png'
 const About = ({theme}) => {
   return (
     <>
-      <Grid container sx={{ p: 4, width: '100%' }} spacing={2}>
+      <Grid container sx={{ p: 4, width: '100%' }} justifyContent="center" spacing={2}>
         <Grid container item xs={12} justifyContent="center">
           <Grid container item justifyContent="center" xs={12}>
             <img src={theme === 'dark' ? logo_light : logo_dark} height={275} />
@@ -28,14 +28,14 @@ const About = ({theme}) => {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container sx={{ p: 4, width: '100%' }}>
+      <Grid container sx={{ width: '100%' }}>
         <Grid container item xs={12} justifyContent="center">
           <Typography variant="body1" sx={{fontWeight: 'lighter', fontSize: 32}} color="primary">
             CREDITS
           </Typography>
         </Grid>
         <Grid container item xs={12} justifyContent="center" >
-          <Typography variant="subtitle2" sx={{ mb: 2 }}>
+          <Typography variant="subtitle2" sx={{ mb: 2, pl: 2, pr: 2 }}>
             <Divider sx={{ mb: 2, }} />
             This product uses the TMDb API but is not endorsed or certified by TMDb.
           </Typography>

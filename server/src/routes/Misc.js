@@ -14,7 +14,7 @@ if (ENVIRONMENT === 'production') {
 }
 
 module.exports = (app) => {
-  app.get('/api/v1/image/:id', verifyStandard, serveImage)
+  app.get('/api/v1/image/:id', serveImage)
   
   app.post('/api/v1/register', async (req, res, next) => {
     try {
