@@ -4,6 +4,7 @@ const util = require("util")
 const getFolderSize = util.promisify(require("get-folder-size"))
 
 const { Stats, Metadata, Series, Movie, MovieFile, Season, Episode, Library, Op } = require('../database/models')
+const { existsSync, lstatSync } = require('fs')
 
 function calculateDuration(duration) {
   if (duration) {
@@ -346,11 +347,16 @@ async function createLibraryFolderSizeStats() {
       const libraryFolders = library.Movies.length > 0 ? library.Movies : library.Series
       for (const folder of libraryFolders) {
         const path = `${library.path}/${folder.name}`
-        const size = await getFolderSize(path)
-        libraryStat.items.push({
-          value: (size / 1000 / 1000).toFixed(2),
-          name: folder.name
-        })
+        const valid = existsSync(path) && lstatSync(path).isDirectory()
+        if (valid) {
+          const size = await getFolderSize(path)
+          libraryStat.items.push({
+            value: (size / 1000 / 1000).toFixed(2),
+            name: folder.name
+          })
+        } else {
+          logger.warn(`stats - createLibraryFolderSizeStats() - directory does not exist: ${path}`)
+        }
       }
       libraryDataStats.push(libraryStat)
     }
