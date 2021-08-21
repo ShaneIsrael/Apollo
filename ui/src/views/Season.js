@@ -52,7 +52,6 @@ const Season = () => {
   const [series, setSeries] = React.useState(null)
   const [rating, setRating] = React.useState(null)
 
-  console.log(seasonData)
   React.useEffect(() => {
     async function fetch() {
       try {

@@ -4,8 +4,13 @@ const { existsSync, lstatSync } = require('fs')
 const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, 
   deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
   crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
-const { Library } = require('../database/models'
-)
+
+const Observer = require('../services/Observer')
+const observer = new Observer()
+
+const { Library } = require('../database/models')
+const logger = require('../logger')
+
 const controller = {}
 
 function calculateDuration(duration) {
@@ -25,6 +30,41 @@ function validatePath(path) {
     return next(err)
   }
 }
+
+async function initializeLibraryObserver() {
+  
+  const libraries = await getLibraries()
+  logger.info(`Library Observer initialized, watching ${libraries.length} libraries`)
+
+  if (libraries.length > 0) {
+    observer.on('file-added', data => {
+      logger.info(`file-added -> ${data.path}`)
+    })
+    observer.on('file-deleted', data => {
+      logger.info(`file-deleted -> ${data.path}`)
+    })
+    observer.on('dir-added', data => {
+      logger.info(`dir-added -> ${data.path}`)
+    })
+    observer.on('dir-deleted', data => {
+      logger.info(`dir-deleted -> ${data.path}`)
+    })
+    observer.on('change', data => {
+      logger.info(`change -> ${data.path}`)
+    })
+    observer.watchFolder(libraries.map(library => library.path))
+    
+  }
+}
+
+controller.initializeLibraryObserver = async () => {
+  try {
+    await initializeLibraryObserver()
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 controller.getLibraries = async (req, res, next) => {
   try {
     const result = await getLibraries()
@@ -71,6 +111,8 @@ controller.createLibrary = async (req, res, next) => {
       if (type === 'series')
         crawlSeries(result.id, req.app.get('wss'))
     }
+    
+    initializeLibraryObserver()
 
     return res.status(200).send(result)
   } catch (err) {

@@ -240,10 +240,6 @@ export default function Navigation(props) {
     setOpen(false);
   }
 
-  const gotoDashboard = () => {
-    console.log('test')
-  }
-
   const handleSearchTextChange = (e) => {
     setNavSearchText(e.target.value)
   }

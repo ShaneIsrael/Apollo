@@ -11,6 +11,7 @@ const migrations = require('./utils/migrations')
 const configFlags = require('./utils/checkConfigFlags')
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const config = require('./config')[ENVIRONMENT]
+const { initializeLibraryObserver } = require('./controllers')
 
 async function main() {
   let userConfig
@@ -147,5 +148,6 @@ async function main() {
     require('child_process').exec(start + ' ' + `http://localhost:${port}`)
   }
   
+  initializeLibraryObserver()
 }
 main()

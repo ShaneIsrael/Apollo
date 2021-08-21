@@ -8,6 +8,7 @@ const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-s
 const { VALID_EXTENSIONS } = require('../constants')
 const { searchMovie, getMovie, downloadImage } = require('./TmdbService')
 const { Library, Movie, Metadata, MovieFile } = require('../database/models')
+const logger = require('../logger')
 
 const service = {}
 
@@ -167,7 +168,6 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
         if (search.results.length > 0) {
           const details = await getMovie(search.results[0].id)
           if (details) {
-            // console.log('download image')
             const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
             const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
             const meta = (await Metadata.findOrCreate({
@@ -192,7 +192,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
       }
       const files = getFiles(path.resolve(library.path, movie[0].name))
       for (const file of files) {
-        console.log(`\tchecking ${file}`)
+        logger.info(`\tchecking ${file}`)
         const { ext } = path.parse(file)
         if (VALID_EXTENSIONS.indexOf(ext) === -1) continue
         const fileRow = (await MovieFile.findOrCreate({

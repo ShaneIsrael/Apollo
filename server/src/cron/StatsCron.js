@@ -378,8 +378,6 @@ async function start() {
       createGeneralLibraryStats().catch(err => logger.error(err))
       createLibraryFolderSizeStats().catch(err => logger.error(err))
     })
-    // console.log('creating')
-    // createMediaYearsStats().catch(err => logger.error(err))
   } catch (err) {
     logger.error(err)
   }
