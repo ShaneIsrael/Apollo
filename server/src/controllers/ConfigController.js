@@ -22,7 +22,7 @@ controller.saveConfig = async (req, res, next) => {
         where: { role: 'admin' }
       })
       if (!admin) {
-        return res.status(409).send('An Admin Account is required in order to Enable Admin')
+        return res.status(409).send('An Admin account is required in order to Enable Admin')
       }
     }
     if (restrictAccess) {
