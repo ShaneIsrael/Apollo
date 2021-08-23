@@ -246,7 +246,7 @@ export default function Navigation(props) {
 
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child, { libraries, setLibraries })
+      return React.cloneElement(child, { libraries, setLibraries, sidebarOpen: open })
     }
     return child
   })
@@ -254,7 +254,7 @@ export default function Navigation(props) {
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar position="fixed" open={open}>
-        <Toolbar variant="dense">
+        <Toolbar variant="dense" sx={{ backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff', }}>
           <IconButton
             color="inherit"
             aria-label="open drawer"
@@ -265,14 +265,14 @@ export default function Navigation(props) {
               ...(open && { display: 'none' }),
             }}
           >
-            <MenuIcon />
+            <MenuIcon sx={{ color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }} />
           </IconButton>
           <img src={logo} style={{ height: 35, paddingRight: 10 }} />
           <Typography
             variant="h6"
             noWrap
             component="div"
-            sx={{ flex: 1, display: { xs: 'block', sm: 'block' } }}
+            sx={{ flex: 1, display: { xs: 'block', sm: 'block' }, color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }}
           >
             {title}
           </Typography>
@@ -304,7 +304,7 @@ export default function Navigation(props) {
           >
             Some Search Text Goes Here
           </Popover> */}
-          <Box sx={{pl: 1 }}>
+          <Box sx={{ pl: 1 }}>
             <IconButton
               size="large"
               edge="end"
@@ -313,10 +313,10 @@ export default function Navigation(props) {
               onClick={toggleTheme}
               color="inherit"
             >
-              {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon />}
+              {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon sx={{ color: 'rgba(0, 0, 0, 0.75)' }} />}
             </IconButton>
           </Box>
-          <Box sx={{pl: 1 }}>
+          <Box sx={{ pl: 1 }}>
             {user ?
               <IconButton
                 size="large"
@@ -346,9 +346,11 @@ export default function Navigation(props) {
       </AppBar>
       <Drawer variant="permanent" open={open}>
         <DrawerHeader >
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-          </IconButton>
+          {open &&
+            <IconButton onClick={handleDrawerClose}>
+              {theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+            </IconButton>
+          }
         </DrawerHeader>
         <Divider />
         <List>
@@ -423,7 +425,7 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 5}}>
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6 }}>
         {childrenWithProps}
       </Box>
     </Box>

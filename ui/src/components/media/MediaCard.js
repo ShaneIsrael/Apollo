@@ -12,7 +12,7 @@ const MediaCard = (props) => {
 
   return (
     <>
-      <Card sx={{ maxWidth: 200, minWidth: 200 }}>
+      <Card sx={{ maxWidth: 200, minWidth: 200, borderColor: (theme) => theme.palette.mode === 'dark' ? 'white' : 'black', borderWidth: '1px' }} variant="outlined">
         <CardActionArea component={NavLink} 
             to={`/${type}/${type === 'series' ? data.seriesId : data.movieId}`}>
           <Image
