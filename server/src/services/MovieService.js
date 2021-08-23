@@ -87,6 +87,13 @@ service.searchMovieByTitle = async (title, amount) => {
  */
  service.changeMovieMetadata = async (movieId, tmdbId, create) => {
   try {
+    if (!tmdbId) {
+      const movie = await Movie.findOne({
+        where: { id: movieId},
+        include: [Meatadata]
+      })
+      tmdbId = movie.Metadatum.tmdbId
+    }
     const newMeta = await getMovie(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null

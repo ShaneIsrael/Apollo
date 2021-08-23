@@ -11,7 +11,7 @@ const migrations = require('./utils/migrations')
 const configFlags = require('./utils/checkConfigFlags')
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const config = require('./config')[ENVIRONMENT]
-const { initializeLibraryObserver } = require('./controllers')
+const Observer = require('./observer')
 
 async function main() {
   let userConfig
@@ -140,14 +140,14 @@ async function main() {
       }))
     })
   }
+  const observer = new Observer()
   app.set('wss', wss)
+  app.set('observer', observer)
 
   // Open browser
   if (ENVIRONMENT === 'production') {
     let start = (process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open');
     require('child_process').exec(start + ' ' + `http://localhost:${port}`)
   }
-  
-  initializeLibraryObserver()
 }
 main()

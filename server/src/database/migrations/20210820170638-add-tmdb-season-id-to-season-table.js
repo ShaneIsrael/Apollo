@@ -5,7 +5,7 @@ module.exports = {
       'Season',
       'tmdbId',
       {
-        type: Sequelize.STRING
+        type: Sequelize.INTEGER
       },
     )
   },

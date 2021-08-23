@@ -35,10 +35,10 @@ async function findOrCreateSeason(seriesId, season, tmdbSeason) {
       seriesId,
       season,
     },
-    default: {
+    defaults: {
       seriesId,
       season,
-      tmdbId: tmdbSeason ? tmdbSeason.id : null,
+      tmdbId: tmdbSeason ? Number(tmdbSeason.id) : null,
       tmdb_poster_path: tmdbSeason ? tmdbSeason.poster_path : null,
       local_poster_path: localPath ? localPath.split('/').pop() : null
     }
@@ -183,7 +183,7 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
           } catch (err) {
             logger.error(err)
           }
-          const tmdbSeasonData = seasonData ? seasonData.find((s) => s.season_number === seasonNumber) : null
+          const tmdbSeasonData = seasonData ? seasonData.find((s) => Number(s.season_number) === Number(seasonNumber)) : null
           const seasonRow = await findOrCreateSeason(series.id, seasonNumber, tmdbSeasonData)
           for (let episode of episodeFiles) {
             await createEpisodeData(episode,  series, library, seasonNumber, seasonDir, seasonRow, tmdbSeasonMeta, wss)
@@ -282,6 +282,13 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
   try {
 
     // If no metadata on series lookup, create new metadata else update current
+    if (!tmdbId) {
+      const series = await Series.findOne({
+        where: { id: seriesId},
+        include: [Metadata]
+      })
+      tmdbId = series.Metadatum.tmdbId
+    }
     const newMeta = await getTv(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
