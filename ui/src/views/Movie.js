@@ -8,6 +8,15 @@ import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
+import { useTheme } from '@emotion/react';
+
+const leftOffsetMixin = (theme) => ({
+  left: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    left: `calc(${theme.spacing(9)} + 1px)`,
+  },
+})
+
 
 const Movie = () => {
   const { id } = useParams()
@@ -16,6 +25,7 @@ const Movie = () => {
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
 
   const history = useHistory()
+  const theme = useTheme()
 
   React.useEffect(() => {
     async function fetch() {
@@ -67,7 +77,7 @@ const Movie = () => {
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
       <Box sx={{
         position: 'absolute',
-        left: 0,
+        ...leftOffsetMixin(theme),
         right: 0,
         // filter: 'blur(2px)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',

@@ -8,15 +8,30 @@ import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
+import { useTheme } from '@emotion/react';
 // blurred-texture-background02
 
-const Series = () => {
+
+const leftOffsetMixin = (theme, open) => {
+  if (!open) {
+    return {
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      [theme.breakpoints.up('sm')]: {
+        left: `calc(${theme.spacing(9)} + 1px)`,
+      },
+    }
+  }
+  return {left: 240}
+}
+
+const Series = ({ sidebarOpen }) => {
   const { id } = useParams()
   const [series, setSeries] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
 
   const history = useHistory()
+  const theme = useTheme()
 
   React.useEffect(() => {
     async function fetch() {
@@ -67,7 +82,8 @@ const Series = () => {
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
         position: 'absolute',
-        left: 0,
+        zIndex: 1,
+        ...leftOffsetMixin(theme),
         right: 0,
         // filter: 'blur(0px) brightness(100%)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',
@@ -76,7 +92,7 @@ const Series = () => {
       </Box>
       <Box sx={{
         position: 'absolute',
-        top: 405,
+        top: 0,
         left: 0,
         right: 0,
         background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
@@ -103,8 +119,8 @@ const Series = () => {
                   <Button variant="outlined" size="small">
                     View Metadata
                   </Button>
-                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata} 
-                      startIcon={ refreshingMetadata &&
+                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata}
+                    startIcon={refreshingMetadata &&
                       <RefreshIcon sx={{
                         animation: 'spinright 1s infinite linear'
                       }} fontSize="inherit" />
