@@ -66,7 +66,6 @@ const Season = () => {
           seasonResp.Episodes.sort((a, b) => Number(a.episode_number) - Number(b.episode_number))
         }
         setSeasonData(seasonResp)
-        console.log(seasonResp)
         setSeries(seriesResp)
       } catch (err) {
         console.error(err)
