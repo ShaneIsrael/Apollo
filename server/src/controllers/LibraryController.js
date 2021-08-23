@@ -5,9 +5,6 @@ const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary,
   deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
   crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
 
-const Observer = require('../services/Observer')
-const observer = new Observer()
-
 const { Library } = require('../database/models')
 const logger = require('../logger')
 
@@ -28,40 +25,6 @@ function validatePath(path) {
     return valid
   } catch (err) {
     return next(err)
-  }
-}
-
-async function initializeLibraryObserver() {
-  
-  const libraries = await getLibraries()
-  logger.info(`Library Observer initialized, watching ${libraries.length} libraries`)
-
-  if (libraries.length > 0) {
-    observer.on('file-added', data => {
-      logger.info(`file-added -> ${data.path}`)
-    })
-    observer.on('file-deleted', data => {
-      logger.info(`file-deleted -> ${data.path}`)
-    })
-    observer.on('dir-added', data => {
-      logger.info(`dir-added -> ${data.path}`)
-    })
-    observer.on('dir-deleted', data => {
-      logger.info(`dir-deleted -> ${data.path}`)
-    })
-    observer.on('change', data => {
-      logger.info(`change -> ${data.path}`)
-    })
-    observer.watchFolder(libraries.map(library => library.path))
-    
-  }
-}
-
-controller.initializeLibraryObserver = async () => {
-  try {
-    await initializeLibraryObserver()
-  } catch (err) {
-    console.error(err)
   }
 }
 
@@ -112,7 +75,8 @@ controller.createLibrary = async (req, res, next) => {
         crawlSeries(result.id, req.app.get('wss'))
     }
     
-    initializeLibraryObserver()
+    const observer = req.app.get('observer')
+    observer.watch()
 
     return res.status(200).send(result)
   } catch (err) {
@@ -139,6 +103,9 @@ controller.deleteLibrary = async (req, res, next) => {
       return res.status(400).send('Cannot delete during an active crawl.')
     }
     await deleteLibrary(req.body.id)
+    const observer = req.app.get('observer')
+    observer.watch()
+
     return res.status(200).send('ok')
   } catch (err) {
     return next(err)

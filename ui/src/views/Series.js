@@ -1,8 +1,9 @@
 import React from 'react';
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import moment from 'moment'
-import { SeasonCoverCard, GeneralCoverCard, Loading } from '../components'
 import { useHistory, useParams } from 'react-router-dom'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
+import RefreshIcon from '@material-ui/icons/Refresh'
+import { SeasonCoverCard, GeneralCoverCard, Loading } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
@@ -13,6 +14,8 @@ const Series = () => {
   const { id } = useParams()
   const [series, setSeries] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
+  const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
+
   const history = useHistory()
 
   React.useEffect(() => {
@@ -32,6 +35,18 @@ const Series = () => {
       return history.goBack()
     }
     return setFixMatchOpen(false)
+  }
+
+  const handleRefreshMetadata = async () => {
+    try {
+      setRefreshingMetadata(true)
+      await SeriesService.changeMetadata(series.id, series.Metadatum.tmdbId)
+      const seriesResp = (await SeriesService.getById(id)).data
+      setSeries(seriesResp)
+    } catch (err) {
+      console.error(err)
+    }
+    setRefreshingMetadata(false)
   }
 
   if (!series) return (
@@ -88,7 +103,12 @@ const Series = () => {
                   <Button variant="outlined" size="small">
                     View Metadata
                   </Button>
-                  <Button variant="outlined" size="small">
+                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata} 
+                      startIcon={ refreshingMetadata &&
+                      <RefreshIcon sx={{
+                        animation: 'spinright 1s infinite linear'
+                      }} fontSize="inherit" />
+                    }>
                     Refresh Metadata
                   </Button>
                   <Button onClick={handleFixMatch} variant="outlined" size="small">
@@ -113,7 +133,7 @@ const Series = () => {
             </Grid>
             <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
               <Grid container justifyContent="flex-start">
-                <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36}} variant="h1">
+                <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36 }} variant="h1">
                   {series.Metadatum.name}
                 </Typography>
               </Grid>

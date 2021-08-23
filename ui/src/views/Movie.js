@@ -1,8 +1,9 @@
 import React from 'react';
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
-import moment from 'moment'
-import { GeneralCoverCard, Loading } from '../components'
 import { useHistory, useParams } from 'react-router-dom'
+import moment from 'moment'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
+import RefreshIcon from '@material-ui/icons/Refresh'
+import { GeneralCoverCard, Loading } from '../components'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
 import { getImagePath } from '../components/utils';
@@ -12,6 +13,8 @@ const Movie = () => {
   const { id } = useParams()
   const [movie, setMovie] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
+  const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
+
   const history = useHistory()
 
   React.useEffect(() => {
@@ -31,6 +34,18 @@ const Movie = () => {
       return history.goBack()
     }
     return setFixMatchOpen(false)
+  }
+
+  const handleRefreshMetadata = async () => {
+    try {
+      setRefreshingMetadata(true)
+      await MovieService.changeMetadata(movie.id, movie.Metadatum.tmdbId)
+      const movieResp = (await Movie.getById(id)).data
+      setMovie(movieResp)
+    } catch (err) {
+      console.error(err)
+    }
+    setRefreshingMetadata(false)
   }
 
   if (!movie) return (
@@ -87,7 +102,12 @@ const Movie = () => {
                   <Button variant="outlined" size="small">
                     View Metadata
                   </Button>
-                  <Button variant="outlined" size="small">
+                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata} 
+                      startIcon={ refreshingMetadata &&
+                      <RefreshIcon sx={{
+                        animation: 'spinright 1s infinite linear'
+                      }} fontSize="inherit" />
+                    }>
                     Refresh Metadata
                   </Button>
                   <Button onClick={handleFixMatch} variant="outlined" size="small">

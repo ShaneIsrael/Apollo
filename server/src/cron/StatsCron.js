@@ -125,32 +125,34 @@ async function createGeneralLibraryStats() {
         }
       }
 
-      const longestEpisodeSeries = await Series.findByPk(longestEpisode.seriesId)
-      const longestEpisodeNameSeries = await Series.findByPk(longestEpisodeName.seriesId)
-      let sortable = []
-      for (const genre of Object.keys(genreCount)) {
-        sortable.push([genre, genreCount[genre]])
-      }
-      sortable.sort((a, b) => b[1] - a[1])
-      sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
-      stats.general["Total Series"] = series.length
-      stats.general["Total Seasons"] = seasons.length
-      stats.general["Total Episodes"] = episodes.length
-      stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
-      stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
-      stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
-      stats.general["Average Episode Length"] = secondsToDhms(totalDuration / episodes.length)
-      stats.Random["Longest Episode Name"] = longestEpisodeName.name
-      stats.Random["Longest Episode Name Series"] = longestEpisodeNameSeries.name
-      stats["Longest Episode"]["Series"] = longestEpisodeSeries.name
-      stats["Longest Episode"]["Episode Length"] = secondsToDhms(longestEpisode.duration)
-      stats["Longest Episode"]["Episode Details"] = longestEpisode.seasonEpisodeName
+      if (longestEpisode.seriesId && longestEpisodeName.seriesId) {
+        const longestEpisodeSeries = await Series.findByPk(longestEpisode.seriesId)
+        const longestEpisodeNameSeries = await Series.findByPk(longestEpisodeName.seriesId)
+        let sortable = []
+        for (const genre of Object.keys(genreCount)) {
+          sortable.push([genre, genreCount[genre]])
+        }
+        sortable.sort((a, b) => b[1] - a[1])
+        sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
+        stats.general["Total Series"] = series.length
+        stats.general["Total Seasons"] = seasons.length
+        stats.general["Total Episodes"] = episodes.length
+        stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
+        stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+        stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
+        stats.general["Average Episode Length"] = secondsToDhms(totalDuration / episodes.length)
+        stats.Random["Longest Episode Name"] = longestEpisodeName.name
+        stats.Random["Longest Episode Name Series"] = longestEpisodeNameSeries.name
+        stats["Longest Episode"]["Series"] = longestEpisodeSeries.name
+        stats["Longest Episode"]["Episode Length"] = secondsToDhms(longestEpisode.duration)
+        stats["Longest Episode"]["Episode Details"] = longestEpisode.seasonEpisodeName
 
-      Stats.create({
-        libraryId: library.id,
-        tag: 'general-stats',
-        json: stats
-      })
+        Stats.create({
+          libraryId: library.id,
+          tag: 'general-stats',
+          json: stats
+        })
+      }
     }
   }
   async function movieStats() {
@@ -241,29 +243,30 @@ async function createGeneralLibraryStats() {
           }
         }
       }
+      if (longestMovie.movieId) {
+        const longestMovieRow = await Movie.findByPk(longestMovie.movieId)
+        let sortable = []
+        for (const genre of Object.keys(genreCount)) {
+          sortable.push([genre, genreCount[genre]])
+        }
+        sortable.sort((a, b) => b[1] - a[1])
+        sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
+        stats.general["Total Movies"] = movies.length
+        stats.general["Total Movie Files"] = files.length
+        stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
+        stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+        stats.general["Average Movie Length"] = secondsToDhms(totalDuration / movies.length)
+        stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
+        stats.Random["Longest Movie Name"] = longestMovieName.name
+        stats["Longest Movie"]["Movie"] = longestMovieRow.name
+        stats["Longest Movie"]["Movie Length"] = secondsToDhms(longestMovie.duration)
 
-      const longestMovieRow = await Movie.findByPk(longestMovie.movieId)
-      let sortable = []
-      for (const genre of Object.keys(genreCount)) {
-        sortable.push([genre, genreCount[genre]])
+        Stats.create({
+          libraryId: library.id,
+          tag: 'general-stats',
+          json: stats
+        })
       }
-      sortable.sort((a, b) => b[1] - a[1])
-      sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
-      stats.general["Total Movies"] = movies.length
-      stats.general["Total Movie Files"] = files.length
-      stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
-      stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
-      stats.general["Average Movie Length"] = secondsToDhms(totalDuration / movies.length)
-      stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
-      stats.Random["Longest Movie Name"] = longestMovieName.name
-      stats["Longest Movie"]["Movie"] = longestMovieRow.name
-      stats["Longest Movie"]["Movie Length"] = secondsToDhms(longestMovie.duration)
-      
-      Stats.create({
-        libraryId: library.id,
-        tag: 'general-stats',
-        json: stats
-      })
     }
   }
 
