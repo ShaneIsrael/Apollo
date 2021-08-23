@@ -253,7 +253,7 @@ export default function Navigation(props) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed" open={open}>
+      <AppBar position="fixed" open={open} elevation={1} >
         <Toolbar variant="dense" sx={{ backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff', }}>
           <IconButton
             color="inherit"
