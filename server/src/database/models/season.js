@@ -24,6 +24,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    path: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     tmdbId: {
       type: DataTypes.INTEGER
     },

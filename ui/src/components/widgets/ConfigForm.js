@@ -69,16 +69,16 @@ const ConfigForm = () => {
             id={"edit-account-type-id"}
             value={role}
             label="Account Type"
-            size="small"
+            size="medium"
             onChange={(e) => setRole(e.target.value)}
           >
             <MenuItem value={'user'}>User</MenuItem>
             <MenuItem value={'admin'}>Admin</MenuItem>
           </Select>
         </FormControl>
-        <TextField onChange={(e) => setUsername(e.target.value)} sx={{pb: 2}} size="small" required label="Account Username"/>
-        <TextField onChange={(e) => setPassword(e.target.value)} sx={{pb: 2}} size="small" required label="Account Password" type="password"/>
-        <TextField onChange={(e) => setConfirmPassword(e.target.value)} sx={{pb: 2}} size="small" required label="Confirm Password" type="password"/>
+        <TextField onChange={(e) => setUsername(e.target.value)} sx={{pb: 2}} size="medium" required label="Account Username"/>
+        <TextField onChange={(e) => setPassword(e.target.value)} sx={{pb: 2}} size="medium" required label="Account Password" type="password"/>
+        <TextField onChange={(e) => setConfirmPassword(e.target.value)} sx={{pb: 2}} size="medium" required label="Confirm Password" type="password"/>
         <Button onClick={handleRegister} disabled={!(username && password && confirmPassword)} variant="outlined" size="large">Create Account</Button>
         <Divider sx={{mt: 2}}/>
         <FormControlLabel sx={{}} control={<Checkbox checked={enableAdmin} onChange={(e) => setEnableAdmin(e.target.checked)} />} label="Enable Admin" />

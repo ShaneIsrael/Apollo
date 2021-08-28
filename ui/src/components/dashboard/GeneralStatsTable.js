@@ -55,7 +55,7 @@ const GeneralStatsTable = (props) => {
   }
   const LibraryIcon = library.type === 'series' ? <TvIcon sx={{ mr: 2 }} /> : <LocalMoviesIcon sx={{ mr: 2 }} />
   return (
-    <Accordion sx={{ width: '100%' }}>
+    <Accordion sx={{ width: '100%', backgroundColor: 'rgba(0, 0, 0, 0)'}}>
       <AccordionSummary
         expandIcon={<ExpandMoreIcon />}
         aria-controls={`library-${library.tag}-content`}
@@ -86,7 +86,7 @@ const GeneralStatsTable = (props) => {
                           key={key}
                           sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                         >
-                          <StyledTableCell component="th" scope="row">
+                          <StyledTableCell component="th" scope="row" >
                             {key}
                           </StyledTableCell>
                           <StyledTableCell align="right">{stats[table][key]}</StyledTableCell>

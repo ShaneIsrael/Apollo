@@ -3,10 +3,10 @@ import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Refresh'
-import { SeasonCoverCard, GeneralCoverCard, Loading } from '../components'
+import { SeasonCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
-import { getImagePath } from '../components/utils';
+import { canDisplayToUser, getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 // blurred-texture-background02
@@ -21,7 +21,7 @@ const leftOffsetMixin = (theme, open) => {
       },
     }
   }
-  return {left: 240}
+  return { left: 240 }
 }
 
 const Series = ({ sidebarOpen }) => {
@@ -29,6 +29,8 @@ const Series = ({ sidebarOpen }) => {
   const [series, setSeries] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
+  const [syncingFiles, setSyncingFiles] = React.useState(false)
+  const [metadataOpen, setMetadataOpen] = React.useState(false)
 
   const history = useHistory()
   const theme = useTheme()
@@ -64,6 +66,20 @@ const Series = ({ sidebarOpen }) => {
     setRefreshingMetadata(false)
   }
 
+  const handleSyncFiles = async () => {
+    try {
+      setSyncingFiles(true)
+      await SeriesService.syncSeries(series.id)
+      const seriesResp = (await SeriesService.getById(id)).data
+      setSeries(seriesResp)
+    } catch (err) {
+      console.error(err)
+    }
+    setSyncingFiles(false)
+  }
+
+  const hidden = !canDisplayToUser()
+
   if (!series) return (
     <Grid sx={{ pt: 9 }} container>
       <Grid sx={{ height: '50vh ' }} container item justifyContent="center" alignItems="center">
@@ -77,8 +93,31 @@ const Series = ({ sidebarOpen }) => {
   }
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
+
+  let metaViewData 
+  if (series.Metadatum) {
+    metaViewData = [
+      {
+        title: "General Info",
+        data: {
+         "Number of Seasons": series.Seasons.length,
+         "Number of Episodes": series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c)
+        }
+      },
+      {
+        title: "System Info",
+        data: {
+          "TMDb ID": series.Metadatum.tmdbId,
+          "IMDB ID": series.Metadatum.imdbId || "Unknown",
+          "System Path": series.path,
+          "Size (GB)": "TODO"
+         }
+      }
+    ]
+  }
   return (
     <>
+      <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
         position: 'absolute',
@@ -86,11 +125,11 @@ const Series = ({ sidebarOpen }) => {
         ...leftOffsetMixin(theme),
         right: 0,
         // filter: 'blur(0px) brightness(100%)',
-        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',
+        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', height: '365px',
         backgroundPosition: '50% 15%'
       }}>
       </Box>
-      <Box sx={{
+      {/* <Box sx={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -99,7 +138,7 @@ const Series = ({ sidebarOpen }) => {
         backgroundSize: '100% 100%', width: '100%', height: '100vh',
         filter: 'brightness(35%)',
         // filter: 'opacity(35%)'
-      }} />
+      }} /> */}
       <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4}>
@@ -113,26 +152,38 @@ const Series = ({ sidebarOpen }) => {
                 size="large"
               />
             </Grid>
-            <Grid item>
-              <Box sx={{ width: '250px' }}>
-                <Stack direction="column" spacing={1}>
-                  <Button variant="outlined" size="small">
-                    View Metadata
-                  </Button>
-                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata}
-                    startIcon={refreshingMetadata &&
-                      <RefreshIcon sx={{
-                        animation: 'spinright 1s infinite linear'
-                      }} fontSize="inherit" />
-                    }>
-                    Refresh Metadata
-                  </Button>
-                  <Button onClick={handleFixMatch} variant="outlined" size="small">
-                    Fix Match
-                  </Button>
-                </Stack>
-              </Box>
-            </Grid>
+            {!hidden &&
+              <Grid item>
+                <Box sx={{ width: '250px' }}>
+                  <Stack direction="column" spacing={1}>
+                    <Button onClick={() => setMetadataOpen(true)} variant="outlined" size="small">
+                      View Metadata
+                    </Button>
+                    <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata}
+                      startIcon={refreshingMetadata &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }>
+                      Refresh Metadata
+                    </Button>
+                    <Button onClick={handleSyncFiles} variant="outlined" size="small"
+                      disabled={syncingFiles}
+                      startIcon={syncingFiles &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }
+                    >
+                      Sync Series Files
+                    </Button>
+                    <Button onClick={handleFixMatch} variant="outlined" size="small">
+                      Fix Match
+                    </Button>
+                  </Stack>
+                </Box>
+              </Grid>
+            }
             <Grid item>
               <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1 }}>
                 <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: 'primary.main' }} variant="subtitle2">Premiered {moment(series.Metadatum.release_date).format('MMMM Do, YYYY')}</Typography>
@@ -155,12 +206,12 @@ const Series = ({ sidebarOpen }) => {
               </Grid>
             </Grid>
             <Grid item>
-              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto' }}>
+              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body1" sx={{ pr: 1 }}>
+                <Typography variant="body1" sx={{ pr: 1}}>
                   {series.Metadatum.overview}
                 </Typography>
               </Box>

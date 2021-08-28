@@ -24,7 +24,7 @@ const LibrarySizeStats = ({ data, type, slice }) => {
   }
   const palette = type === 'series' ? ['#008cff', '#d2e8fa'] : ['#fc3503', '#fadad2']
   return (
-    <Paper sx={{ p: 2, width: '100%', height: 510 }}>
+    <Paper sx={{ p: 2, width: '100%', height: 510, backgroundColor: 'rgba(0, 0, 0, 0)' }}>
       <TreeMap
         id="treemap"
         dataSource={trimmedSizes}
@@ -41,7 +41,7 @@ const LibrarySizeStats = ({ data, type, slice }) => {
           enabled={true}
           customizeTooltip={customizeTooltip}
         />
-        <Export enabled={true} />
+        <Export enabled={false} />
       </TreeMap>
     </Paper>
   )

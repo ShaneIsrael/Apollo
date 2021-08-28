@@ -95,7 +95,7 @@ export default function FixMatch(props) {
       aria-describedby="fix-match-description"
     >
       <Box sx={{ ...style, width: '90%', maxWidth: 500 }}>
-        <h2 id="fix-match-tital">Fix Match</h2>
+        <h2 id="fix-match-title">Fix Match</h2>
         <Divider />
         <Grid container item justifyContent="center">
           {/* <Grid item xs={12}>

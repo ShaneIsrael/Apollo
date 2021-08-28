@@ -1,5 +1,5 @@
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
-const { readdirSync, writeFileSync, readFileSync } = require('fs')
+const { readdirSync, writeFileSync, readFileSync, existsSync } = require('fs')
 const path = require('path')
 const short = require('short-uuid')
 const ffprobe = require('ffprobe')
@@ -147,6 +147,56 @@ service.searchMovieByTitle = async (title, amount) => {
   }
 }
 
+service.syncMovie = async (id) => {
+  try {
+    const movie = await Movie.findOne({
+      where: { id },
+      include: [MovieFile, Metadata, Library]
+    })
+    // check existing episodes and either update or destroy
+    for (const file of movie.MovieFiles) {
+      if (!existsSync(file.path)) {
+        logger.info(`sync movie files -- untracking ${file.filename}, could not locate on disk`)
+        file.destroy()
+      } else {
+        logger.info(`sync movie files -- updating probe data ${file.filename}`)
+        const json = await probe(file.path)
+        file.metadata = json
+        file.save()
+      }
+    }
+
+    // check for new untracked files
+    const untracked = []
+    for (let file of getFiles(movie.path)) {
+      const movieFile = movie.MovieFiles.find(mf => mf.path === `${movie.path}/${file}`)
+      if (!movieFile) {
+        untracked.push(file)
+      }
+    }
+    logger.info(`sync movie files -- found ${untracked.length} untracked files for Movie ${movie.name}...`)
+    if (untracked.length > 0) {
+      for (const file of untracked) {
+        console.log(file)
+        const { ext } = path.parse(file)
+        if (VALID_EXTENSIONS.indexOf(ext) === -1) continue
+        
+        logger.info(`sync movie files -- creating MovieFile row for ${file}`)
+        const filedata = await probe(path.join(movie.path, file))
+        await MovieFile.create({
+          movieId: movie.id,
+          filename: file,
+          path: `${movie.path}/${file}`,
+          metadata: filedata
+        })
+      }
+    }
+  } catch (err) {
+    logger.error(err)
+    throw err
+  }
+}
+
 service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)
   wss.broadcast(`crawling initiated: ${library.name}`)
@@ -163,6 +213,7 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
         },
         defaults: {
           name: movieDir,
+          path: `${library.path}/${movieDir}`,
           uuid: short.generate(),
           libraryId
         },
@@ -209,7 +260,8 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
           },
           defaults: {
             movieId: movie[0].id,
-            filename: file
+            filename: file,
+            path: `${movie[0].path}/${file}`
           }
         }))
         if (fileRow[1]) {

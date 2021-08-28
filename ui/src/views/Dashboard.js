@@ -24,7 +24,7 @@ const Dashboard = (props) => {
   }, [setReleaseYears])
 
   return (
-    <Box sx={{ pt: 3, pl: 3, pr: 3 }}>
+    <Box sx={{ pt: 3, pl: 3, pr: 3, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <Grid container direction="row" spacing={1}>
         {statLibraries.length > 0 ?
           statLibraries.sort((a, b) => a.type === 'movie').map(l => <Grid key={l.id} item xs={12} md={6} lg={3}><GeneralStatsTable library={l} /></Grid>)
@@ -41,10 +41,10 @@ const Dashboard = (props) => {
               </Alert>
           }
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} sm={12} md={6}>
           {
             librarySizes ?
-              <LibrarySizeStats data={librarySizes} type="series" slice={10}/>
+              <LibrarySizeStats data={librarySizes} type="series" slice={10} />
               :
               <Alert sx={{ width: '100%' }} variant="filled" severity="info">
                 <AlertTitle>No Library Size Stats</AlertTitle>
@@ -53,9 +53,9 @@ const Dashboard = (props) => {
           }
         </Grid>
         <Grid item xs={12} md={6}>
-        {
+          {
             librarySizes ?
-              <LibrarySizeStats data={librarySizes} type="movie" slice={10}/>
+              <LibrarySizeStats data={librarySizes} type="movie" slice={10} />
               :
               <Alert sx={{ width: '100%' }} variant="filled" severity="info">
                 <AlertTitle>No Library Size Stats</AlertTitle>

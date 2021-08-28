@@ -18,7 +18,7 @@ import { Typography, Grid, Paper } from '@material-ui/core';
 const ScatterPoint = (props) => {
   const { data, name, name2, title, valueInterval, argumentInterval } = props
   return (
-    <Paper sx={{p: 2}}>
+    <Paper sx={{p: 2, backgroundColor: 'rgba(0, 0, 0, 0)'}}>
       <Grid container>
         <Grid item xs={12}>
           <Typography variant="h6">{title}</Typography>

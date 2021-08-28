@@ -35,7 +35,10 @@ const verifyAdmin = async (req, res, next) => {
     return next()
   } catch (err) {
     logger.warn(err)
-    return res.status(401).send("Invalid Authorization Token")
+    if (ENVIRONMENT === 'development') {
+      return res.status(301).redirect('http://localhost:3000')
+    }
+    return res.status(301).redirect('/')
   }
 }
 
@@ -56,7 +59,10 @@ const verifyStandard = async (req, res, next) => {
     return next()
   } catch (err) {
     logger.warn(err)
-    return res.status(401).send("Invalid Authorization Token")
+    if (ENVIRONMENT === 'development') {
+      return res.status(301).redirect('http://localhost:3000')
+    }
+    return res.status(301).redirect('/')
   }
 }
 

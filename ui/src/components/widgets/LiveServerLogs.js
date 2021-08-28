@@ -25,7 +25,7 @@ const LiveServerLogs = () => {
 
   return (
     <div>
-      <Accordion defaultExpanded={false}>
+      <Accordion defaultExpanded={false} sx={{backgroundColor: 'rgba(0, 0, 0, 0)'}}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"

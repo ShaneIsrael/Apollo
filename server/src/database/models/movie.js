@@ -35,6 +35,11 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: false,
       }
     },
+    path: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     uuid: {
       type: DataTypes.STRING
     }

@@ -85,11 +85,9 @@ const Library = () => {
         setInvalidPage(true)
       }
     }
-    // setCards([])
-    // setMedia([])
-    // setFilteredMedia([])
+    setMedia([])
+    setScrollPosition(null)
     fetch()
-    setFilteredText('')
   }, [tag])
 
   React.useEffect(() => {
@@ -128,10 +126,10 @@ const Library = () => {
         filter: 'brightness(35%)',
         // filter: 'opacity(35%)'
       }} />
-      <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 2, flexGrow: 1, maxHeight: '97vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+      <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 2, flexGrow: 1, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
         {cards &&
           <Grid container item justifyContent="center">
-            <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600, opacity: '95%' }}>
+            <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600, backgroundColor: 'rgba(0,0,0,.65)' }}>
               <TextField sx={{ width: '100%', maxWidth: 600 }} id="filter" label={`Filter ${library.name}`} variant="outlined" value={filteredText} onChange={filterHandler} />
             </Paper>
           </Grid>

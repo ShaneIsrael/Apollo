@@ -60,12 +60,18 @@ controller.createLibrary = async (req, res, next) => {
     const valid = await validatePath(req.body.path)
 
     if (!valid) return res.status(400).send('Invalid Library Path')
-    const { name, path, type, description, misc } = req.body
+    let { name, path, type, description, misc } = req.body
+    name = name.trim()
+    type = type.toLowerCase()
     if (!name || !path || !type) {
       return res.status(400).send('Missing required fields [name, path, type]')
     }
+    if (name.match(/[^A-Za-z0-9\s]/g))
+      return res.status(400).send('Only letters, numbers, and spaces are allowed.')
+    if (['series', 'movie'].indexOf(type.toLowerCase()) === -1)
+      return res.status(400).send('Library type must be either series or movie.')
 
-    const result = await createLibrary(name, path, type, description, misc)
+    const result = await createLibrary(name.trim(), path, type, description, misc)
     const crawling = await isCrawlingActive()
 
     if (!crawling) {
@@ -89,6 +95,17 @@ controller.createLibrary = async (req, res, next) => {
 
 controller.updateLibrary = async (req, res, next) => {
   try {
+    let { name, type, path, description, misc } = req.body
+    name = name.trim()
+    type = type.toLowerCase()
+    if (!name || !path || !type) {
+      return res.status(400).send('Missing required fields [name, path, type]')
+    }
+    if (name.match(/[^A-Za-z0-9\s]/g))
+      return res.status(400).send('Only letters, numbers, and spaces are allowed.')
+    if (['series', 'movie'].indexOf(type.toLowerCase()) === -1)
+      return res.status(400).send('Library type must be either series or movie.')
+
     const result = await updateLibrary(req.body.id, req.body)
     return res.status(200).send(result)
   } catch (err) {
