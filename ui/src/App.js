@@ -34,6 +34,7 @@ export default function App() {
   React.useEffect(() => {
     async function fetch() {
       const config = (await ConfigService.getConfig()).data
+      console.log(config)
       setConfig(oldConfig => ({
         ...oldConfig,
         ...config
@@ -46,8 +47,12 @@ export default function App() {
   
   React.useEffect(() => {
     async function fetch() {
-      const resp = (await LibraryService.getLibraries()).data
-      setLibraries(resp)
+      try {
+        const resp = (await LibraryService.getLibraries()).data
+        setLibraries(resp)
+      } catch (err) {
+        // console.error(err)
+      }
     }
     fetch()
     return () => LibraryService.cancel()

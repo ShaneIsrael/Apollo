@@ -40,7 +40,7 @@ cp -f ./build-deps/binaries/sqlite3/napi-v3-win32-ia32/node_sqlite3.node ./dist/
 cd ui && npm run build && cd ..
 
 # package the app into executables
-pkg ./server/package.json
+pkg --compress Brotli ./server/package.json
 
 # copy executables
 cp -f ./dist/apollo-linux ./dist/linux/

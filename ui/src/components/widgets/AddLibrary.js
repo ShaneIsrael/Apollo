@@ -87,7 +87,7 @@ const LibraryWidget = (props) => {
           {notificationText}
         </Alert>
       </Snackbar>
-      <Paper sx={{ p: 2, flexGrow: 1}}>
+      <Paper sx={{ p: 2, flexGrow: 1, backgroundColor: 'rgba(0, 0, 0, 0)'}}>
         <Grid container spacing={2}>
           <Grid item xs={12} md={6}>
             <FormControl required sx={{width: '100%' }} success={String(libraryType !== '')} color={'success'} focused={libraryType !== ''}>

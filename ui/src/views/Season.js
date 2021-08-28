@@ -1,14 +1,16 @@
 import React from 'react'
 import moment from 'moment'
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, setRef } from '@material-ui/core'
 import StarIcon from '@material-ui/icons/Star'
-import WarningIcon from '@material-ui/icons/Warning';
+import WarningIcon from '@material-ui/icons/Warning'
+import RefreshIcon from '@material-ui/icons/Refresh'
 import { useParams } from 'react-router-dom'
 import { SeriesService } from '../services'
 
-import { GeneralCoverCard, Loading } from '../components'
+import { GeneralCoverCard, Loading, MetadataModal } from '../components'
 import background from '../assets/blurred-background-01.png'
 import still_not_found from '../assets/still_not_found.png'
+import { canDisplayToUser } from '../components/utils'
 
 
 function createEpisodeCard(episode) {
@@ -51,28 +53,52 @@ const Season = () => {
   const [seasonData, setSeasonData] = React.useState(null)
   const [series, setSeries] = React.useState(null)
   const [rating, setRating] = React.useState(null)
+  const [refreshingEpisodes, setRefreshingEpisodes] = React.useState(false)
+  const [probingEpisodes, setProbingEpisodes] = React.useState(false)
+  const [metadataOpen, setMetadataOpen] = React.useState(false)
 
-  React.useEffect(() => {
-    async function fetch() {
-      try {
-        const seasonResp = (await SeriesService.getSeasonAndEpisodes(id, season)).data
-        const seriesResp = (await SeriesService.getById(id)).data
-        if (seasonResp.Episodes) {
-          const qualifyingEpisodes = seasonResp.Episodes.filter((episode) => episode.tmdb_rating > 0)
-          const episodeRatings = qualifyingEpisodes.map(episode => episode.tmdb_rating)
-          if (episodeRatings.length > 0) {
-            setRating((episodeRatings.reduce((a, c) => a + c) / episodeRatings.length).toFixed(2))
-          }
-          seasonResp.Episodes.sort((a, b) => Number(a.episode_number) - Number(b.episode_number))
+  async function fetch() {
+    try {
+      const seasonResp = (await SeriesService.getSeasonAndEpisodes(id, season)).data
+      const seriesResp = (await SeriesService.getById(id)).data
+      if (seasonResp.Episodes) {
+        const qualifyingEpisodes = seasonResp.Episodes.filter((episode) => episode.tmdb_rating > 0)
+        const episodeRatings = qualifyingEpisodes.map(episode => episode.tmdb_rating)
+        if (episodeRatings.length > 0) {
+          setRating((episodeRatings.reduce((a, c) => a + c) / episodeRatings.length).toFixed(2))
         }
-        setSeasonData(seasonResp)
-        setSeries(seriesResp)
-      } catch (err) {
-        console.error(err)
+        seasonResp.Episodes.sort((a, b) => Number(a.episode_number) - Number(b.episode_number))
       }
+      setSeasonData(seasonResp)
+      setSeries(seriesResp)
+    } catch (err) {
+      console.error(err)
     }
+  }
+  React.useEffect(() => {
     fetch()
   }, [id, season])
+
+  const handleRefreshEpisodeMetadata = async () => {
+    try {
+      setRefreshingEpisodes(true)
+      await SeriesService.refreshSeasonEpisodesMetadata(seasonData.id)
+      fetch()
+    } catch (err) {
+      console.error(err)
+    }
+    setRefreshingEpisodes(false)
+  }
+  const handleProbeEpisodes = async () => {
+    try {
+      setProbingEpisodes(true)
+      await SeriesService.probeSeasonEpisodes(seasonData.id)
+      fetch()
+    } catch (err) {
+      console.error(err)
+    }
+    setProbingEpisodes(false)
+  }
 
   if (!seasonData) return (
     <Grid sx={{ pt: 9 }} container>
@@ -82,9 +108,30 @@ const Season = () => {
     </Grid>
   )
 
+  const hidden = !canDisplayToUser()
+  let metaViewData 
+  if (seasonData) {
+    metaViewData = [
+      {
+        title: "General Info",
+        data: {
+         "Number of Episodes": seasonData.Episodes.length
+        }
+      },
+      {
+        title: "System Info",
+        data: {
+         "TMDb ID": seasonData.tmdbId,
+         "System Path": seasonData.path,
+         "Size (GB)": "TODO"
+        }
+      },
+    ]
+  }
+
   return (
     <>
-      <Box sx={{
+      {/* <Box sx={{
         position: 'absolute',
         top: 0,
         left: 0,
@@ -93,7 +140,8 @@ const Season = () => {
         backgroundSize: '100% 100%', width: '100%', height: '100vh',
         filter: 'brightness(35%)',
         // filter: 'opacity(35%)'
-      }} />
+      }} /> */}
+      <MetadataModal title="Local System Metadata"  open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <Box sx={{ position: 'relative', pl: 3, pr: 0, pt: 5, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4} sx={{ pb: 3 }}>
@@ -114,21 +162,38 @@ const Season = () => {
                 emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
               />
             </Grid>
-            <Grid item>
-              <Box sx={{ width: '250px' }}>
-                <Stack direction="column" spacing={1}>
-                  <Button variant="outlined" size="small">
-                    View Season Metadata
-                  </Button>
-                  <Button variant="outlined" size="small">
-                    Refresh Episode Metadata
-                  </Button>
-                  <Button variant="outlined" size="small">
-                    Probe Episode Files
-                  </Button>
-                </Stack>
-              </Box>
-            </Grid>
+            {!hidden &&
+              <Grid item>
+                <Box sx={{ width: '250px' }}>
+                  <Stack direction="column" spacing={1}>
+                    <Button onClick={() => setMetadataOpen(true)} variant="outlined" size="small">
+                      View Season Metadata
+                    </Button>
+                    <Button variant="outlined" size="small"
+                      onClick={handleRefreshEpisodeMetadata}
+                      disabled={refreshingEpisodes}
+                      startIcon={refreshingEpisodes &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }>
+                      Refresh Episode Metadata
+                    </Button>
+                    <Button variant="outlined" size="small"
+                      onClick={handleProbeEpisodes}
+                      disabled={probingEpisodes}
+                      startIcon={probingEpisodes &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }
+                    >
+                      Probe Episode Files
+                    </Button>
+                  </Stack>
+                </Box>
+              </Grid>
+            }
             {!seasonData.tmdbId &&
               <Grid item>
                 <Divider sx={{ mb: 2 }} />

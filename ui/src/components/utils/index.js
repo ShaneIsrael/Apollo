@@ -82,3 +82,17 @@ export function getLocalConfig() {
 export function setLocalConfig(config) {
   localStorage.setItem('config', JSON.stringify(config))
 }
+
+export function canDisplayToUser() {
+  const config = JSON.parse(localStorage.getItem('config'))
+  const user = JSON.parse(localStorage.getItem('user'))
+
+  if (!config) return true
+  if (config.enableAdmin) {
+    if (!user) return false
+    if (user.role !== 'admin') return false
+  } else if (config.restrictAccess) {
+    if (!user) return false
+  }
+  return true
+}

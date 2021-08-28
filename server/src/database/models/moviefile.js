@@ -26,6 +26,11 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: false,
       }
     },
+    path: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true
+    },
     metadata: {
       type: DataTypes.JSON
     }

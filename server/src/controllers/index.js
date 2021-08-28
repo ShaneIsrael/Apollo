@@ -12,5 +12,5 @@ module.exports = {
   ...SeriesController,
   ...MovieController,
   ...StatsController,
-  ...ConfigController
+  ...ConfigController,
 }

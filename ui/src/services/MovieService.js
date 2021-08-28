@@ -29,4 +29,9 @@ export default {
       create,
     })
   },
+  syncMovie(movieId) {
+    return Api().put('/api/v1/movie/sync', {
+      id: movieId
+    })
+  }
 }

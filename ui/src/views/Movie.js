@@ -3,10 +3,10 @@ import { useHistory, useParams } from 'react-router-dom'
 import moment from 'moment'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
 import RefreshIcon from '@material-ui/icons/Refresh'
-import { GeneralCoverCard, Loading } from '../components'
+import { GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
-import { getImagePath } from '../components/utils';
+import { canDisplayToUser, getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 
@@ -23,6 +23,8 @@ const Movie = () => {
   const [movie, setMovie] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
+  const [metadataOpen, setMetadataOpen] = React.useState(false)
+  const [syncing, setSyncing] = React.useState(false)
 
   const history = useHistory()
   const theme = useTheme()
@@ -44,6 +46,18 @@ const Movie = () => {
       return history.goBack()
     }
     return setFixMatchOpen(false)
+  }
+
+  const handleSync = async () => {
+    try {
+      setSyncing(true)
+      await MovieService.syncMovie(movie.id)
+      const movieResp = (await MovieService.getById(id)).data
+      setMovie(movieResp)
+    } catch (err) {
+      console.error(err)
+    }
+    setSyncing(false)
   }
 
   const handleRefreshMetadata = async () => {
@@ -72,18 +86,46 @@ const Movie = () => {
   }
   const genres = movie ? movie.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
+
+  const hidden = !canDisplayToUser()
+  let metaViewData
+  if (movie) {
+    metaViewData = [
+      {
+        title: "System Info",
+        data: {
+          "TMDb ID": movie.tmdbId,
+          "System Path": movie.path,
+          "Size (GB)": "TODO"
+        }
+      },
+      {
+        title: "File Info",
+        data: {
+          "Some File Meta": "The Game",
+        }
+      },
+      {
+        title: "Audio Codec",
+        data: {
+          "Codec": "TODO",
+        }
+      },
+    ]
+  }
   return (
     <>
+      <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
       <Box sx={{
         position: 'absolute',
         ...leftOffsetMixin(theme),
         right: 0,
         // filter: 'blur(2px)',
-        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', width: '100%', height: '365px',
+        backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', height: '365px',
         backgroundPosition: '50% 15%'
       }}>
-        <Box sx={{
+        {/* <Box sx={{
           position: 'absolute',
           top: 365,
           left: 0,
@@ -91,7 +133,7 @@ const Movie = () => {
           backgroundImage: (theme) => theme.palette.mode === 'dark' ? `url("${background}")` : '', 
           backgroundSize: 'cover', width: '100%', height: '100vh',
           filter: 'brightness(35%)',
-        }} />
+        }} /> */}
       </Box>
       <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -106,26 +148,38 @@ const Movie = () => {
                 size="large"
               />
             </Grid>
-            <Grid item>
-              <Box sx={{ width: '250px' }}>
-                <Stack direction="column" spacing={1}>
-                  <Button variant="outlined" size="small">
-                    View Metadata
-                  </Button>
-                  <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata} 
-                      startIcon={ refreshingMetadata &&
-                      <RefreshIcon sx={{
-                        animation: 'spinright 1s infinite linear'
-                      }} fontSize="inherit" />
-                    }>
-                    Refresh Metadata
-                  </Button>
-                  <Button onClick={handleFixMatch} variant="outlined" size="small">
-                    Fix Match
-                  </Button>
-                </Stack>
-              </Box>
-            </Grid>
+            {!hidden &&
+              <Grid item>
+                <Box sx={{ width: '250px' }}>
+                  <Stack direction="column" spacing={1}>
+                    <Button onClick={() => setMetadataOpen(true)} variant="outlined" size="small">
+                      View Metadata
+                    </Button>
+                    <Button onClick={handleRefreshMetadata} variant="outlined" size="small" disabled={refreshingMetadata}
+                      startIcon={refreshingMetadata &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }>
+                      Refresh Metadata
+                    </Button>
+                    <Button onClick={handleSync} variant="outlined" size="small"
+                      disabled={syncing}
+                      startIcon={syncing &&
+                        <RefreshIcon sx={{
+                          animation: 'spinright 1s infinite linear'
+                        }} fontSize="inherit" />
+                      }
+                    >
+                      Sync Movie
+                    </Button>
+                    <Button onClick={handleFixMatch} variant="outlined" size="small">
+                      Fix Match
+                    </Button>
+                  </Stack>
+                </Box>
+              </Grid>
+            }
             <Grid item>
               <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1 }}>
                 <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: 'primary.main' }} variant="subtitle2">Premiered {moment(movie.Metadatum.release_date).format('MMMM Do, YYYY')}</Typography>

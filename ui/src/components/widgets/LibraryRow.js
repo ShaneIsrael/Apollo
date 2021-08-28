@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, FormControl, InputLabel, Select, MenuItem, TextField, Stack, IconButton, Button } from '@material-ui/core'
+import { Grid, FormControl, InputLabel, Select, MenuItem, TextField, Stack, IconButton, Button, Tooltip } from '@material-ui/core'
 import DeleteIcon from '@material-ui/icons/Delete'
 import SaveIcon from '@material-ui/icons/Save'
 import RefreshIcon from '@material-ui/icons/Refresh'
@@ -43,6 +43,7 @@ const LibraryRow = ({ library, handleChange }) => {
       })
       handleChange('Library Updated!', 'success')
     } catch (err) {
+      console.log(err)
       handleChange(err.response.data, 'error')
     }
   }
@@ -71,15 +72,21 @@ const LibraryRow = ({ library, handleChange }) => {
     <Grid item>
       <Stack direction="row" alignItems="center" spacing={1}>
         <IconButton onClick={() => !crawling && showCrawlConfirm(true)} aria-label="crawl" size="medium" color={crawling ? 'warning' : 'info'}>
-          <RefreshIcon sx={{
-            animation: crawling ? 'spinright 1s infinite linear' : ''
-          }} fontSize="inherit" />
+          <Tooltip title="Crawl Library" placement="bottom" arrow>
+            <RefreshIcon sx={{
+              animation: crawling ? 'spinright 1s infinite linear' : ''
+            }} fontSize="inherit" />
+          </Tooltip>
         </IconButton>
         <IconButton onClick={saveChange} aria-label="save" size="medium" disabled={!changed} color="success">
-          <SaveIcon fontSize="inherit" />
+          <Tooltip title="Save Change" placement="bottom" arrow>
+            <SaveIcon fontSize="inherit" />
+          </Tooltip>
         </IconButton>
         <IconButton onClick={() => showDeleteConfirm(true)} aria-label="delete" size="medium" color="error">
-          <DeleteIcon fontSize="inherit" />
+          <Tooltip title="Delete" placement="bottom" arrow>
+            <DeleteIcon fontSize="inherit" />
+          </Tooltip>
         </IconButton>
       </Stack>
     </Grid>

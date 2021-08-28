@@ -12,7 +12,7 @@ const MediaYearsStats = (props) => {
   const { data, title } = props
 
   return (
-    <Paper sx={{ p: 2 }}>
+    <Paper sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0)'}}>
       <Grid container>
         <Grid item xs={12}>
           <Typography variant="h6">{title}</Typography>
@@ -40,7 +40,7 @@ const MediaYearsStats = (props) => {
               horizontalAlignment="center"
               itemTextPosition="right"
             />
-            <Export enabled={true} />
+            <Export enabled={false} />
             <Tooltip
               enabled={true}
               customizeTooltip={customizeTooltip}

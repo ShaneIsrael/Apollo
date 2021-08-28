@@ -31,5 +31,20 @@ export default {
       tmdbId,
       create
     })
+  },
+  refreshSeasonEpisodesMetadata(seasonId) {
+    return Api().put('/api/v1/series/season/episodes/metadata', {
+      id: seasonId
+    })
+  },
+  probeSeasonEpisodes(seasonId) {
+    return Api().put('/api/v1/series/season/probe', {
+      id: seasonId
+    })
+  },
+  syncSeries(seriesId) {
+    return Api().put('/api/v1/series/sync', {
+      id: seriesId
+    })
   }
 }

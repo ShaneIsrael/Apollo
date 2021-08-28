@@ -3,7 +3,7 @@ import { Grid, Typography, Box, Divider } from '@material-ui/core'
 import tmdb_logo from '../assets/tmdb_logo.svg'
 import logo_dark from '../assets/logo_vertical_dark.png'
 import logo_light from '../assets/logo_vertical_light.png'
-const About = ({theme}) => {
+const About = ({ theme }) => {
   return (
     <>
       <Grid container sx={{ p: 4, width: '100%' }} justifyContent="center" spacing={2}>
@@ -30,7 +30,7 @@ const About = ({theme}) => {
       </Grid>
       <Grid container sx={{ width: '100%' }}>
         <Grid container item xs={12} justifyContent="center">
-          <Typography variant="body1" sx={{fontWeight: 'lighter', fontSize: 32}} color="primary">
+          <Typography variant="body1" sx={{ fontWeight: 'lighter', fontSize: 32 }} color="primary">
             CREDITS
           </Typography>
         </Grid>

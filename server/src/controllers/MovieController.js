@@ -1,6 +1,6 @@
 
 /* eslint-disable no-restricted-globals */
-const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle } = require('../services')
+const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle, syncMovie } = require('../services')
 
 const controller = {}
 
@@ -44,6 +44,16 @@ controller.changeMovieMetadata = async (req, res, next) => {
   try {
     const { movieId, tmdbId, create } = req.body
     const result = await changeMovieMetadata(movieId, tmdbId, create)
+    return res.status(200).send(result)
+  } catch (err) {
+    return next(err)
+  }
+}
+
+controller.syncMovie = async (req, res, next) => {
+  try {
+    const { id } = req.body
+    const result = await syncMovie(id)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)

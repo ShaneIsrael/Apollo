@@ -65,6 +65,7 @@ async function createGeneralLibraryStats() {
         ratingsTotal: 0
       }
       for (const serie of series) {
+        if (!serie.Metadatum) continue
         seasons = seasons.concat(serie.Seasons)
         episodes = episodes.concat(serie.Episodes)
         if (serie.Metadatum && serie.Metadatum.tmdb_rating && serie.Metadatum.tmdb_rating > 0) {
@@ -184,7 +185,10 @@ async function createGeneralLibraryStats() {
         name: null,
       }
       for (const movie of movies) {
+        if (!movie.Metadatum) continue
+
         files = files.concat(movie.MovieFiles)
+        
         if (movie.name && movie.name.length > longestMovieName.length) {
           longestMovieName.length = movie.name.length
           longestMovieName.name = capitalize(movie.name)
@@ -377,8 +381,8 @@ async function start() {
     // Run at midnight
     cron.schedule('0 0 * * *', () => {
       logger.info('Running Stats Generation Cronjob...')
-      createMediaYearsStats().catch(err => logger.error(err))
       createGeneralLibraryStats().catch(err => logger.error(err))
+      createMediaYearsStats().catch(err => logger.error(err))
       createLibraryFolderSizeStats().catch(err => logger.error(err))
     })
   } catch (err) {

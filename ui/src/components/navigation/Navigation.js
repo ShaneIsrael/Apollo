@@ -28,6 +28,8 @@ import LogoutIcon from '@material-ui/icons/Logout'
 import InfoIcon from '@material-ui/icons/Info'
 import Zoom from '@material-ui/core/Zoom'
 
+import background from '../../assets/blurred-background-01.png'
+
 // import { Fade, Tooltip } from '@material-ui/core'
 import { LibraryService } from '../../services'
 import logo from '../../assets/logo.png'
@@ -246,13 +248,13 @@ export default function Navigation(props) {
 
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child, { libraries, setLibraries, sidebarOpen: open })
+      return React.cloneElement(child, { libraries, setLibraries })
     }
     return child
   })
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }}}>
       <AppBar position="fixed" open={open} elevation={1} >
         <Toolbar variant="dense" sx={{ backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff', }}>
           <IconButton
@@ -425,7 +427,17 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6 }}>
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6}}>
+        <Box sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: -1,
+          background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
+          backgroundSize: '100% 100%', width: '100%', height: '100vh',
+          filter: 'brightness(35%)',
+        }} />
         {childrenWithProps}
       </Box>
     </Box>

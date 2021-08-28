@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Paper, Alert, AlertTitle, Snackbar } from '@material-ui/core'
+import { Grid, Paper, Alert, AlertTitle, Snackbar, Box } from '@material-ui/core'
 import { LibraryService } from '../../services'
 import LibraryRow from './LibraryRow'
 
@@ -34,7 +34,7 @@ const EditLibraries = (props) => {
   }
 
   return (
-    <Paper sx={{ p: 2, flexGrow: 1 }}>
+    <Paper sx={{ p: 2, flexGrow: 1, backgroundColor: 'rgba(0, 0, 0, 0)' }} elevation={1} >
       <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} open={alertOpen} autoHideDuration={5000} onClose={handleSnackbarClose}>
         <Alert variant="filled" onClose={handleSnackbarClose} severity={alertData.type} sx={{ width: '100%' }}>
           {alertData.message}
