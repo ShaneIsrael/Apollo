@@ -1,6 +1,5 @@
 const express = require('express')
 const compression = require('compression')
-const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const fs = require('fs')
@@ -53,19 +52,21 @@ async function main() {
     app.use(
       morgan('combined', {
         skip(req, res) {
-          return res.statusCode >= 400
+          return res.statusCode >= 200
         },
         stream: logger.stream,
       }),
     )
   }
 
-  var whitelist = userConfig.ALLOWED_DOMAINS.split(',')
+  var whitelist = userConfig.ALLOWED_DOMAINS.split(',').map(d => d.trim())
   console.log('\n------ CORS WHITELIST ------')
-  console.log(whitelist)
+  for (const domain of whitelist) {
+    console.log('[', '\x1b[32m', domain, '\x1b[0m', ']')
+  }
   console.log('------ CORS WHITELIST ------\n')
 
-  app.use(bodyParser.json())
+  app.use(express.json())
   if (ENVIRONMENT === 'development') {
     app.use(cors())
   } else {

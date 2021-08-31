@@ -27,10 +27,20 @@ async function probe(path) {
 
 async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
   let localPath
+  const seasonNumber = getSeasonNumberFromSeasonDir(seasonDir)
+  if (!tmdbSeason) {
+    const series = await Series.findOne({
+      where: { id: seriesId },
+      include: [Metadata]
+    })
+    if (series.Metadatum) {
+      tmdbSeason = await getSeason(series.Metadatum.tmdbId, seasonNumber)
+    }
+  }
   if (tmdbSeason) {
     localPath = await downloadImage(tmdbSeason.poster_path, 'w342')
   }
-  const seasonNumber = getSeasonNumberFromSeasonDir(seasonDir)
+
   const seasonRow = (await Season.findOrCreate({
     where: {
       seriesId,
@@ -75,9 +85,15 @@ const getFiles = source =>
     .map(dirent => dirent.name)
 
 
-async function createEpisodeData(episode, series, library, seasonNumber, seasonDir, seasonRow, tmdbSeasonMeta, wss) {
+service.addEpisode = (filename, series, seasonDirectoryName) => createEpisodeData(filename, series, seasonDirectoryName)
+
+async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss) {
   const { ext } = path.parse(episode)
   if (VALID_EXTENSIONS.indexOf(ext) === -1) return // not a valid video file
+
+  const seasonRow = await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeasonMeta)
+
+  const seasonNumber = seasonRow.season
 
   const filenameNoExtension = path.parse(episode).name
   const seasonEpisodeParse = filenameNoExtension.match(/[sS]([0-9]+|[0-9]+)[eE]([0-9]+|[0-9]+)/)
@@ -87,6 +103,11 @@ async function createEpisodeData(episode, series, library, seasonNumber, seasonD
     let episodeTitle = ''
     if (episodeTitleSplit.length === 2) {
       episodeTitle = episodeTitleSplit[1]
+    }
+
+
+    if (!tmdbSeasonMeta && series.Metadatum) {
+      tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
     }
 
     const tmdbEpisodeData = tmdbSeasonMeta ? tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber) : null
@@ -139,9 +160,13 @@ async function createEpisodeData(episode, series, library, seasonNumber, seasonD
       if (wss) {
         wss.broadcast(`\tprobing file data -- ${episode}`)
       }
-      const probeData = await probe(path.join(library.path, series.name, seasonDir, episode))
-      episodeRow.file_probe_data = probeData
-      episodeRow.save()
+      try {
+        const probeData = await probe(episodeRow.path)
+        episodeRow.file_probe_data = probeData
+        episodeRow.save()
+      } catch (err) {
+        logger.error(err)
+      }
     }
   } else {
     logger.error(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
@@ -191,7 +216,7 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
           const tmdbSeasonData = seasonData ? seasonData.find((s) => Number(s.season_number) === Number(seasonNumber)) : null
           const seasonRow = await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeasonData)
           for (let episode of episodeFiles) {
-            await createEpisodeData(episode, series, library, seasonNumber, seasonDir, seasonRow, tmdbSeasonMeta, wss)
+            await createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss)
           }
         } else {
           logger.stream.write(`No metadata found for: ${series.name}`)
@@ -286,14 +311,15 @@ service.searchSeriesByTitle = async (title, amount) => {
 service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
   try {
 
-    // If no metadata on series lookup, create new metadata else update current
+    const series = await Series.findOne({
+      where: { id: seriesId },
+      include: [Metadata]
+    })
+
     if (!tmdbId) {
-      const series = await Series.findOne({
-        where: { id: seriesId },
-        include: [Metadata]
-      })
       tmdbId = series.Metadatum.tmdbId
     }
+    
     const newMeta = await getTv(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
@@ -400,9 +426,13 @@ service.probeSeasonEpisodes = async (id) => {
       const existsInDb = season.Episodes.find(ep => ep.filename === file)
       if (existsInDb) {
         logger.info(`probing file data -- ${file}`)
-        const json = await probe(existsInDb.path)
-        existsInDb.file_probe_data = json
-        existsInDb.save()
+        try {
+          const json = await probe(existsInDb.path)
+          existsInDb.file_probe_data = json
+          existsInDb.save()
+        } catch (err) {
+          logger.error(err)
+        }
       }
     }
   } catch (err) {
@@ -424,9 +454,13 @@ service.syncSeries = async (id) => {
         episode.destroy()
       } else {
         logger.info(`sync series files -- updating probe data ${episode.filename}`)
-        const json = await probe(episode.path)
-        episode.file_probe_data = json
-        episode.save()
+        try {
+          const json = await probe(episode.path)
+          episode.file_probe_data = json
+          episode.save()
+        } catch (err) {
+          logger.error(err)
+        }
       }
     }
 
@@ -447,18 +481,18 @@ service.syncSeries = async (id) => {
         if (untracked.length > 0) {
           const tmdbSeason = series.Metadatum ? await getSeason(series.Metadatum.tmdbId, seasonNumber) : null
           for (const epFile of untracked) {
-            await createEpisodeData(epFile, series, series.Library, seasonNumber, seasonDir, season, tmdbSeason)
+            await createEpisodeData(epFile, series, seasonDir, tmdbSeason)
           }
         }
       } else {
         logger.info(`sync series files -- found untracked season and attempting to add...`)
         const files = getFiles(`${series.path}/${seasonDir}`)
         if (files.length > 0) {
-          const tmdbSeason = series.Metadatum ? await getSeason(series.Metadatum.tmdbId, seasonNumber) : null
-          const seasonRow = await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeason)
+          const tmdbSeason = series.Metadatum || null
+          await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeason)
           for (let epFile of files) {
             logger.info(`sync series files -- adding episode ${epFile}...`)
-            await createEpisodeData(epFile, series, series.Library, seasonNumber, seasonDir, seasonRow, tmdbSeasosn)
+            await createEpisodeData(epFile, series, seasonDir, tmdbSeasosn)
           }
         }
       }
@@ -469,6 +503,62 @@ service.syncSeries = async (id) => {
   }
 }
 
+async function createSeriesMetadata(series) {
+  const search = await searchTv(series.name)
+  await sleep(500)
+  if (search.results.length > 0) {
+    const details = await getTv(search.results[0].id)
+    if (details) {
+      seasonData = details.seasons
+      // logger.stream.write('download image')
+      const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
+      const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
+
+      const seriesMeta = (await Metadata.findOrCreate({
+        where: { seriesId: series.id },
+        defaults: {
+          seriesId: series.id,
+          tmdbId: details.id,
+          imdbId: details.imdbId ? details.imdbId : null,
+          tmdb_poster_path: details.poster_path,
+          tmdb_backdrop_path: details.backdrop_path,
+          local_poster_path: posterPath ? posterPath.split('/').pop() : null,
+          local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
+          release_date: details.first_air_date,
+          tmdb_rating: details.vote_average,
+          overview: details.overview,
+          genres: details.genres.map((g) => g.name).join(','),
+          name: details.name
+        }
+      }))[0]
+      return seriesMeta
+    }
+  }
+  return null
+}
+
+service.addSeriesMetadata = (series) => createSeriesMetadata(series)
+
+async function createSeries(name, path, libraryId) {
+  const series = await Series.findOrCreate({
+    where: {
+      name,
+      path,
+      libraryId,
+    },
+    defaults: {
+      name,
+      path,
+      libraryId,
+      uuid: short.generate(),
+    }
+  })
+  return series[0]
+
+}
+
+service.addSeries = (name, path, libraryId) => createSeries(name, path, libraryId)
+
 service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)
   wss.broadcast(`crawling initiated: ${library.name}`)
@@ -478,55 +568,27 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
     library.save()
 
     const seriesRootDirs = getDirectories(library.path)
-    for (let series of seriesRootDirs) {
-      series = (await Series.findOrCreate({
-        where: {
-          name: series
-        },
-        defaults: {
-          name: series,
-          uuid: short.generate(),
-          path: `${library.path}/${series}`,
-          libraryId
-        },
-        raw: true
-      }))
-
-      logger.stream.write(`working: ${series[0].name}`)
-      let seasonData
-      let seriesMeta
-      if (series[1]) { // if it was newly created
-        wss.broadcast(`\tfetching metadata -- ${series[0].name}`)
-        const search = await searchTv(series[0].name)
-        await sleep(500)
-        if (search.results.length > 0) {
-          const details = await getTv(search.results[0].id)
-          if (details) {
-            seasonData = details.seasons
-            // logger.stream.write('download image')
-            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
-            const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
-
-            seriesMeta = (await Metadata.findOrCreate({
-              where: { seriesId: series[0].id },
-              defaults: {
-                seriesId: series[0].id,
-                tmdbId: details.id,
-                imdbId: details.imdbId ? details.imdbId : null,
-                tmdb_poster_path: details.poster_path,
-                tmdb_backdrop_path: details.backdrop_path,
-                local_poster_path: posterPath ? posterPath.split('/').pop() : null,
-                local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
-                release_date: details.first_air_date,
-                tmdb_rating: details.vote_average,
-                overview: details.overview,
-                genres: details.genres.map((g) => g.name).join(','),
-                name: details.name
-              }
-            }))[0]
-          }
-        }
-        await crawlSeasons(series[0].id, seasonData, wss)
+    for (let seriesDir of seriesRootDirs) {
+      logger.stream.write(`working: ${seriesDir}`)
+      wss.broadcast(`working -- ${seriesDir}`)
+      let series = await Series.findOne({
+        where: { name: seriesDir, libraryId },
+        include: [Metadata, Season]
+      })
+      if (!series) {
+        logger.info(`creating series -- ${seriesDir}`)
+        wss.broadcast(`creating series -- ${seriesDir}`)
+        series = await createSeries(seriesDir, `${library.path}/${seriesDir}`, library.id)
+      }
+      if (!series.Metadatum) {   
+        logger.info(`creating metadata -- ${series.name}`)     
+        wss.broadcast(`creating metadata -- ${series.name}`)
+        await createSeriesMetadata(series)
+      }
+      if (!series.Seasons) {
+        logger.info(`crawling series seasons -- ${series.name}`)
+        wss.broadcast(`crawling series seasons -- ${series.name}`)
+        await crawlSeasons(series.id, null, wss)
       }
     }
     wss.broadcast(`crawling done: ${library.name}`)

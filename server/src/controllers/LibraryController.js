@@ -1,7 +1,7 @@
 
 /* eslint-disable no-restricted-globals */
 const { existsSync, lstatSync } = require('fs')
-const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, 
+const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary,
   deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
   crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
 
@@ -20,7 +20,7 @@ function calculateDuration(duration) {
 }
 
 function validatePath(path) {
-  try {   
+  try {
     const valid = existsSync(path) && lstatSync(path).isDirectory()
     return valid
   } catch (err) {
@@ -80,10 +80,10 @@ controller.createLibrary = async (req, res, next) => {
       if (type === 'series')
         crawlSeries(result.id, req.app.get('wss'))
     }
-    
+
     const observer = req.app.get('observer')
     observer.watch()
-
+    
     return res.status(200).send(result)
   } catch (err) {
     if (err.message === 'Validation error') {
@@ -106,6 +106,12 @@ controller.updateLibrary = async (req, res, next) => {
     if (['series', 'movie'].indexOf(type.toLowerCase()) === -1)
       return res.status(400).send('Library type must be either series or movie.')
 
+    new Promise((resolve) => {
+      const observer = req.app.get('observer')
+      observer.watch()
+      resolve()
+    })
+
     const result = await updateLibrary(req.body.id, req.body)
     return res.status(200).send(result)
   } catch (err) {
@@ -120,9 +126,10 @@ controller.deleteLibrary = async (req, res, next) => {
       return res.status(400).send('Cannot delete during an active crawl.')
     }
     await deleteLibrary(req.body.id)
+
     const observer = req.app.get('observer')
     observer.watch()
-
+    
     return res.status(200).send('ok')
   } catch (err) {
     return next(err)
@@ -133,8 +140,8 @@ controller.getAllLibrarySeries = async (req, res, next) => {
   try {
     const library = await getAllLibrarySeries(req.query.id)
     const media = []
-    
-    for(const series of library.Series) {
+
+    for (const series of library.Series) {
       media.push({
         id: `${library.tag}-${series.id}`,
         seriesId: series.id,
@@ -154,8 +161,8 @@ controller.getAllLibraryMovies = async (req, res, next) => {
   try {
     const library = await getAllLibraryMovies(req.query.id)
     const media = []
-    
-    for(const movie of library.Movies) {
+
+    for (const movie of library.Movies) {
       media.push({
         id: `${library.tag}-${movie.id}`,
         movieId: movie.id,
@@ -183,11 +190,11 @@ controller.validateLibraryPath = async (req, res, next) => {
 
 controller.crawl = async (req, res, next) => {
   try {
-    
+
     const { id } = req.body
     const library = await getLibrary(id)
     const crawling = await isCrawlingActive()
-    
+
     if (!crawling) {
       const wss = req.app.get('wss')
       if (library.type === 'movie')
