@@ -90,12 +90,11 @@ service.updateLibrary = async (id, update) => {
   }
 }
 
-service.deleteLibrary = async (id) => {
+service.deleteLibrary = (id) => {
   try {
-    const res = await Library.destroy(
+    Library.destroy(
       { where: { id } }
     )
-    return res
   } catch (err) {
     throw err
   }

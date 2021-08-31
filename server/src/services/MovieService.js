@@ -51,7 +51,7 @@ service.getMovieById = async (id) => {
 service.getMovieByUuid = async (uuid) => {
   try {
     const movie = await Movie.findOne({
-      where: {uuid},
+      where: { uuid },
       include: [Metadata]
     })
     return movie
@@ -85,11 +85,11 @@ service.searchMovieByTitle = async (title, amount) => {
  * @param {*} tmdbId The new series to update to
  * @returns 
  */
- service.changeMovieMetadata = async (movieId, tmdbId, create) => {
+service.changeMovieMetadata = async (movieId, tmdbId, create) => {
   try {
     if (!tmdbId) {
       const movie = await Movie.findOne({
-        where: { id: movieId},
+        where: { id: movieId },
         include: [Meatadata]
       })
       tmdbId = movie.Metadatum.tmdbId
@@ -160,9 +160,13 @@ service.syncMovie = async (id) => {
         file.destroy()
       } else {
         logger.info(`sync movie files -- updating probe data ${file.filename}`)
-        const json = await probe(file.path)
-        file.metadata = json
-        file.save()
+        try {
+          const json = await probe(file.path)
+          file.metadata = json
+          file.save()
+        } catch (err) {
+          logger.error(err)
+        }
       }
     }
 
@@ -177,18 +181,21 @@ service.syncMovie = async (id) => {
     logger.info(`sync movie files -- found ${untracked.length} untracked files for Movie ${movie.name}...`)
     if (untracked.length > 0) {
       for (const file of untracked) {
-        console.log(file)
         const { ext } = path.parse(file)
         if (VALID_EXTENSIONS.indexOf(ext) === -1) continue
-        
+
         logger.info(`sync movie files -- creating MovieFile row for ${file}`)
-        const filedata = await probe(path.join(movie.path, file))
-        await MovieFile.create({
-          movieId: movie.id,
-          filename: file,
-          path: `${movie.path}/${file}`,
-          metadata: filedata
-        })
+        try {
+          const filedata = await probe(path.join(movie.path, file))
+          await MovieFile.create({
+            movieId: movie.id,
+            filename: file,
+            path: `${movie.path}/${file}`,
+            metadata: filedata
+          })
+        } catch (err) {
+          logger.error(err)
+        }
       }
     }
   } catch (err) {
@@ -197,6 +204,88 @@ service.syncMovie = async (id) => {
   }
 }
 
+async function createMovieMetadata(movie) {
+  const search = await searchMovie(movie.name.replace(/(\([0-9]{4}\))/g, '')) // remove trailing (1000) year
+  await sleep(500)
+  if (search.results.length > 0) {
+    const details = await getMovie(search.results[0].id)
+    if (details) {
+      const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
+      const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
+      const meta = (await Metadata.findOrCreate({
+        where: { movieId: movie.id },
+        defaults: {
+          movieId: movie.id,
+          tmdbId: details.id,
+          imdbId: details.imdbId ? details.imdbId : null,
+          tmdb_poster_path: details.poster_path,
+          tmdb_backdrop_path: details.backdrop_path,
+          local_poster_path: posterPath ? posterPath.split('/').pop() : null,
+          local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
+          release_date: details.release_date,
+          tmdb_rating: details.vote_average,
+          overview: details.overview,
+          genres: details.genres.map((g) => g.name).join(','),
+          name: details.title
+        }
+      }))[0]
+      return meta
+    }
+  }
+  return null
+}
+
+service.addMovieMetadata = (movie) => createMovieMetadata(movie)
+
+async function createMovie(name, path, libraryId) {
+  const movie = (await Movie.findOrCreate({
+    where: {
+      name,
+      libraryId,
+    },
+    defaults: {
+      name,
+      path,
+      uuid: short.generate(),
+      libraryId
+    },
+  }))
+  return movie[0]
+}
+
+service.addMovie = (name, path, libraryId) => createMovie(name, path, libraryId)
+
+async function crawlMovieFiles(movie, wss) {
+  const files = getFiles(movie.path)
+  for (const file of files) {
+    const { ext } = path.parse(file)
+    if (VALID_EXTENSIONS.indexOf(ext) === -1) continue
+    const fileRow = (await MovieFile.findOrCreate({
+      where: {
+        movieId: movie.id,
+        filename: file
+      },
+      defaults: {
+        movieId: movie.id,
+        filename: file,
+        path: `${movie.path}/${file}`
+      }
+    }))
+    if (fileRow[1]) { // newly created
+      wss && wss.broadcast(`probing movie file data -- ${file}`)
+      try {
+        const filedata = await probe(fileRow[0].path)
+        fileRow[0].metadata = filedata
+        fileRow[0].save()
+      } catch (err) {
+        logger.error(err)
+      }
+    }
+  }
+}
+
+service.crawlMovieFiles = (movie) => crawlMovieFiles(movie)
+
 service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)
   wss.broadcast(`crawling initiated: ${library.name}`)
@@ -204,74 +293,29 @@ service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) =>
     if (!library) throw new Error(`Library does not exist with id: ${libraryId}`)
     library.crawling = true
     library.save()
-    
+
     const moviesRootDirs = getDirectories(library.path)
     for (let movieDir of moviesRootDirs) {
-      movie = (await Movie.findOrCreate({
-        where: {
-          name: movieDir
-        },
-        defaults: {
-          name: movieDir,
-          path: `${library.path}/${movieDir}`,
-          uuid: short.generate(),
-          libraryId
-        },
-        raw: true
-      }))
-      if (movie[1]) { // if it was newly created
-        wss.broadcast(`\tfetching metadata -- ${movie[0].name}`)
-        const search = await searchMovie(movie[0].name.replace(/(\([0-9]{4}\))/g, '')) // remove trailing (1000) year
-        await sleep(500)
-        if (search.results.length > 0) {
-          const details = await getMovie(search.results[0].id)
-          if (details) {
-            const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
-            const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
-            const meta = (await Metadata.findOrCreate({
-              where: { movieId: movie[0].id },
-              defaults: {
-                movieId: movie[0].id,
-                tmdbId: details.id,
-                imdbId: details.imdbId ? details.imdbId : null,
-                tmdb_poster_path: details.poster_path,
-                tmdb_backdrop_path: details.backdrop_path,
-                local_poster_path: posterPath ? posterPath.split('/').pop() : null,
-                local_backdrop_path: backdropPath ? backdropPath.split('/').pop() : null,
-                release_date: details.release_date,
-                tmdb_rating: details.vote_average,
-                overview: details.overview,
-                genres: details.genres.map((g) => g.name).join(','),
-                name: details.title
-              }
-            }))[0]
-          }
-        }
+      logger.stream.write(`working: ${movieDir}`)
+      wss.broadcast(`working -- ${movieDir}`)
+      let movie = await Movie.findOne({
+        where: { name: movieDir, libraryId },
+        include: [Metadata, MovieFile]
+      })
+      if (!movie) { // if it was newly created
+        logger.info(`creating movie -- ${movieDir}`)
+        wss.broadcast(`creating movie -- ${movieDir}`)
+        movie = await createMovie(movieDir, `${library.path}/${movieDir}`, library.id)
       }
-      const files = getFiles(path.resolve(library.path, movie[0].name))
-      for (const file of files) {
-        logger.info(`\tchecking ${file}`)
-        const { ext } = path.parse(file)
-        if (VALID_EXTENSIONS.indexOf(ext) === -1) continue
-        const fileRow = (await MovieFile.findOrCreate({
-          where: {
-            movieId: movie[0].id,
-            filename: file
-          },
-          defaults: {
-            movieId: movie[0].id,
-            filename: file,
-            path: `${movie[0].path}/${file}`
-          }
-        }))
-        if (fileRow[1]) {
-          wss.broadcast(`\tprobing file data -- ${file}`)
-          const filedata = await probe(path.join(library.path, movie[0].name, file))
-          fileRow[0].metadata = filedata
-          fileRow[0].save()
-        } else {
-          continue
-        }
+      if (!movie.Metadatum) {
+        logger.info(`creating metadata -- ${movie.name}`)
+        wss.broadcast(`creating metadata -- ${movie.name}`)
+        await createMovieMetadata(movie)
+      }
+      if (!movie.MovieFile) {
+        logger.info(`crawling movie files -- ${movie.name}`)
+        wss.broadcast(`crawling movie files -- ${movie.name}`)
+        await crawlMovieFiles(movie, wss)
       }
     }
     wss.broadcast(`crawling done: ${library.name}`)
