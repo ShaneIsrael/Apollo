@@ -100,8 +100,8 @@ const Series = ({ sidebarOpen }) => {
       {
         title: "General Info",
         data: {
-         "Number of Seasons": series.Seasons.length,
-         "Number of Episodes": series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c)
+         "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
+         "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes'
         }
       },
       {

@@ -13,6 +13,7 @@ const LibraryRow = ({ library, handleChange }) => {
   const [path, setPath] = React.useState(library.path)
   const [changed, setChanged] = React.useState(false)
   const [crawling, setCrawling] = React.useState(library.crawling)
+  const [deleting, setDeleting] = React.useState(false)
 
   const [deleteConfirm, showDeleteConfirm] = React.useState(false)
   const [crawlConfirm, showCrawlConfirm] = React.useState(false)
@@ -50,6 +51,7 @@ const LibraryRow = ({ library, handleChange }) => {
 
   const deleteLibrary = async () => {
     try {
+      setDeleting(true)
       await LibraryService.deleteLibrary(library.id)
       handleChange('Library Deleted!', 'warning')
     } catch (err) {
@@ -95,8 +97,21 @@ const LibraryRow = ({ library, handleChange }) => {
   const confirmDeleteItems = (
     <Grid item>
       <Stack sx={{ pl: 1 }} direction="row" alignItems="center" spacing={1}>
-        <Button onClick={() => showDeleteConfirm(false)} size="small" variant="contained">Cancel</Button>
-        <Button onClick={deleteLibrary} size="small" variant="contained" color="error">Delete</Button>
+        {
+          deleting ?
+            <Button variant="outlined" size="small" disabled={true}
+              startIcon={<RefreshIcon sx={{
+                animation: 'spinright 1s infinite linear'
+              }} fontSize="inherit" />
+              }>
+              Deleting...
+            </Button>
+            :
+            <>
+              <Button onClick={() => showDeleteConfirm(false)} size="small" variant="contained">Cancel</Button>
+              <Button onClick={deleteLibrary} size="small" variant="contained" color="error">Delete</Button>
+            </>
+        }
       </Stack>
     </Grid>
   )
