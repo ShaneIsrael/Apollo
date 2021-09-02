@@ -31,9 +31,10 @@ import Zoom from '@material-ui/core/Zoom'
 import background from '../../assets/blurred-background-01.png'
 
 // import { Fade, Tooltip } from '@material-ui/core'
-import { LibraryService } from '../../services'
+import { LibraryService, MovieService, SeriesService } from '../../services'
 import logo from '../../assets/logo.png'
 import { Popover, Tooltip } from '@material-ui/core'
+import { Series } from 'devextreme-react/chart'
 
 const drawerWidth = 240
 
@@ -157,6 +158,23 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
   }),
 )
 
+function createLibraryStats(stats) {
+  if (stats.type === 'series') {
+    return (
+      <Typography variant="overline" color="primary" noWrap sx={{fontSize: 15}}>
+        {`${stats.seriesCount.toLocaleString()} Series | ${stats.seasonCount.toLocaleString()} Seasons | ${stats.episodeCount.toLocaleString()} Episodes`}
+      </Typography>
+    )
+  }
+  if (stats.type === 'movie') {
+    return (
+      <Typography variant="overline" color="primary" noWrap sx={{fontSize: 15}}>
+        {`${stats.movieCount.toLocaleString()} Movies`}
+      </Typography>
+    )
+  }
+}
+
 function createLibraryPages(libraries) {
   if (!libraries) return []
   return libraries.map(({ name, path, type, tag }) => (
@@ -207,6 +225,7 @@ export default function Navigation(props) {
 
   const [navSearchText, setNavSearchText] = React.useState('')
   const [navSearchAnchorEl, setNavSearchAnchorEl] = React.useState(null)
+  const [stats, setStats] = React.useState(null)
 
   React.useEffect(() => {
     async function fetch() {
@@ -221,7 +240,30 @@ export default function Navigation(props) {
 
   React.useEffect(() => {
     setSelectedPage(tag || page)
-  }, [tag, page])
+    async function fetchStats() {
+      const library = libraries.find(lib => lib.tag === tag)
+      if (library) {
+        if (library.type === 'series') {
+          const seriesCount = (await SeriesService.getSeriesCount(library.id)).data
+          const seasonCount = (await SeriesService.getSeasonCount(library.id)).data
+          const episodeCount = (await SeriesService.getEpisodeCount(library.id)).data
+          setStats(createLibraryStats({
+            type: library.type,
+            seriesCount,
+            seasonCount,
+            episodeCount
+          }))
+        } else {
+          const movieCount = (await MovieService.getMovieCount(library.id)).data
+          setStats(createLibraryStats({
+            type: library.type,
+            movieCount,
+          }))
+        }
+      }
+    }
+    fetchStats()
+  }, [tag, page, libraries])
 
   if (!title && page) {
     title = capitalize(page)
@@ -254,7 +296,7 @@ export default function Navigation(props) {
   })
 
   return (
-    <Box sx={{ display: 'flex', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }}}>
+    <Box sx={{ display: 'flex', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <AppBar position="fixed" open={open} elevation={1} >
         <Toolbar variant="dense" sx={{ backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#fff', }}>
           <IconButton
@@ -269,80 +311,65 @@ export default function Navigation(props) {
           >
             <MenuIcon sx={{ color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }} />
           </IconButton>
-          <img src={logo} style={{ height: 35, paddingRight: 10 }} />
-          <Typography
-            variant="h6"
-            noWrap
-            component="div"
-            sx={{ flex: 1, display: { xs: 'block', sm: 'block' }, color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }}
-          >
-            {title}
-          </Typography>
-          {/* <Search aria-describedby="navigation-search" onFocus={(e) => setNavSearchAnchorEl(e.currentTarget)}>
-            <SearchIconWrapper>
-              <SearchIcon size="small" />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-              onChange={handleSearchTextChange}
-            />
-          </Search>
-          <Popover
-            id={Boolean(navSearchAnchorEl) ? "navigation-search" : undefined}
-            open={Boolean(navSearchAnchorEl)}
-            disableAutoFocus={true}
-            disableEnforceFocus={true}
-            anchorEl={navSearchAnchorEl}
-            onClose={() => setNavSearchAnchorEl(null)}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-          >
-            Some Search Text Goes Here
-          </Popover> */}
-          <Box sx={{ pl: 1 }}>
-            <IconButton
-              size="large"
-              edge="end"
-              aria-label="theme toggle"
-              aria-haspopup="true"
-              onClick={toggleTheme}
-              color="inherit"
-            >
-              {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon sx={{ color: 'rgba(0, 0, 0, 0.75)' }} />}
-            </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1, mr: -6 }}>
+            <Box sx={{ flexWrap: 'nowrap', display: { xs: 'flex', sm: 'flex' } }}>
+              <img src={logo} style={{ height: 35, paddingRight: 10 }} />
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{ color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }}
+              >
+                {title}
+              </Typography>
+            </Box>
           </Box>
-          <Box sx={{ pl: 1 }}>
-            {user ?
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="theme toggle"
-                onClick={logout}
-                component={NavLink}
-                to={`/`}
-                color="secondary"
-              >
-                <Tooltip title={`Signed in as ${user.username}`} placement="bottom-start"><LogoutIcon /></Tooltip>
-              </IconButton>
-              :
-              <IconButton
-                size="large"
-                edge="end"
-                aria-label="theme toggle"
-                component={NavLink}
-                to={`/login`}
-                color="secondary"
-              >
-                <LoginIcon />
-              </IconButton>
-            }
+          <Box sx={{ display: {xs: 'none', sm: 'none', md: 'flex'}, alignItems: 'center', flexGrow: 1 }}>
+            <Box sx={{ flexWrap: 'nowrap', display: 'flex' }}>
+              {stats}
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <Box sx={{ flexWrap: 'nowrap', display: 'flex' }}>
+              <Box sx={{ pl: 1 }}>
+                <IconButton
+                  size="large"
+                  edge="end"
+                  aria-label="theme toggle"
+                  aria-haspopup="true"
+                  onClick={toggleTheme}
+                  color="inherit"
+                >
+                  {theme.palette.mode === 'dark' ? <BrightnessHighIcon /> : <Brightness4Icon sx={{ color: 'rgba(0, 0, 0, 0.75)' }} />}
+                </IconButton>
+              </Box>
+              <Box sx={{ pl: 1 }}>
+                {user ?
+                  <IconButton
+                    size="large"
+                    edge="end"
+                    aria-label="theme toggle"
+                    onClick={logout}
+                    component={NavLink}
+                    to={`/`}
+                    color="secondary"
+                  >
+                    <Tooltip title={`Signed in as ${user.username}`} placement="bottom-start"><LogoutIcon /></Tooltip>
+                  </IconButton>
+                  :
+                  <IconButton
+                    size="large"
+                    edge="end"
+                    aria-label="theme toggle"
+                    component={NavLink}
+                    to={`/login`}
+                    color="secondary"
+                  >
+                    <LoginIcon />
+                  </IconButton>
+                }
+              </Box>
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
@@ -427,7 +454,7 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6}}>
+      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6 }}>
         <Box sx={{
           position: 'absolute',
           top: 0,

@@ -7,7 +7,7 @@ const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-s
 
 const { VALID_EXTENSIONS } = require('../constants')
 const { searchMovie, getMovie, downloadImage } = require('./TmdbService')
-const { Library, Movie, Metadata, MovieFile } = require('../database/models')
+const { Library, Movie, Metadata, MovieFile, Op } = require('../database/models')
 const logger = require('../logger')
 
 const service = {}
@@ -285,6 +285,17 @@ async function crawlMovieFiles(movie, wss) {
 }
 
 service.crawlMovieFiles = (movie) => crawlMovieFiles(movie)
+
+service.getMovieCount = async (id) => {
+  try {
+    const count = await Movie.count({
+      where: { libraryId: id }
+    })
+    return count
+  } catch (err) {
+    logger.error(err)
+  }
+}
 
 service.crawlMovies = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)

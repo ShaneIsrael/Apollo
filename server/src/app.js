@@ -11,6 +11,7 @@ const configFlags = require('./utils/checkConfigFlags')
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
 const config = require('./config')[ENVIRONMENT]
 const Observer = require('./observer')
+const Cache = require('./utils/Cache')
 
 async function main() {
   let userConfig
@@ -60,11 +61,6 @@ async function main() {
   }
 
   var whitelist = userConfig.ALLOWED_DOMAINS.split(',').map(d => d.trim())
-  console.log('\n------ CORS WHITELIST ------')
-  for (const domain of whitelist) {
-    console.log('[', '\x1b[32m', domain, '\x1b[0m', ']')
-  }
-  console.log('------ CORS WHITELIST ------\n')
 
   app.use(express.json())
   if (ENVIRONMENT === 'development') {
@@ -124,7 +120,9 @@ async function main() {
 
   // Start the server
   const port = ENVIRONMENT === 'development' ? 3001 : userConfig.SERVER_PORT
-  console.log(`\n\nApollo is running at http://localhost:${port}`)
+  console.log('\n')
+  logger.info(`Apollo is running at http://localhost:${port}`)
+  console.log('\n')
 
   const server = app.listen(port)
   const wss = new WebSocket.Server({ server })
@@ -141,9 +139,16 @@ async function main() {
       }))
     })
   }
+  const cache = new Cache(60)
   const observer = new Observer()
   app.set('wss', wss)
+  app.set('cache', cache)
   app.set('observer', observer)
+
+  console.log('-------- CORS WHITELIST --------')
+  for (const domain of whitelist) {
+    console.log('[', '\x1b[32m', domain, '\x1b[0m', ']')
+  }
 
   // Open browser
   if (ENVIRONMENT === 'production') {

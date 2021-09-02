@@ -2,9 +2,45 @@
 /* eslint-disable no-restricted-globals */
 const { getSeriesById, searchSeriesById, searchSeriesByTitle, 
   getSeriesByUuid, changeSeriesMetadata, getSeriesSeason,
-  refreshSeasonEpisodesMetadata, probeSeasonEpisodes, syncSeries} = require('../services')
+  refreshSeasonEpisodesMetadata, probeSeasonEpisodes, syncSeries,
+  getEpisodeCount, getSeasonCount, getSeriesCount } = require('../services')
+
+const {setCache} = require('../utils/cacheData')
 
 const controller = {}
+
+controller.getEpisodeCount = async (req, res, next) => {
+  try {
+    const { id } = req.query
+    const count = await getEpisodeCount(id)
+    setCache(req, count)
+    return res.status(200).send(String(count))
+  } catch (err) {
+    return next(err)
+  }
+}
+
+controller.getSeasonCount = async (req, res, next) => {
+  try {
+    const { id } = req.query
+    const count = await getSeasonCount(id)
+    setCache(req, count)
+    return res.status(200).send(String(count))
+  } catch (err) {
+    return next(err)
+  }
+}
+
+controller.getSeriesCount = async (req, res, next) => {
+  try {
+    const { id } = req.query
+    const count = await getSeriesCount(id)
+    setCache(req, count)
+    return res.status(200).send(String(count))
+  } catch (err) {
+    return next(err)
+  }
+}
 
 controller.getSeriesById = async (req, res, next) => {
   try {
@@ -27,6 +63,7 @@ controller.getSeriesByUuid = async (req, res, next) => {
 controller.getSeriesSeason = async (req, res, next) => {
   try {
     const result = await getSeriesSeason(req.params.seriesId, req.params.season)
+    setCache(req, result)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -36,6 +73,7 @@ controller.getSeriesSeason = async (req, res, next) => {
 controller.searchSeriesById = async (req, res, next) => {
   try {
     const result = await searchSeriesById(req.params.id, req.params.amount)
+    setCache(req, result)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -45,6 +83,7 @@ controller.searchSeriesById = async (req, res, next) => {
 controller.searchSeriesByTitle = async (req, res, next) => {
   try {
     const result = await searchSeriesByTitle(req.params.title, 20)
+    setCache(req, result)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -55,6 +94,7 @@ controller.changeSeriesMetadata = async (req, res, next) => {
   try {
     const { seriesId, tmdbId, create } = req.body
     const result = await changeSeriesMetadata(seriesId, tmdbId, create)
+    req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -65,6 +105,7 @@ controller.refreshSeasonEpisodesMetadata = async (req, res, next) => {
   try {
     const { id } = req.body
     const result = await refreshSeasonEpisodesMetadata(id)
+    req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
     return next(err)

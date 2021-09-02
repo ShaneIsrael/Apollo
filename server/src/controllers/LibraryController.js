@@ -8,6 +8,8 @@ const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary,
 const { Library } = require('../database/models')
 const logger = require('../logger')
 
+const { setCache } = require('../utils/cacheData')
+
 const controller = {}
 
 function calculateDuration(duration) {
@@ -83,7 +85,7 @@ controller.createLibrary = async (req, res, next) => {
 
     const observer = req.app.get('observer')
     observer.watch()
-    
+    req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
     if (err.message === 'Validation error') {
@@ -113,6 +115,7 @@ controller.updateLibrary = async (req, res, next) => {
     })
 
     const result = await updateLibrary(req.body.id, req.body)
+    req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -129,7 +132,7 @@ controller.deleteLibrary = async (req, res, next) => {
 
     const observer = req.app.get('observer')
     observer.watch()
-    
+    req.app.get('cache').flush()
     return res.status(200).send('ok')
   } catch (err) {
     return next(err)
@@ -151,6 +154,7 @@ controller.getAllLibrarySeries = async (req, res, next) => {
         poster: series.Metadatum ? series.Metadatum.local_poster_path : '',
       })
     }
+    setCache(req, media)
     return res.status(200).send(media)
   } catch (err) {
     return next(err)
@@ -172,6 +176,7 @@ controller.getAllLibraryMovies = async (req, res, next) => {
         poster: movie.Metadatum ? movie.Metadatum.local_poster_path : '',
       })
     }
+    setCache(req, media)
     return res.status(200).send(media)
   } catch (err) {
     return next(err)
