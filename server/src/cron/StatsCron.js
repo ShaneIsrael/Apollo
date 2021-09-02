@@ -351,18 +351,17 @@ async function createLibraryFolderSizeStats() {
         valueUnit: 'MB',
         items: []
       }
-      const libraryFolders = library.Movies.length > 0 ? library.Movies : library.Series
-      for (const folder of libraryFolders) {
-        const path = `${library.path}/${folder.name}`
-        const valid = existsSync(path) && lstatSync(path).isDirectory()
+      const libraryEntries = library.type === 'movie' ? library.Movies : library.Series
+      for (const entry of libraryEntries) {
+        const valid = existsSync(entry.path) && lstatSync(entry.path).isDirectory()
         if (valid) {
-          const size = await getFolderSize(path)
+          const size = await getFolderSize(entry.path)
           libraryStat.items.push({
             value: (size / 1000 / 1000).toFixed(2),
-            name: folder.name
+            name: entry.name
           })
         } else {
-          logger.warn(`stats - createLibraryFolderSizeStats() - directory does not exist: ${path}`)
+          logger.warn(`stats - createLibraryFolderSizeStats() - directory does not exist: ${entry.path}, ${entry.id}`)
         }
       }
       libraryDataStats.push(libraryStat)

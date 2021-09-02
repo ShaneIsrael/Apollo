@@ -9,6 +9,27 @@ export default {
       }
     })
   },
+  getSeriesCount(libraryId) {
+    return Api().get('/api/v1/series/count', {
+      params: {
+        id: libraryId
+      }
+    })
+  },
+  getEpisodeCount(libraryId) {
+    return Api().get('/api/v1/series/episode/count', {
+      params: {
+        id: libraryId
+      }
+    })
+  },
+  getSeasonCount(libraryId) {
+    return Api().get('/api/v1/series/season/count', {
+      params: {
+        id: libraryId
+      }
+    })
+  },
   getByUuid(uuid) {
     return Api().get('/api/v1/series/uuid', {
       params: {

@@ -23,7 +23,11 @@ class Observer {
       if (this.libraries.length > 0) {
         this.watcher = chokidar.watch(this.libraries.map(library => library.path), { persistent: true, ignoreInitial: true })
 
-        logger.info(`>> watching ${this.libraries.length} libraries <<`)
+        console.log('------ WATCHING LIBRARIES ------')
+        for (const library of this.libraries) {
+          console.log('\x1b[32m', library.path, '\x1b[0m')
+        }
+        console.log('--------------------------------')
 
         this.watcher
           .on('addDir', ffpath => handleDirectoryAdded(toGenericPath(ffpath), this.findLibraryFromPath(toGenericPath(ffpath))))

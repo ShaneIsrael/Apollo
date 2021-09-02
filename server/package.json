@@ -30,6 +30,7 @@
     "imagemin-pngquant": "^9.0.2",
     "jsonwebtoken": "^8.5.1",
     "morgan": "^1.10.0",
+    "node-cache": "^5.1.2",
     "node-cron": "^3.0.0",
     "sequelize": "^6.6.5",
     "sequelize-cli": "^6.2.0",

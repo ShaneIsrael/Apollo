@@ -9,6 +9,13 @@ export default {
       }
     })
   },
+  getMovieCount(libraryId) {
+    return Api().get('/api/v1/movie/count', {
+      params: {
+        id: libraryId
+      }
+    })
+  },
   getByUuid(uuid) {
     return Api().get('/api/v1/movie/uuid', {
       params: {

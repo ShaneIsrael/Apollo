@@ -6,7 +6,7 @@ const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-s
 const short = require('short-uuid')
 
 const { searchTv, getTv, getSeason, downloadImage } = require('./TmdbService')
-const { Library, Series, Metadata, Season, Episode } = require('../database/models')
+const { Library, Series, Metadata, Season, Episode, Op } = require('../database/models')
 const { VALID_EXTENSIONS } = require('../constants')
 const logger = require('../logger')
 const service = {}
@@ -319,7 +319,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     if (!tmdbId) {
       tmdbId = series.Metadatum.tmdbId
     }
-    
+
     const newMeta = await getTv(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
@@ -559,6 +559,59 @@ async function createSeries(name, path, libraryId) {
 
 service.addSeries = (name, path, libraryId) => createSeries(name, path, libraryId)
 
+service.getEpisodeCount = async (id) => {
+  try {
+    let seriesIds = await Series.findAll({
+      attributes: ['id'],
+      where: { libraryId: id },
+      raw: true
+    })
+    seriesIds = seriesIds.map(ele => ele.id)
+    const count = await Episode.count({
+      where: {
+        seriesId: {
+          [Op.in]: seriesIds
+        }
+      }
+    })
+    return count
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getSeasonCount = async (id) => {
+  try {
+    let seriesIds = await Series.findAll({
+      attributes: ['id'],
+      where: { libraryId: id },
+      raw: true
+    })
+    seriesIds = seriesIds.map(ele => ele.id)
+    const count = await Season.count({
+      where: {
+        seriesId: {
+          [Op.in]: seriesIds
+        }
+      }
+    })
+    return count
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getSeriesCount = async (id) => {
+  try {
+    const count = await Series.count({
+      where: { libraryId: id }
+    })
+    return count
+  } catch (err) {
+    throw err
+  }
+}
+
 service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) => {
   const library = await Library.findByPk(libraryId)
   wss.broadcast(`crawling initiated: ${library.name}`)
@@ -580,8 +633,8 @@ service.crawlSeries = (libraryId, wss) => new Promise(async (resolve, reject) =>
         wss.broadcast(`creating series -- ${seriesDir}`)
         series = await createSeries(seriesDir, `${library.path}/${seriesDir}`, library.id)
       }
-      if (!series.Metadatum) {   
-        logger.info(`creating metadata -- ${series.name}`)     
+      if (!series.Metadatum) {
+        logger.info(`creating metadata -- ${series.name}`)
         wss.broadcast(`creating metadata -- ${series.name}`)
         await createSeriesMetadata(series)
       }
