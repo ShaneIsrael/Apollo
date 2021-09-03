@@ -1,6 +1,6 @@
 import React from 'react'
-import { Alert, Box, Button, Grid, Paper, TextField, Typography } from '@material-ui/core'
-import LoginIcon from '@material-ui/icons/Login'
+import { Alert, Box, Button, Grid, Paper, TextField, Typography } from '@mui/material'
+import LoginIcon from '@mui/icons-material/Login'
 import logo from '../../assets/logo.png'
 import AuthService from '../../services/AuthService'
 import { useHistory } from 'react-router-dom'

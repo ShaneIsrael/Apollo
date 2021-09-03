@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Typography, Box, Divider } from '@material-ui/core'
+import { Grid, Typography, Box, Divider } from '@mui/material'
 import tmdb_logo from '../assets/tmdb_logo.svg'
 import logo_dark from '../assets/logo_vertical_dark.png'
 import logo_light from '../assets/logo_vertical_light.png'

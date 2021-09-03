@@ -1,6 +1,6 @@
 import React from 'react'
 import TreeMap, { Tooltip } from 'devextreme-react/tree-map'
-import { Paper } from '@material-ui/core';
+import { Paper } from '@mui/material';
 import { Export, Size } from 'devextreme-react/chart';
 
 const customizeTooltip = (arg) => {

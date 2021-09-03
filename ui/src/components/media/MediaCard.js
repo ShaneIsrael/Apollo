@@ -1,6 +1,6 @@
 import React from 'react'
-import Card from '@material-ui/core/Card'
-import { CardActionArea, Box } from '@material-ui/core'
+import Card from '@mui/material/Card'
+import { CardActionArea, Box } from '@mui/material'
 import { NavLink } from 'react-router-dom'
 import { getImagePath } from '../utils'
 

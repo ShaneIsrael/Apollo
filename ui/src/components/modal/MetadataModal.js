@@ -1,12 +1,12 @@
 import React from 'react'
-import Box from '@material-ui/core/Box'
-import Modal from '@material-ui/core/Modal'
-import Button from '@material-ui/core/Button'
-import TableCell, { tableCellClasses } from '@material-ui/core/TableCell'
-import { Divider, Grid, Paper, Table, TableBody, TableContainer, Typography, TableRow, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
-import { styled } from '@material-ui/core/styles'
-import zIndex from '@material-ui/core/styles/zIndex'
+import Box from '@mui/material/Box'
+import Modal from '@mui/material/Modal'
+import Button from '@mui/material/Button'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import { Divider, Grid, Paper, Table, TableBody, TableContainer, Typography, TableRow, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { styled } from '@mui/material/styles'
+import zIndex from '@mui/material/styles/zIndex'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -20,7 +20,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
   },
   // hide last border
   '&:last-child td, &:last-child th': {
@@ -50,27 +50,28 @@ const MetadataModal = ({ title, metadata, open, close }) => {
     aria-labelledby="view-metadata"
     aria-describedby="view-metadata-description"
   >
-    <Box sx={{ ...style, width: '80%' }}>
+    <Box sx={{ ...style, width: '80%',  maxHeight: '80%', overflowY: 'scroll' }}>
       <h2 id="view-metadata">{title}</h2>
       <Divider />
-      <Grid container sx={{ maxHeight: 600, overflowY: 'scroll' }}>
+      <div>
         {
           data.map((d, index) =>
-            <Grid item xs={12} key={index}>
-              <Accordion>
+            // <Grid item xs={12} key={index}>
+              <Accordion key={index} defaultExpanded={data.length === 1}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls={`panel${index}-content`}
                   id={`panel${index}-content`}
                 >
-                  <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{d.title}</Typography>
+                  <Typography color={d.title === 'General Info' ? 'primary' : 'secondary'} variant="caption" sx={{ fontSize: 15, fontWeight: 'bold' }}>{d.title.toUpperCase()}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
+                    <Table sx={{ minWidth: 300, borderRadius: 0 }} size="small" aria-label="a dense table">
                       <TableBody>
                         {Object.keys(d.data).map((key, index) => (
                           <StyledTableRow
+                            hover
                             key={index}
                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                           >
@@ -85,10 +86,10 @@ const MetadataModal = ({ title, metadata, open, close }) => {
                   </TableContainer>
                 </AccordionDetails>
               </Accordion>
-            </Grid>
+            // </Grid>
           )
         }
-      </Grid>
+      </div>
       <Divider />
       <Grid sx={{ pt: 2, pb: 2 }} container item justifyContent="flex-end">
         <Button onClick={close} variant="outlined">Close</Button>

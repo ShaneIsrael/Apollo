@@ -1,7 +1,7 @@
 import React from 'react';
 import { Chart, Series, CommonSeriesSettings, Legend, Export, Tooltip, Title, ArgumentAxis, Label, ValueAxis } from 'devextreme-react/chart'
 import { Grid as ChartGrid } from 'devextreme-react/chart'
-import { Typography, Grid, Paper } from '@material-ui/core';
+import { Typography, Grid, Paper } from '@mui/material';
 
 const customizeTooltip = (arg) => {
   return {

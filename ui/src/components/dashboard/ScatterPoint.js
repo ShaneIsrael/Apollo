@@ -13,7 +13,7 @@ import {
   Tooltip,
 } from 'devextreme-react/chart'
 import { Grid as ChartGrid } from 'devextreme-react/chart'
-import { Typography, Grid, Paper } from '@material-ui/core';
+import { Typography, Grid, Paper } from '@mui/material';
 
 const ScatterPoint = (props) => {
   const { data, name, name2, title, valueInterval, argumentInterval } = props

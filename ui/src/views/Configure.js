@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { Grid, Box, Tabs, Tab, Typography} from '@material-ui/core'
+import { Grid, Box, Tabs, Tab, Typography} from '@mui/material'
 import { AddLibrary, EditLibraries, LiveServerLogs, ConfigForm } from '../components'
 
 function TabPanel(props) {

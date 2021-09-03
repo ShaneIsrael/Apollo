@@ -1,9 +1,9 @@
 import React from 'react'
 import moment from 'moment'
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, setRef } from '@material-ui/core'
-import StarIcon from '@material-ui/icons/Star'
-import WarningIcon from '@material-ui/icons/Warning'
-import RefreshIcon from '@material-ui/icons/Refresh'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, setRef } from '@mui/material'
+import StarIcon from '@mui/icons-material/Star'
+import WarningIcon from '@mui/icons-material/Warning'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { useParams } from 'react-router-dom'
 import { SeriesService } from '../services'
 
@@ -57,8 +57,13 @@ function createEpisodeMetadata(episode) {
   for (const stream of fileProbeData.streams) {
     const data = {}
     for (const dataKey of Object.keys(stream)) {
-      if (dataKey !== 'codec_long_name' && typeof stream[dataKey] !== 'object') {
+      if (dataKey !== 'codec_long_name' && dataKey !== 'index' && typeof stream[dataKey] !== 'object') {
         data[dataKey] = stream[dataKey]
+      }
+    }
+    if (stream.tags) {
+      for (const dataKey of Object.keys(stream.tags)) {
+        data[dataKey] = stream.tags[dataKey]
       }
     }
     meta.push({
@@ -66,8 +71,6 @@ function createEpisodeMetadata(episode) {
       data,
     })
   }
-
-  console.log(fileProbeData)
 
   return meta
 }
@@ -140,15 +143,10 @@ const Season = () => {
       {
         title: "General Info",
         data: {
-         "Number of Episodes": seasonData.Episodes.length
-        }
-      },
-      {
-        title: "System Info",
-        data: {
-         "TMDb ID": seasonData.tmdbId,
-         "System Path": seasonData.path,
-         "Size (GB)": "TODO"
+        "TMDb ID": seasonData.tmdbId,
+        "System Path": seasonData.path,
+        "Number of Episodes": seasonData.Episodes.length,
+        "Size (GB)": "TODO",
         }
       },
     ]

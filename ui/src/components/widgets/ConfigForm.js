@@ -1,4 +1,4 @@
-import { Divider, Paper, TextField, Typography, Box, Button, FormControlLabel, Checkbox, Alert, FormControl, Select, MenuItem, InputLabel } from '@material-ui/core';
+import { Divider, Paper, TextField, Typography, Box, Button, FormControlLabel, Checkbox, Alert, FormControl, Select, MenuItem, InputLabel } from '@mui/material';
 import React from 'react';
 import { ConfigService } from '../../services';
 import AuthService from '../../services/AuthService';

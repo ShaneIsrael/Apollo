@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, TextField } from '@material-ui/core'
+import { Box, Grid, Paper, TextField } from '@mui/material'
 import React from 'react'
 import { useParams, Redirect } from 'react-router-dom'
 import { MediaCard, Loading } from '../components'
