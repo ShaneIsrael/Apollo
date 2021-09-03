@@ -3,7 +3,8 @@ import Box from '@material-ui/core/Box'
 import Modal from '@material-ui/core/Modal'
 import Button from '@material-ui/core/Button'
 import TableCell, { tableCellClasses } from '@material-ui/core/TableCell'
-import { Divider, Grid, Paper, Table, TableBody, TableContainer, Typography, TableRow } from '@material-ui/core'
+import { Divider, Grid, Paper, Table, TableBody, TableContainer, Typography, TableRow, Accordion, AccordionSummary, AccordionDetails } from '@material-ui/core'
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
 import { styled } from '@material-ui/core/styles'
 import zIndex from '@material-ui/core/styles/zIndex'
 
@@ -43,48 +44,58 @@ const MetadataModal = ({ title, metadata, open, close }) => {
   const [data, setData] = React.useState(metadata || [])
 
   return (
-    <Modal
-      open={open}
-      onClose={close}
-      aria-labelledby="view-metadata"
-      aria-describedby="view-metadata-description"
-    >
-      <Box sx={{ ...style, width: '80%' }}>
-        <h2 id="view-metadata">{title}</h2>
-        <Divider />
-        <Grid container>
-          {
-            data.map((d, index) =>
-              <Grid item xs={12} key={index}>
-                <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{d.title}</Typography>
-                <TableContainer component={Paper}>
-                  <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
-                    <TableBody>
-                      {Object.keys(d.data).map((key, index) => (
-                        <StyledTableRow
-                          key={index}
-                          sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                          <StyledTableCell component="th" scope="row"  >
-                            {key}
-                          </StyledTableCell>
-                          <StyledTableCell align="right">{d.data[key]}</StyledTableCell>
-                        </StyledTableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Grid>
-            )
-          }
-        </Grid>
-        <Divider />
-        <Grid sx={{ pt: 2, pb: 2 }} container item justifyContent="flex-end">
-          <Button onClick={close} variant="outlined">Close</Button>
-        </Grid>
-      </Box>
-    </Modal>
-  )
+  <Modal
+    open={open}
+    onClose={close}
+    aria-labelledby="view-metadata"
+    aria-describedby="view-metadata-description"
+  >
+    <Box sx={{ ...style, width: '80%' }}>
+      <h2 id="view-metadata">{title}</h2>
+      <Divider />
+      <Grid container sx={{ maxHeight: 600, overflowY: 'scroll' }}>
+        {
+          data.map((d, index) =>
+            <Grid item xs={12} key={index}>
+              <Accordion>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                  aria-controls={`panel${index}-content`}
+                  id={`panel${index}-content`}
+                >
+                  <Typography color="secondary" variant="subtitle1" sx={{ fontWeight: 'bold' }}>{d.title}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <TableContainer component={Paper}>
+                    <Table sx={{ minWidth: 300 }} size="small" aria-label="a dense table">
+                      <TableBody>
+                        {Object.keys(d.data).map((key, index) => (
+                          <StyledTableRow
+                            key={index}
+                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                          >
+                            <StyledTableCell component="th" scope="row"  >
+                              {key}
+                            </StyledTableCell>
+                            <StyledTableCell align="right">{d.data[key]}</StyledTableCell>
+                          </StyledTableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </AccordionDetails>
+              </Accordion>
+            </Grid>
+          )
+        }
+      </Grid>
+      <Divider />
+      <Grid sx={{ pt: 2, pb: 2 }} container item justifyContent="flex-end">
+        <Button onClick={close} variant="outlined">Close</Button>
+      </Grid>
+    </Box>
+  </Modal>
+)
 }
 
 export default MetadataModal

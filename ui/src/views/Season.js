@@ -13,12 +13,14 @@ import still_not_found from '../assets/still_not_found.png'
 import { canDisplayToUser } from '../components/utils'
 
 
-function createEpisodeCard(episode) {
+function createEpisodeCard(episode, setSelectedEpisode) {
   return (
     <>
       <Grid container item spacing={2}>
         <Grid item>
-          <GeneralCoverCard cover={episode.local_still_path} alt={still_not_found} width={200} height={112} />
+          <div onClick={() => setSelectedEpisode(episode)}>
+            <GeneralCoverCard cover={episode.local_still_path} alt={still_not_found} width={200} height={112} />
+          </div>
           <Grid container justifyContent="center">
             <Rating
               name="episode-rating-read-only"
@@ -48,6 +50,28 @@ function createEpisodeCard(episode) {
   )
 }
 
+function createEpisodeMetadata(episode) {
+  const fileProbeData = episode.file_probe_data
+
+  const meta = []
+  for (const stream of fileProbeData.streams) {
+    const data = {}
+    for (const dataKey of Object.keys(stream)) {
+      if (dataKey !== 'codec_long_name' && typeof stream[dataKey] !== 'object') {
+        data[dataKey] = stream[dataKey]
+      }
+    }
+    meta.push({
+      title: stream.codec_long_name,
+      data,
+    })
+  }
+
+  console.log(fileProbeData)
+
+  return meta
+}
+
 const Season = () => {
   const { id, season } = useParams()
   const [seasonData, setSeasonData] = React.useState(null)
@@ -56,6 +80,7 @@ const Season = () => {
   const [refreshingEpisodes, setRefreshingEpisodes] = React.useState(false)
   const [probingEpisodes, setProbingEpisodes] = React.useState(false)
   const [metadataOpen, setMetadataOpen] = React.useState(false)
+  const [selectedEpisode, setSelectedEpisode] = React.useState(null)
 
   async function fetch() {
     try {
@@ -142,6 +167,7 @@ const Season = () => {
         // filter: 'opacity(35%)'
       }} /> */}
       <MetadataModal title="Local System Metadata"  open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
+      { selectedEpisode && <MetadataModal title={`Episode ${selectedEpisode.episode_number} File Data`} open={selectedEpisode ? true : false} close={() => setSelectedEpisode(null)} metadata={createEpisodeMetadata(selectedEpisode)} />}
       <Box sx={{ position: 'relative', pl: 3, pr: 0, pt: 5, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4} sx={{ pb: 3 }}>
@@ -220,7 +246,7 @@ const Season = () => {
                 <Divider />
               </Grid>
             </Grid>
-            {seasonData.Episodes.map((episode, i) => <Grid key={i} item xs={12}>{createEpisodeCard(episode)}</Grid>)}
+            {seasonData.Episodes.map((episode, i) => <Grid key={i} item xs={12}>{createEpisodeCard(episode, setSelectedEpisode)}</Grid>)}
           </Grid>
         </Grid>
       </Box>

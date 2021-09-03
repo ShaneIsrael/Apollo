@@ -139,7 +139,7 @@ async function main() {
       }))
     })
   }
-  const cache = new Cache(60)
+  const cache = new Cache(180)
   const observer = new Observer()
   app.set('wss', wss)
   app.set('cache', cache)

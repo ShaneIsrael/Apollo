@@ -6,7 +6,7 @@ import RefreshIcon from '@material-ui/icons/Refresh'
 import { SeasonCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
-import { canDisplayToUser, getImagePath } from '../components/utils';
+import { canDisplayToUser, getImagePath, secondsToDhms } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 // blurred-texture-background02
@@ -24,7 +24,7 @@ const leftOffsetMixin = (theme, open) => {
   return { left: 240 }
 }
 
-const Series = ({ sidebarOpen }) => {
+const Series = ({ sidebarOpen, setStats }) => {
   const { id } = useParams()
   const [series, setSeries] = React.useState(null)
   const [fixMatchOpen, setFixMatchOpen] = React.useState(false)
@@ -35,6 +35,42 @@ const Series = ({ sidebarOpen }) => {
   const history = useHistory()
   const theme = useTheme()
 
+  function createStats() {
+    console.log(series)
+    if (series && series.Seasons) {
+      const seasonCount = series.Seasons.filter(s => s.season !== 0).length
+      let episodeCount = 0
+      let time = 0
+      for (const season of series.Seasons) {
+        if (season.season !== 0 && season.Episodes) {
+          episodeCount += season.Episodes.length
+          for (const episode of season.Episodes) {
+            if (episode.file_probe_data && episode.file_probe_data.streams) {
+              let videoStream = episode.file_probe_data.streams[0]
+              let frames = 0
+              if (videoStream.nb_frames)
+                frames = videoStream.nb_frames
+              else if (videoStream.tags && (videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng'])) {
+                frames = videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng']
+              }
+              const framerate = (videoStream.avg_frame_rate.split('/')[0] / videoStream.avg_frame_rate.split('/')[1])
+              if (frames > 0) {
+                time += frames/framerate
+              }
+            }
+          }
+        }
+      }
+      time = secondsToDhms(time).replace(/,/g, '')
+      return (
+        <Typography variant="overline" color="primary" noWrap sx={{ fontSize: 15 }}>
+          {`${seasonCount} ${seasonCount === 1 ? 'Season' : 'Seasons'} | ${episodeCount} ${episodeCount === 1 ? 'Episode' : 'Episodes'} ${time ? `| ${time}` : ''}`}
+        </Typography>
+      )
+    }
+    return <></>
+  }
+
   React.useEffect(() => {
     async function fetch() {
       const resp = (await SeriesService.getById(id)).data
@@ -42,6 +78,10 @@ const Series = ({ sidebarOpen }) => {
     }
     fetch()
   }, [id])
+
+  React.useEffect(() => {
+    setStats(createStats())
+  }, [series])
 
   const handleFixMatch = () => {
     setFixMatchOpen(true)
@@ -94,14 +134,14 @@ const Series = ({ sidebarOpen }) => {
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
-  let metaViewData 
+  let metaViewData
   if (series.Metadatum) {
     metaViewData = [
       {
         title: "General Info",
         data: {
-         "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
-         "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes'
+          "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
+          "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes'
         }
       },
       {
@@ -111,7 +151,7 @@ const Series = ({ sidebarOpen }) => {
           "IMDB ID": series.Metadatum.imdbId || "Unknown",
           "System Path": series.path,
           "Size (GB)": "TODO"
-         }
+        }
       }
     ]
   }
@@ -211,7 +251,7 @@ const Series = ({ sidebarOpen }) => {
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body1" sx={{ pr: 1}}>
+                <Typography variant="body1" sx={{ pr: 1 }}>
                   {series.Metadatum.overview}
                 </Typography>
               </Box>
