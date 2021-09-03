@@ -163,6 +163,7 @@ service.syncMovie = async (id) => {
         try {
           const json = await probe(file.path)
           file.metadata = json
+          file.changed('updatedAt', true)
           file.save()
         } catch (err) {
           logger.error(err)
@@ -276,6 +277,7 @@ async function crawlMovieFiles(movie, wss) {
       try {
         const filedata = await probe(fileRow[0].path)
         fileRow[0].metadata = filedata
+        fileRow[0].changed('updatedAt', true)
         fileRow[0].save()
       } catch (err) {
         logger.error(err)

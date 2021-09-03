@@ -344,6 +344,12 @@ async function createLibraryFolderSizeStats() {
     })
 
     for (const library of libraries) {
+      
+      if (!existsSync(library.path)) {
+        logger.warn(`stats - Library Size Stats - library could not be found: ${library.path}`)
+        continue
+      }
+
       const libraryStat = {
         id: library.id,
         name: library.name,
@@ -361,7 +367,7 @@ async function createLibraryFolderSizeStats() {
             name: entry.name
           })
         } else {
-          logger.warn(`stats - createLibraryFolderSizeStats() - directory does not exist: ${entry.path}, ${entry.id}`)
+          logger.warn(`stats - Library Size Stats - directory does not exist: ${entry.path}, ${entry.id}`)
         }
       }
       libraryDataStats.push(libraryStat)
