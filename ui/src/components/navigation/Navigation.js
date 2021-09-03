@@ -1,6 +1,6 @@
 import React from 'react'
 import { styled, alpha, useTheme } from '@material-ui/core/styles'
-import { NavLink, useParams, useLocation } from 'react-router-dom'
+import { NavLink, useParams, useLocation, useHistory } from 'react-router-dom'
 import Box from '@material-ui/core/Box'
 import Toolbar from '@material-ui/core/Toolbar'
 import MuiDrawer from '@material-ui/core/Drawer'
@@ -161,14 +161,14 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 function createLibraryStats(stats) {
   if (stats.type === 'series') {
     return (
-      <Typography variant="overline" color="primary" noWrap sx={{fontSize: 15}}>
+      <Typography variant="overline" color="primary" noWrap sx={{ fontSize: 15 }}>
         {`${stats.seriesCount.toLocaleString()} Series | ${stats.seasonCount.toLocaleString()} Seasons | ${stats.episodeCount.toLocaleString()} Episodes`}
       </Typography>
     )
   }
   if (stats.type === 'movie') {
     return (
-      <Typography variant="overline" color="primary" noWrap sx={{fontSize: 15}}>
+      <Typography variant="overline" color="primary" noWrap sx={{ fontSize: 15 }}>
         {`${stats.movieCount.toLocaleString()} Movies`}
       </Typography>
     )
@@ -213,6 +213,7 @@ export default function Navigation(props) {
   let { title } = props
 
   const [libraries, setLibraries] = React.useState(defaultLibraries)
+  let history = useHistory()
   const theme = useTheme()
   const location = useLocation()
   let { tag, page } = useParams()
@@ -260,6 +261,8 @@ export default function Navigation(props) {
             movieCount,
           }))
         }
+      } else {
+        setStats(null)
       }
     }
     fetchStats()
@@ -290,7 +293,7 @@ export default function Navigation(props) {
 
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child)) {
-      return React.cloneElement(child, { libraries, setLibraries })
+      return React.cloneElement(child, { libraries, setLibraries, setStats })
     }
     return child
   })
@@ -312,7 +315,7 @@ export default function Navigation(props) {
             <MenuIcon sx={{ color: theme.palette.mode === 'light' ? 'rgba(0, 0, 0, 0.54)' : '#fff' }} />
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1, mr: -6 }}>
-            <Box sx={{ flexWrap: 'nowrap', display: { xs: 'flex', sm: 'flex' } }}>
+            <Box sx={{ flexWrap: 'nowrap', display: { xs: 'flex', sm: 'flex' }, cursor: 'grab', textDecoration: 'none' }} onClick={() => history.goBack()}>
               <img src={logo} style={{ height: 35, paddingRight: 10 }} />
               <Typography
                 variant="h6"
@@ -324,7 +327,7 @@ export default function Navigation(props) {
               </Typography>
             </Box>
           </Box>
-          <Box sx={{ display: {xs: 'none', sm: 'none', md: 'flex'}, alignItems: 'center', flexGrow: 1 }}>
+          <Box sx={{ display: { xs: 'none', sm: 'none', md: 'flex' }, alignItems: 'center', flexGrow: 1 }}>
             <Box sx={{ flexWrap: 'nowrap', display: 'flex' }}>
               {stats}
             </Box>

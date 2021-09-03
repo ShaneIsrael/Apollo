@@ -141,48 +141,50 @@ async function handleFileAdded(ffpath, library) {
   // logger.info(`file-added -> ${ffpath} | Library -> ${library.name}`)
   if (library) {
     getChangeLevel(ffpath, library).then(async (level) => {
-      logger.info(`observer -> detected ${level} change at path: ${ffpath}`)
-      if (level === 'series-episode') {
-        const seriesPath = getLastDir(ffpath, 2)
-        let series = await Series.findOne({
-          where: {
-            libraryId: library.id,
-            path: seriesPath
-          },
-          include: [Metadata]
-        })
-        if (!series) {
-          // create the series
-          const seriesName = seriesPath.split('/').pop()
-          logger.info(`observer -> creating series: ${seriesName}`)
-          series = await addSeries(seriesName, seriesPath, library.id)
-          await addSeriesMetadata(series)
-          series = await Series.findOne({
-            where: { libraryId: library.id, path: seriesPath},
+      if (level) {
+        logger.info(`observer -> detected ${level} change at path: ${ffpath}`)
+        if (level === 'series-episode') {
+          const seriesPath = getLastDir(ffpath, 2)
+          let series = await Series.findOne({
+            where: {
+              libraryId: library.id,
+              path: seriesPath
+            },
             include: [Metadata]
           })
+          if (!series) {
+            // create the series
+            const seriesName = seriesPath.split('/').pop()
+            logger.info(`observer -> creating series: ${seriesName}`)
+            series = await addSeries(seriesName, seriesPath, library.id)
+            await addSeriesMetadata(series)
+            series = await Series.findOne({
+              where: { libraryId: library.id, path: seriesPath },
+              include: [Metadata]
+            })
+          }
+          logger.info(`observer -> adding episode: ${toGenericPath(ffpath).split('/').pop()}`)
+          const filename = toGenericPath(ffpath).split('/').pop()
+          const seasonDirectoryName = getLastDir(ffpath).split('/').pop()
+          addEpisode(filename, series, seasonDirectoryName)
         }
-        logger.info(`observer -> adding episode: ${toGenericPath(ffpath).split('/').pop()}`)
-        const filename = toGenericPath(ffpath).split('/').pop()
-        const seasonDirectoryName = getLastDir(ffpath).split('/').pop()
-        addEpisode(filename, series, seasonDirectoryName)
-      }
-      if (level === 'movie-file') {
-        const moviePath = getLastDir(ffpath)
-        let movie = await Movie.findOne({
-          where: {
-            libraryId: library.id,
-            path: moviePath
-          },
-          include: [Metadata]
-        })
-        if (!movie) {
-          // create the movie
-          const movieName = moviePath.split('/').pop()
-          logger.info(`observer -> adding movie: ${movieName}`)
-          movie = await addMovie(moviePath.split('/').pop(), moviePath, library.id)
-          await crawlMovieFiles(movie)
-          await addMovieMetadata(movie)
+        if (level === 'movie-file') {
+          const moviePath = getLastDir(ffpath)
+          let movie = await Movie.findOne({
+            where: {
+              libraryId: library.id,
+              path: moviePath
+            },
+            include: [Metadata]
+          })
+          if (!movie) {
+            // create the movie
+            const movieName = moviePath.split('/').pop()
+            logger.info(`observer -> adding movie: ${movieName}`)
+            movie = await addMovie(moviePath.split('/').pop(), moviePath, library.id)
+            await crawlMovieFiles(movie)
+            await addMovieMetadata(movie)
+          }
         }
       }
     })

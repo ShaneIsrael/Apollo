@@ -34,7 +34,6 @@ export default function App() {
   React.useEffect(() => {
     async function fetch() {
       const config = (await ConfigService.getConfig()).data
-      console.log(config)
       setConfig(oldConfig => ({
         ...oldConfig,
         ...config
