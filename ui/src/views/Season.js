@@ -52,10 +52,19 @@ function createEpisodeCard(episode, setSelectedEpisode) {
 
 function createEpisodeMetadata(episode) {
   const fileProbeData = episode.file_probe_data
-
-  const meta = []
+  console.log(episode)
+  const meta = [{
+    title: 'General Info',
+    data: {
+      "TMDb ID": episode.tmdbId,
+      "Filename": episode.filename,
+      "Local Path": episode.path,
+      "Last Updated": moment(episode.updatedAt).format('MMMM Do, YYYY - hh:mm:ss A ')
+    }
+  }]
   for (const stream of fileProbeData.streams) {
     const data = {}
+    let title
     for (const dataKey of Object.keys(stream)) {
       if (dataKey !== 'codec_long_name' && dataKey !== 'index' && typeof stream[dataKey] !== 'object') {
         data[dataKey] = stream[dataKey]
@@ -63,11 +72,15 @@ function createEpisodeMetadata(episode) {
     }
     if (stream.tags) {
       for (const dataKey of Object.keys(stream.tags)) {
+        if (dataKey === 'title') {
+          title = stream.tags[dataKey]
+          continue
+        }
         data[dataKey] = stream.tags[dataKey]
       }
     }
     meta.push({
-      title: stream.codec_long_name,
+      title: title ? title : stream.codec_long_name,
       data,
     })
   }
