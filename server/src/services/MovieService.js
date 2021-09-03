@@ -40,7 +40,7 @@ service.getMovieById = async (id) => {
   try {
     const movie = await Movie.findOne({
       where: { id },
-      include: [Metadata]
+      include: [Metadata, MovieFile]
     })
     return movie
   } catch (err) {

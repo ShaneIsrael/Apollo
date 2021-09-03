@@ -4,9 +4,9 @@ import {
   Switch,
   Route,
 } from "react-router-dom"
-import { createTheme, ThemeProvider } from '@material-ui/core/styles'
-import { CssBaseline } from "@material-ui/core"
-import { blue, pink } from "@material-ui/core/colors"
+import { createTheme, ThemeProvider } from '@mui/material/styles'
+import { CssBaseline } from "@mui/material"
+import { blue, pink } from "@mui/material/colors"
 import { Navigation } from './components'
 import { Dashboard, Library, Configure, FourOhFour, Series, Movie, Login, About, Season } from './views'
 

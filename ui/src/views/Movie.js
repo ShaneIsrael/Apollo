@@ -1,8 +1,8 @@
 import React from 'react';
 import { useHistory, useParams } from 'react-router-dom'
 import moment from 'moment'
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
-import RefreshIcon from '@material-ui/icons/Refresh'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@mui/material'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
@@ -17,6 +17,45 @@ const leftOffsetMixin = (theme) => ({
   },
 })
 
+function createMetadata(movie) {
+  
+  const meta = [
+    {
+      title: "General Info",
+      data: {
+        "TMDb ID": movie.Metadatum.tmdbId,
+        "System Path": movie.path,
+        "Size (GB)": "TODO"
+      }
+    },
+  ]
+  if (!movie.MovieFiles) return meta
+
+  let fileNumber = 1
+  for (const file of movie.MovieFiles) {
+    const fileProbeData = file.metadata
+    for (const stream of fileProbeData.streams) {
+      const data = {}
+      for (const dataKey of Object.keys(stream)) {
+        if (dataKey !== 'codec_long_name' && dataKey !== 'index' && typeof stream[dataKey] !== 'object') {
+          data[dataKey] = stream[dataKey]
+        }
+      }
+      if (stream.tags) {
+        for (const dataKey of Object.keys(stream.tags)) {
+          data[dataKey] = stream.tags[dataKey]
+        }
+      }
+      meta.push({
+        title: `${movie.MovieFiles.length > 1 ? `File ${fileNumber} - ` : ''}${stream.codec_long_name}`,
+        data,
+      })
+    }
+    fileNumber++
+  }
+
+  return meta
+}
 
 const Movie = () => {
   const { id } = useParams()
@@ -88,31 +127,8 @@ const Movie = () => {
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
 
   const hidden = !canDisplayToUser()
-  let metaViewData
-  if (movie) {
-    metaViewData = [
-      {
-        title: "System Info",
-        data: {
-          "TMDb ID": movie.tmdbId,
-          "System Path": movie.path,
-          "Size (GB)": "TODO"
-        }
-      },
-      {
-        title: "File Info",
-        data: {
-          "Some File Meta": "The Game",
-        }
-      },
-      {
-        title: "Audio Codec",
-        data: {
-          "Codec": "TODO",
-        }
-      },
-    ]
-  }
+  const metaViewData = createMetadata(movie)
+
   return (
     <>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
@@ -181,7 +197,7 @@ const Movie = () => {
               </Grid>
             }
             <Grid item>
-              <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1 }}>
+              <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1, backgroundColor: 'rgba(0,0,0,0)' }}>
                 <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: 'primary.main' }} variant="subtitle2">Premiered {moment(movie.Metadatum.release_date).format('MMMM Do, YYYY')}</Typography>
               </Paper>
             </Grid>

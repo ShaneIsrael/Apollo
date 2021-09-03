@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Alert, AlertTitle } from '@material-ui/core'
+import { Grid, Alert, AlertTitle } from '@mui/material'
 
 const FourOhFour = (props) => {
 

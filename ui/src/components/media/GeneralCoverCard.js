@@ -1,7 +1,7 @@
 import React from 'react'
-import Card from '@material-ui/core/Card'
-import CardMedia from '@material-ui/core/CardMedia'
-import { CardActionArea } from '@material-ui/core'
+import Card from '@mui/material/Card'
+import CardMedia from '@mui/material/CardMedia'
+import { CardActionArea } from '@mui/material'
 import { getImagePath } from '../utils'
 
 

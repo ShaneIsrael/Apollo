@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Button, Grid, Paper, TextField, Typography } from '@material-ui/core'
+import { Box, Button, Grid, Paper, TextField, Typography } from '@mui/material'
 import background from '../assets/blurred-background-01.png'
 
 import { LoginForm } from '../components'

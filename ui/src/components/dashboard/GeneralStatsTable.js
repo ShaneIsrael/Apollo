@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import {
   Accordion, AccordionDetails, AccordionSummary, Table, TableBody,
   TableContainer, TableRow, Typography, Paper, Grid, Alert, AlertTitle
-} from '@material-ui/core'
-import TableCell, { tableCellClasses } from '@material-ui/core/TableCell'
-import LocalMoviesIcon from '@material-ui/icons/LocalMovies'
-import TvIcon from '@material-ui/icons/Tv'
-import { styled } from '@material-ui/core/styles'
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore'
+} from '@mui/material'
+import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import LocalMoviesIcon from '@mui/icons-material/LocalMovies'
+import TvIcon from '@mui/icons-material/Tv'
+import { styled } from '@mui/material/styles'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { StatsService } from '../../services'
 import Loading from '../progress/Loading'
 

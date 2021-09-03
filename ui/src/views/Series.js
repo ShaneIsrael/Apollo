@@ -1,8 +1,8 @@
 import React from 'react';
 import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@material-ui/core'
-import RefreshIcon from '@material-ui/icons/Refresh'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@mui/material'
+import RefreshIcon from '@mui/icons-material/Refresh'
 import { SeasonCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
@@ -140,19 +140,14 @@ const Series = ({ sidebarOpen, setStats }) => {
       {
         title: "General Info",
         data: {
-          "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
-          "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes'
-        }
-      },
-      {
-        title: "System Info",
-        data: {
           "TMDb ID": series.Metadatum.tmdbId,
           "IMDB ID": series.Metadatum.imdbId || "Unknown",
           "System Path": series.path,
+          "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
+          "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes',
           "Size (GB)": "TODO"
         }
-      }
+      },
     ]
   }
   return (
@@ -225,7 +220,7 @@ const Series = ({ sidebarOpen, setStats }) => {
               </Grid>
             }
             <Grid item>
-              <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1 }}>
+              <Paper sx={{ width: '250px', pl: 2, pr: 2, pt: 1, pb: 1, backgroundColor: 'rgba(0,0,0,0)' }}>
                 <Typography sx={{ fontSize: 14, fontWeight: 'bold', color: 'primary.main' }} variant="subtitle2">Premiered {moment(series.Metadatum.release_date).format('MMMM Do, YYYY')}</Typography>
               </Paper>
             </Grid>

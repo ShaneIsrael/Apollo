@@ -1,6 +1,6 @@
 import React from 'react'
-import { Button, Grid, Paper, TextField, Snackbar, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
-import MuiAlert from '@material-ui/core/Alert'
+import { Button, Grid, Paper, TextField, Snackbar, FormControl, InputLabel, Select, MenuItem } from '@mui/material'
+import MuiAlert from '@mui/material/Alert'
 import { LibraryService } from '../../services'
 
 

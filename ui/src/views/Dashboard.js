@@ -1,4 +1,4 @@
-import { Alert, AlertTitle, Box, Grid } from '@material-ui/core'
+import { Alert, AlertTitle, Box, Grid } from '@mui/material'
 import React, { useState } from 'react'
 import { GeneralStatsTable, ScatterPoint, MediaYearsStats, LibrarySizeStats } from '../components'
 import { LibraryService, StatsService } from '../services'

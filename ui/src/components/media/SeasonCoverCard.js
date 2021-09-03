@@ -1,9 +1,9 @@
 import React from 'react'
-import Card from '@material-ui/core/Card'
+import Card from '@mui/material/Card'
 import { NavLink } from 'react-router-dom'
-import CardMedia from '@material-ui/core/CardMedia'
-import { CardActionArea, Box, Grid } from '@material-ui/core'
-import { styled } from '@material-ui/core/styles'
+import CardMedia from '@mui/material/CardMedia'
+import { CardActionArea, Box, Grid } from '@mui/material'
+import { styled } from '@mui/material/styles'
 import { getImagePath } from '../utils'
 
 const StyledBox = styled(Box)(({ theme }) => ({
