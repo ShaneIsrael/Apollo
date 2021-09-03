@@ -163,6 +163,7 @@ async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss
       try {
         const probeData = await probe(episodeRow.path)
         episodeRow.file_probe_data = probeData
+        episodeRow.changed('updatedAt', true)
         episodeRow.save()
       } catch (err) {
         logger.error(err)
@@ -423,13 +424,14 @@ service.probeSeasonEpisodes = async (id) => {
     })
     const episodeFiles = getFiles(season.path)
     for (const file of episodeFiles) {
-      const existsInDb = season.Episodes.find(ep => ep.filename === file)
-      if (existsInDb) {
+      const episode = season.Episodes.find(ep => ep.filename === file)
+      if (episode) {
         logger.info(`probing file data -- ${file}`)
         try {
-          const json = await probe(existsInDb.path)
-          existsInDb.file_probe_data = json
-          existsInDb.save()
+          const json = await probe(episode.path)
+          episode.file_probe_data = json
+          episode.changed('updatedAt', true)
+          episode.save()
         } catch (err) {
           logger.error(err)
         }
@@ -453,10 +455,11 @@ service.syncSeries = async (id) => {
         logger.info(`sync series files -- untracking ${episode.filename}, could not locate on disk`)
         episode.destroy()
       } else {
-        logger.info(`sync series files -- updating probe data ${episode.filename}`)
+        logger.info(`sync series files -- updating probe data - ${episode.filename}`)
         try {
           const json = await probe(episode.path)
           episode.file_probe_data = json
+          episode.changed('updatedAt', true)
           episode.save()
         } catch (err) {
           logger.error(err)
