@@ -23,6 +23,13 @@ export default {
       }
     })
   },
+  getSize(id) {
+    return Api().get('/api/v1/movie/stats/size', {
+      params: {
+        id
+      }
+    })
+  },
   searchById(id, amount) {
     return Api().get(`/api/v1/movie/search/${id}/${amount}`)
   },

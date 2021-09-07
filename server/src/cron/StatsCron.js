@@ -188,7 +188,7 @@ async function createGeneralLibraryStats() {
         if (!movie.Metadatum) continue
 
         files = files.concat(movie.MovieFiles)
-        
+
         if (movie.name && movie.name.length > longestMovieName.length) {
           longestMovieName.length = movie.name.length
           longestMovieName.name = capitalize(movie.name)
@@ -276,6 +276,7 @@ async function createGeneralLibraryStats() {
 
   await seriesStats()
   await movieStats()
+  logger.info('stats - General Library Stats - DONE')
 }
 
 async function createMediaYearsStats() {
@@ -330,6 +331,7 @@ async function createMediaYearsStats() {
       })
     }
   }
+  logger.info('stats - Media Year Stats - DONE')
   return Stats.create({
     tag: 'all-media-years',
     json: combined
@@ -344,7 +346,6 @@ async function createLibraryFolderSizeStats() {
     })
 
     for (const library of libraries) {
-      
       if (!existsSync(library.path)) {
         logger.warn(`stats - Library Size Stats - library could not be found: ${library.path}`)
         continue
@@ -364,7 +365,8 @@ async function createLibraryFolderSizeStats() {
           const size = await getFolderSize(entry.path)
           libraryStat.items.push({
             value: (size / 1000 / 1000).toFixed(2),
-            name: entry.name
+            name: entry.name,
+            id: entry.id
           })
         } else {
           logger.warn(`stats - Library Size Stats - directory does not exist: ${entry.path}, ${entry.id}`)
@@ -372,6 +374,7 @@ async function createLibraryFolderSizeStats() {
       }
       libraryDataStats.push(libraryStat)
     }
+    logger.info('stats - Library Size Stats - DONE')
     return Stats.create({
       tag: 'all-library-sizes',
       json: libraryDataStats

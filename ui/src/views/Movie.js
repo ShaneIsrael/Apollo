@@ -17,7 +17,7 @@ const leftOffsetMixin = (theme) => ({
   },
 })
 
-function createMetadata(movie) {
+function createMetadata(movie, size) {
   
   const meta = [
     {
@@ -25,7 +25,7 @@ function createMetadata(movie) {
       data: {
         "TMDb ID": movie.Metadatum.tmdbId,
         "System Path": movie.path,
-        "Size (GB)": "TODO"
+        "Size on Disk (GB)": size ? `${(size / 1000).toFixed(2)} GB` : 'No Size Recorded'
       }
     },
   ]
@@ -64,6 +64,7 @@ const Movie = () => {
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
   const [metadataOpen, setMetadataOpen] = React.useState(false)
   const [syncing, setSyncing] = React.useState(false)
+  const [metaViewData, setMetaViewData] = React.useState(null)
 
   const history = useHistory()
   const theme = useTheme()
@@ -71,6 +72,8 @@ const Movie = () => {
   React.useEffect(() => {
     async function fetch() {
       const resp = (await MovieService.getById(id)).data
+      const size = (await MovieService.getSize(id)).data
+      setMetaViewData(createMetadata(resp, size))
       setMovie(resp)
     }
     fetch()
@@ -127,7 +130,6 @@ const Movie = () => {
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
 
   const hidden = !canDisplayToUser()
-  const metaViewData = createMetadata(movie)
 
   return (
     <>

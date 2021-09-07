@@ -31,12 +31,12 @@ const Series = ({ sidebarOpen, setStats }) => {
   const [refreshingMetadata, setRefreshingMetadata] = React.useState(false)
   const [syncingFiles, setSyncingFiles] = React.useState(false)
   const [metadataOpen, setMetadataOpen] = React.useState(false)
+  const [metaViewData, setMetaViewData] = React.useState(null)
 
   const history = useHistory()
   const theme = useTheme()
 
   function createStats() {
-    console.log(series)
     if (series && series.Seasons) {
       const seasonCount = series.Seasons.filter(s => s.season !== 0).length
       let episodeCount = 0
@@ -74,6 +74,22 @@ const Series = ({ sidebarOpen, setStats }) => {
   React.useEffect(() => {
     async function fetch() {
       const resp = (await SeriesService.getById(id)).data
+      const size = (await SeriesService.getSize(id)).data
+      if (resp.Metadatum) {
+        setMetaViewData([
+          {
+            title: "General Info",
+            data: {
+              "TMDb ID": resp.Metadatum.tmdbId,
+              "IMDB ID": resp.Metadatum.imdbId || "Unknown",
+              "System Path": resp.path,
+              "Number of Seasons": resp.Seasons.length > 0 ? resp.Seasons.length : 'No Seasons',
+              "Number of Episodes": resp.Seasons.length > 0 ? resp.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes',
+              "Size on Disk (GB)": size ? `${(size / 1000).toFixed(2)} GB` : 'No Size Recorded'
+            }
+          },
+        ])
+      }
       setSeries(resp)
     }
     fetch()
@@ -134,22 +150,6 @@ const Series = ({ sidebarOpen, setStats }) => {
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
-  let metaViewData
-  if (series.Metadatum) {
-    metaViewData = [
-      {
-        title: "General Info",
-        data: {
-          "TMDb ID": series.Metadatum.tmdbId,
-          "IMDB ID": series.Metadatum.imdbId || "Unknown",
-          "System Path": series.path,
-          "Number of Seasons": series.Seasons.length > 0 ? series.Seasons.length : 'No Seasons',
-          "Number of Episodes": series.Seasons.length > 0 ? series.Seasons.map(s => s.Episodes.length).reduce((a, c) => a + c) : 'No Episodes',
-          "Size (GB)": "TODO"
-        }
-      },
-    ]
-  }
   return (
     <>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />

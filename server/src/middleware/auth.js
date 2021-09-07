@@ -34,8 +34,8 @@ const verifyAdmin = async (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
-    logger.warn(err)
     if (ENVIRONMENT === 'development') {
+      logger.warn(err)
       return res.status(301).redirect('http://localhost:3000')
     }
     return res.status(301).redirect('/')
@@ -58,8 +58,8 @@ const verifyStandard = async (req, res, next) => {
     req.user = decoded
     return next()
   } catch (err) {
-    logger.warn(err)
     if (ENVIRONMENT === 'development') {
+      logger.warn(err)
       return res.status(301).redirect('http://localhost:3000')
     }
     return res.status(301).redirect('/')

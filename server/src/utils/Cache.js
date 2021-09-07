@@ -12,10 +12,12 @@ class Cache {
   }
 
   set(key, value) {
-    if (typeof value === 'number') {
-      this.cache.set(key, String(value))
-    } else {
-      this.cache.set(key, value)
+    if (value) {
+      if (typeof value === 'number') {
+        this.cache.set(key, String(value))
+      } else {
+        this.cache.set(key, value)
+      }
     }
   }
 

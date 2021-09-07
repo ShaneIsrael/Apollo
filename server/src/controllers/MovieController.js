@@ -1,10 +1,21 @@
 
 /* eslint-disable no-restricted-globals */
-const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle, syncMovie, getMovieCount } = require('../services')
+const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle, syncMovie, getMovieCount, getMovieSize } = require('../services')
 
 const controller = {}
 
 const {setCache} = require('../utils/cacheData')
+
+controller.getMovieSize = async (req, res, next) => {
+  try {
+    const { id } = req.query
+    const size = await getMovieSize(id)
+    setCache(req, size)
+    return res.status(200).send(size)
+  } catch (err) {
+    return next(err)
+  }
+}
 
 controller.getMovieCount = async (req, res, next) => {
   try {

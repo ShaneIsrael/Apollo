@@ -3,11 +3,22 @@
 const { getSeriesById, searchSeriesById, searchSeriesByTitle, 
   getSeriesByUuid, changeSeriesMetadata, getSeriesSeason,
   refreshSeasonEpisodesMetadata, probeSeasonEpisodes, syncSeries,
-  getEpisodeCount, getSeasonCount, getSeriesCount } = require('../services')
+  getEpisodeCount, getSeasonCount, getSeriesCount, getSeriesSize } = require('../services')
 
 const {setCache} = require('../utils/cacheData')
 
 const controller = {}
+
+controller.getSeriesSize = async (req, res, next) => {
+  try {
+    const { id } = req.query
+    const size = await getSeriesSize(id)
+    setCache(req, size)
+    return res.status(200).send(size)
+  } catch (err) {
+    return next(err)
+  }
+}
 
 controller.getEpisodeCount = async (req, res, next) => {
   try {

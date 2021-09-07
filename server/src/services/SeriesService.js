@@ -6,7 +6,7 @@ const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-s
 const short = require('short-uuid')
 
 const { searchTv, getTv, getSeason, downloadImage } = require('./TmdbService')
-const { Library, Series, Metadata, Season, Episode, Op } = require('../database/models')
+const { Library, Series, Metadata, Season, Episode, Stats, Op } = require('../database/models')
 const { VALID_EXTENSIONS } = require('../constants')
 const logger = require('../logger')
 const service = {}
@@ -610,6 +610,33 @@ service.getSeriesCount = async (id) => {
       where: { libraryId: id }
     })
     return count
+  } catch (err) {
+    throw err
+  }
+}
+
+service.getSeriesSize = async (id) => {
+  try {
+    const sizeStats = await Stats.findOne({
+      order: [['createdAt', 'DESC']],
+      limit: 1,
+      where: {
+        tag: 'all-library-sizes'
+      },
+      raw: true
+    })
+    if (sizeStats) {
+      for (const library of JSON.parse(sizeStats.json)) {
+        if (library.type === 'series') {
+          for (const item of library.items) {
+            if (item.id == id) {
+              return item.value
+            }
+          }
+        }
+      }
+    }
+    return null
   } catch (err) {
     throw err
   }
