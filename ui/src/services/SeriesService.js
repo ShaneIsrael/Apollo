@@ -37,6 +37,13 @@ export default {
       }
     })
   },
+  getSize(id) {
+    return Api().get('/api/v1/series/stats/size', {
+      params: {
+        id
+      }
+    })
+  },
   getSeasonAndEpisodes(seriesId, season) {
     return Api().get(`/api/v1/series/${seriesId}/season/${season}`)
   },

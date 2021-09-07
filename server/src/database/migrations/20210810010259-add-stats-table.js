@@ -26,10 +26,7 @@ module.exports = {
         }
       },
       json: {
-        type: Sequelize.JSON,
-        validate: {
-          notEmpty: true,
-        }
+        type: Sequelize.JSON
       },
       createdAt: {
         allowNull: false,

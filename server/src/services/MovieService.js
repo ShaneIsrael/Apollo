@@ -7,7 +7,7 @@ const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-s
 
 const { VALID_EXTENSIONS } = require('../constants')
 const { searchMovie, getMovie, downloadImage } = require('./TmdbService')
-const { Library, Movie, Metadata, MovieFile, Op } = require('../database/models')
+const { Library, Movie, Metadata, MovieFile, Stats, Op } = require('../database/models')
 const logger = require('../logger')
 
 const service = {}
@@ -296,6 +296,33 @@ service.getMovieCount = async (id) => {
     return count
   } catch (err) {
     logger.error(err)
+  }
+}
+
+service.getMovieSize = async (id) => {
+  try {
+    const sizeStats = await Stats.findOne({
+      order: [['createdAt', 'DESC']],
+      limit: 1,
+      where: {
+        tag: 'all-library-sizes'
+      },
+      raw: true
+    })
+    if (sizeStats) {
+      for (const library of JSON.parse(sizeStats.json)) {
+        if (library.type === 'movie') {
+          for (const item of library.items) {
+            if (item.id == id) {
+              return item.value
+            }
+          }
+        }
+      }
+    }
+    return null
+  } catch (err) {
+    throw err
   }
 }
 

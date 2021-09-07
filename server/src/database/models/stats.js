@@ -26,10 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       }
     },
     json: {
-      type: DataTypes.JSON,
-      validate: {
-        notEmpty: true,
-      }
+      type: DataTypes.JSON
     },
   }, {
     sequelize,
