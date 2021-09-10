@@ -14,6 +14,8 @@ const Observer = require('./observer')
 const Cache = require('./utils/Cache')
 
 const app = express()
+app.set('trust proxy', true)
+
 let userConfig
 if (ENVIRONMENT === 'production') {
   userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))

@@ -3,6 +3,9 @@ import { Grid, Typography, Box, Divider } from '@mui/material'
 import tmdb_logo from '../assets/tmdb_logo.svg'
 import logo_dark from '../assets/logo_vertical_dark.png'
 import logo_light from '../assets/logo_vertical_light.png'
+
+import { Player } from 'video-react'
+
 const About = ({ theme }) => {
   return (
     <>
@@ -11,9 +14,6 @@ const About = ({ theme }) => {
           <Grid container item justifyContent="center" xs={12}>
             <img src={theme === 'dark' ? logo_light : logo_dark} height={275} />
           </Grid>
-          {/* <Typography variant="h2">
-            Apollo
-          </Typography> */}
         </Grid>
         <Grid container item xs={12} justifyContent="center" >
           <Typography variant="body1" sx={{ mb: 2 }}>

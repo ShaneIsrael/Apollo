@@ -193,7 +193,7 @@ async function handleFileAdded(ffpath, library) {
 async function handleFileDeleted(ffpath, library) {
   // logger.info(`file-deleted -> ${ffpath} | Library -> ${library.name}`)
   if (library) {
-    getChangeLevel(ffpath, library).then(level => level && console.log(`detected a ${level} level change`))
+    getChangeLevel(ffpath, library).then(level => level && console.log(`detected a ${level} level file delete change`))
   }
 }
 async function handleChange(ffpath, library) {

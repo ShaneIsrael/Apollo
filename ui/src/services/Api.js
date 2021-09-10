@@ -11,7 +11,9 @@ const URL = window.location.port ?
 
 console.log(`BASE_URL=${URL}`)
 export default () => {  
-  axios.defaults.headers.common['x-access-token'] = authHeader()['x-access-token']
+  if (authHeader()['x-access-token']) {
+    axios.defaults.headers.common['x-access-token'] = authHeader()['x-access-token']
+  }
   return axios.create({
     baseURL: URL,
   })
