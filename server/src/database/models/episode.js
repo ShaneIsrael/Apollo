@@ -1,5 +1,4 @@
 'use strict';
-//https://api.themoviedb.org/3/tv/30977/season/1/episode/1?api_key=4b107ae9be9d72628597b37a27ff3ad8&language=en-US
 const {
   Model
 } = require('sequelize');

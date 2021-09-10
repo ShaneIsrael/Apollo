@@ -2,6 +2,8 @@ const path = require('path')
 const { existsSync } = require('fs')
 const config = require('../config')[process.env.NODE_ENV || 'production']
 
+const { Episode } = require('../database/models')
+
 const controllers = {}
 
 controllers.serveImage = (req, res, next) => {
