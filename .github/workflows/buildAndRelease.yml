@@ -25,9 +25,9 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Install Server Dependencies
-      run: npm install
-      working-directory: server
+    #- name: Install Server Dependencies
+    #  run: npm install
+    #  working-directory: server
     - name: Install UI Dependencies
       run: npm install
       working-directory: ui
@@ -36,3 +36,35 @@ jobs:
       working-directory: ui
     - name: Package
       run: npm install -g pkg && sh build.sh
+      
+    - name: Compress Mac
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./build/darwin
+        outPath: ./build/mac-release.tar.gz
+        
+    - name: Compress Linux
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./build/linux
+        outPath: ./build/linux-release.tar.gz
+        
+    - name: Compress Win32
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./build/win32/ia32
+        outPath: ./build/win32-release.tar.gz
+
+    - name: Compress Win64
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./build/win32/x64
+        outPath: ./build/win64-release.tar.gz
