@@ -1,3 +1,7 @@
+# npm install
+cd server && npm install && cd ..
+cd ui && npm install && cd ..
+
 # build sqlite3 cross platform binaries
 ./server/node_modules/.bin/node-pre-gyp install --directory=./server/node_modules/sqlite3 --target_platform=win32 --target_arch=ia32
 ./server/node_modules/.bin/node-pre-gyp install --directory=./server/node_modules/sqlite3 --target_platform=win32 --target_arch=x64
