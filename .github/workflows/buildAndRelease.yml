@@ -38,7 +38,7 @@ jobs:
       working-directory: ui
     - name: Package
       run: npm install -g pkg && sh build.sh
-      working-directory: Apollo
+      working-directory: ../
       
     - name: Compress Mac
       uses: master-atul/tar-action@v1.0.2
