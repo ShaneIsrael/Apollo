@@ -38,7 +38,7 @@ jobs:
       working-directory: ui
     - name: Package
       run: npm install -g pkg && sh build.sh
-      working-directory: ..
+      working-directory: Apollo
       
     - name: Compress Mac
       uses: master-atul/tar-action@v1.0.2
@@ -71,3 +71,10 @@ jobs:
         files: |
           ./build/win32/x64
         outPath: ./build/win64-release.tar.gz
+        
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "build/mac-release.tar.gz,build/linux-release.tar.gz,build/win32-release.tar.gz,build/win64-release.tar.gz"
+        #bodyFile: "body.md"
+        token: ${{ secrets.GITHUB_TOKEN }}
