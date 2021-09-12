@@ -37,6 +37,8 @@ jobs:
       run: npm run build
       working-directory: ui
     - name: Package
+      env: # Dont treat warnings as errors
+        CI: false
       run: npm install -g pkg && bash build.sh
       working-directory: ${{github.workspace}}
       
