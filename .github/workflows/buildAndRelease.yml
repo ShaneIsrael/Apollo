@@ -77,6 +77,7 @@ jobs:
     - name: Release
       uses: ncipollo/release-action@v1
       with:
+        tag: "latest"
         artifacts: "dist/mac-release.tar.gz,dist/linux-release.tar.gz,dist/win32-release.tar.gz,dist/win64-release.tar.gz"
         #bodyFile: "body.md"
         token: ${{ secrets.GITHUB_TOKEN }}
