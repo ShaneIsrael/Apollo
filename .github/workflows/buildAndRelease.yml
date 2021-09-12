@@ -36,8 +36,11 @@ jobs:
 #         CI: false
 #       run: npm run build
 #       working-directory: ui
+    - name: Test
+      run: echo "${GITHUB_WORKSPACE}"
+      working-directory: server
     - name: Package
-      run: pwd && npm install -g pkg && sh build.sh
+      run: npm install -g pkg && bash build.sh
       working-directory: ../
       
 #     - name: Compress Mac
