@@ -44,7 +44,7 @@ jobs:
         TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
     - name: Debug
-      run: ls -lah && cat .env && ls -lah server/ && cat server/.env
+      run: ls -lah server/ && cat server/.env
 #     - name: Package
 #       env: # Dont treat warnings as errors
 #         CI: false
