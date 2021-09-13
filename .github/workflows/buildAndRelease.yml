@@ -39,6 +39,8 @@ jobs:
     - name: Package
       env: # Dont treat warnings as errors
         CI: false
+        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
       run: npm install -g pkg && bash build.sh
       working-directory: ${{github.workspace}}
       
