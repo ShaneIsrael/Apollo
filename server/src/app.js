@@ -1,3 +1,4 @@
+require('dotenv').config({ path: process.cwd() })
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')

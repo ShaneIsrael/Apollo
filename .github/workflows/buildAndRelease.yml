@@ -36,13 +36,19 @@ jobs:
         CI: false
       run: npm run build
       working-directory: ui
+    - name: Generate Dotenv
+      uses: SpicyPizza/create-envfile@v1
+      with:
+        envkey_DEBUG: false
+        envkey_TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
+        envkey_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        directory: ${{ github.workspace }}
+        file_name: .env
     - name: Package
       env: # Dont treat warnings as errors
         CI: false
-        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-        TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
       run: npm install -g pkg && bash build.sh
-      working-directory: ${{github.workspace}}
+      working-directory: ${{ github.workspace }}
       
     - name: Compress Mac
       uses: master-atul/tar-action@v1.0.2
