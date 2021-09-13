@@ -3,7 +3,7 @@ const fs = require('fs')
 const axios = require('axios')
 const download = require('image-downloader')
 const config = require(path.join(__dirname, '../config/index.js'))[process.env.NODE_ENV || 'production']
-const { tmdb_api_key, tmdb_read_access_token } = require(path.join(__dirname, '../config/index'))[process.env.NODE_ENV || 'production']
+const { tmdb_api_key, tmdb_read_access_token } = require(path.join(process.cwd(), 'src/config/index.js'))[process.env.NODE_ENV || 'production']
 const api = axios.create({ baseURL: 'https://api.themoviedb.org/3' })
 
 const options = {

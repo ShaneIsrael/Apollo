@@ -6,7 +6,7 @@ const logger = require('../logger/index.js')
 module.exports = {
   run: async (config, ENVIRONMENT) => {
     try {
-      const dbconfig = require('../database/config/config.js')[ENVIRONMENT]
+      const dbconfig = require(path.join(process.cwd(), 'src/database/config/config.js'))[ENVIRONMENT]
       // Run Migrations
       dbconfig.storage = path.join(config.appdata, config.dbname)
       
