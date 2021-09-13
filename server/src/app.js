@@ -1,20 +1,11 @@
-require('dotenv').config()
-const { spawn } = require('child_process');
-const ls = spawn('ls', ['-lah']);
-ls.stdout.on('data', function(data) {
-  console.log('ls: ', data.toString());
-})
-console.log(process.env.TMDB_API_KEY)
-spawn('cat', ['../.env']).stdout.on('data', data => {
-  console.log('cat: ', data.toString());
-})
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '../.env')})
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')
 const morgan = require('morgan')
 const fs = require('fs')
 const WebSocket = require('ws')
-const path = require('path')
 const logger = require('./logger')
 const migrations = require('./utils/migrations')
 const configFlags = require('./utils/checkConfigFlags')
