@@ -9,7 +9,7 @@ let userConfig
 if (ENVIRONMENT === 'production') {
   userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
 } else {
-  userConfig = require('../../config.json')
+  userConfig = require(path.join(__dirname, '../../config.json'))
 }
 
 const TOKEN_KEY = userConfig.TOKEN_KEY

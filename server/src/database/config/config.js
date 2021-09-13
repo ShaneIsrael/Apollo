@@ -1,4 +1,5 @@
-const config = require('../../config')[process.env.NODE_ENV || 'production']
+const path = require('path')
+const config = require(path.join(__dirname, '../../config'))[process.env.NODE_ENV || 'production']
 module.exports = {
   development: {
     dialect: 'sqlite',

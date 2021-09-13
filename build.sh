@@ -1,6 +1,6 @@
 # npm install
-cd server && npm install && cd ..
-cd ui && npm install && cd ..
+#cd server && npm install && cd ..
+#cd ui && npm install && cd ..
 
 # build sqlite3 cross platform binaries
 ./server/node_modules/.bin/node-pre-gyp install --directory=./server/node_modules/sqlite3 --target_platform=win32 --target_arch=ia32
@@ -41,7 +41,7 @@ cp -f ./build-deps/binaries/sqlite3/napi-v3-win32-x64/node_sqlite3.node ./dist/w
 cp -f ./build-deps/binaries/sqlite3/napi-v3-win32-ia32/node_sqlite3.node ./dist/win32/ia32/
 
 # build the ui
-cd ui && npm run build && cd ..
+# cd ui && npm run build && cd ..
 
 # package the app into executables
 pkg --compress Brotli ./server/package.json
