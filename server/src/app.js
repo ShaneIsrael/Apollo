@@ -9,7 +9,7 @@ const logger = require('./logger')
 const migrations = require('./utils/migrations')
 const configFlags = require('./utils/checkConfigFlags')
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
-const config = require('./config')[ENVIRONMENT]
+const config = require('./config/index.js')[ENVIRONMENT]
 const Observer = require('./observer')
 const Cache = require('./utils/Cache')
 
