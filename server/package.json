@@ -5,8 +5,8 @@
   "main": "src/app.js",
   "bin": "src/app.js",
   "scripts": {
-    "start": "export NODE_ENV=development && nodemon src/app.js",
-    "production": "export NODE_ENV=production && sequelize db:migrate && node src/app.js"
+    "start": "export NODE_ENV=development && source .env && nodemon src/app.js",
+    "production": "export NODE_ENV=production && source .env && sequelize db:migrate && node src/app.js"
   },
   "author": "",
   "license": "ISC",

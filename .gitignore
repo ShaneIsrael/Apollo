@@ -13,7 +13,6 @@ build
 node_modules
 logs
 images
-server/src/config/index.js
 .env
 /certs
 /dist
