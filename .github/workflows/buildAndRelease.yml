@@ -25,12 +25,12 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-    - name: Install Server Dependencies
-      run: npm install
-      working-directory: server
-    - name: Install UI Dependencies
-      run: npm install
-      working-directory: ui
+#     - name: Install Server Dependencies
+#       run: npm install
+#       working-directory: server
+#     - name: Install UI Dependencies
+#       run: npm install
+#       working-directory: ui
 #     - name: Build UI
 #       env: # Dont treat warnings as errors
 #         CI: false
@@ -42,7 +42,7 @@ jobs:
         envkey_DEBUG: false
         envkey_TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
         envkey_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-        directory: ${{ github.workspace }}/server
+        directory: server
         file_name: .env
     - name: List Files
       run: ls -lah
