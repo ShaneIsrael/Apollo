@@ -1,0 +1,83 @@
+# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install Server Dependencies
+      run: npm install
+      working-directory: server
+    - name: Install UI Dependencies
+      run: npm install
+      working-directory: ui
+    - name: Build UI
+      env: # Dont treat warnings as errors
+        CI: false
+      run: npm run build
+      working-directory: ui
+    - name: Package
+      env: # Dont treat warnings as errors
+        CI: false
+      run: npm install -g pkg && bash build.sh
+      working-directory: ${{github.workspace}}
+      
+    - name: Compress Mac
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/darwin
+        outPath: ./dist/mac-release.tar.gz
+        
+    - name: Compress Linux
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/linux
+        outPath: ./dist/linux-release.tar.gz
+        
+    - name: Compress Win32
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/win32/ia32
+        outPath: ./dist/win32-release.tar.gz
+
+    - name: Compress Win64
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/win32/x64
+        outPath: ./dist/win64-release.tar.gz
+        
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: "latest"
+        artifacts: "dist/mac-release.tar.gz,dist/linux-release.tar.gz,dist/win32-release.tar.gz,dist/win64-release.tar.gz"
+        #bodyFile: "body.md"
+        token: ${{ secrets.GITHUB_TOKEN }}
