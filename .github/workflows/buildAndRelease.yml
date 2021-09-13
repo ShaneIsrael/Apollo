@@ -25,17 +25,17 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-#     - name: Install Server Dependencies
-#       run: npm install
-#       working-directory: server
-#     - name: Install UI Dependencies
-#       run: npm install
-#       working-directory: ui
-#     - name: Build UI
-#       env: # Dont treat warnings as errors
-#         CI: false
-#       run: npm run build
-#       working-directory: ui
+    - name: Install Server Dependencies
+      run: npm install
+      working-directory: server
+    - name: Install UI Dependencies
+      run: npm install
+      working-directory: ui
+    - name: Build UI
+      env: # Dont treat warnings as errors
+        CI: false
+      run: npm run build
+      working-directory: ui
     - name: Generate Dotenv
       uses: iamsauravsharma/create-dotenv@v1.2.0
       with:
@@ -43,51 +43,49 @@ jobs:
       env:
         TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
         TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
-    - name: Debug
-      run: ls -lah server/ && cat server/.env
-#     - name: Package
-#       env: # Dont treat warnings as errors
-#         CI: false
-#       run: npm install -g pkg && bash build.sh
-#       working-directory: ${{ github.workspace }}
+    - name: Package
+      env: # Dont treat warnings as errors
+        CI: false
+      run: npm install -g pkg && bash build.sh
+      working-directory: ${{ github.workspace }}
       
-#     - name: Compress Mac
-#       uses: master-atul/tar-action@v1.0.2
-#       with:
-#         command: c
-#         files: |
-#           ./dist/darwin
-#         outPath: ./dist/mac-release.tar.gz
+    - name: Compress Mac
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/darwin
+        outPath: ./dist/mac-release.tar.gz
         
-#     - name: Compress Linux
-#       uses: master-atul/tar-action@v1.0.2
-#       with:
-#         command: c
-#         files: |
-#           ./dist/linux
-#         outPath: ./dist/linux-release.tar.gz
+    - name: Compress Linux
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/linux
+        outPath: ./dist/linux-release.tar.gz
         
-#     - name: Compress Win32
-#       uses: master-atul/tar-action@v1.0.2
-#       with:
-#         command: c
-#         files: |
-#           ./dist/win32/ia32
-#         outPath: ./dist/win32-release.tar.gz
+    - name: Compress Win32
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/win32/ia32
+        outPath: ./dist/win32-release.tar.gz
 
-#     - name: Compress Win64
-#       uses: master-atul/tar-action@v1.0.2
-#       with:
-#         command: c
-#         files: |
-#           ./dist/win32/x64
-#         outPath: ./dist/win64-release.tar.gz
+    - name: Compress Win64
+      uses: master-atul/tar-action@v1.0.2
+      with:
+        command: c
+        files: |
+          ./dist/win32/x64
+        outPath: ./dist/win64-release.tar.gz
         
-#     - name: Release
-#       uses: ncipollo/release-action@v1
-#       with:
-#         tag: "latest"
-#         allowUpdates: true
-#         artifacts: "dist/mac-release.tar.gz,dist/linux-release.tar.gz,dist/win32-release.tar.gz,dist/win64-release.tar.gz"
-#         #bodyFile: "body.md"
-#         token: ${{ secrets.GITHUB_TOKEN }}
+    - name: Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: "latest"
+        allowUpdates: true
+        artifacts: "dist/mac-release.tar.gz,dist/linux-release.tar.gz,dist/win32-release.tar.gz,dist/win64-release.tar.gz"
+        #bodyFile: "body.md"
+        token: ${{ secrets.GITHUB_TOKEN }}
