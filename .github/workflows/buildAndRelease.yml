@@ -37,13 +37,12 @@ jobs:
       run: npm run build
       working-directory: ui
     - name: Generate Dotenv
-      uses: SpicyPizza/create-envfile@v1
+      uses: iamsauravsharma/create-dotenv@v1.2.0
       with:
-        envkey_DEBUG: false
-        envkey_TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
-        envkey_TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
-        directory: ${{ github.workspace }}
-        file_name: .env
+        directory: 'server/'
+      env:
+        TMDB_API_KEY: ${{ secrets.TMDB_API_KEY }}
+        TMDB_READ_ACCESS_TOKEN: ${{ secrets.TMDB_READ_ACCESS_TOKEN }}
     - name: Package
       env: # Dont treat warnings as errors
         CI: false
