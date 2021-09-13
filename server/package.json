@@ -44,6 +44,7 @@
   },
   "pkg": {
     "scripts": [
+      ".env",
       "config.json",
       "src/database/models/**/*.js",
       "src/config/*.js",

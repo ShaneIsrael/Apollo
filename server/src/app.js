@@ -1,4 +1,13 @@
 require('dotenv').config()
+const { spawn } = require('child_process');
+const ls = spawn('ls', ['-lah']);
+ls.stdout.on('data', function(data) {
+  console.log('ls: ', data.toString());
+})
+console.log(process.env.TMDB_API_KEY)
+spawn('cat', ['../.env']).stdout.on('data', data => {
+  console.log('cat: ', data.toString());
+})
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')
