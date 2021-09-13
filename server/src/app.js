@@ -1,9 +1,4 @@
-require('dotenv').config({ path: process.cwd() })
-const { spawn } = require('child_process');
-console.log(process.cwd())
-const ls = spawn('ls', ['-lah', process.cwd()]);
-console.log(ls)
-spawn('cat', [process.cwd() + '/.env'])
+require('dotenv').config()
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')
