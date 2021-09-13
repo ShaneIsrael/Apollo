@@ -1,6 +1,6 @@
 const path = require('path')
 const { existsSync } = require('fs')
-const config = require(path.join(process.cwd(), 'src/config/index.js'))[process.env.NODE_ENV || 'production']
+const config = require('../config')[process.env.NODE_ENV || 'production']
 
 const { Episode } = require('../database/models')
 

@@ -20,7 +20,7 @@ let userConfig
 if (ENVIRONMENT === 'production') {
   userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
 } else {
-  userConfig = require(path.join(process.cwd(), 'config.json'))
+  userConfig = require('../config.json')
 }
 
 function formatConsoleDate(date) {

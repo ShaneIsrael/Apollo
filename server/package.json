@@ -43,7 +43,11 @@
     "ws": "^8.0.0"
   },
   "pkg": {
-    "scripts": "src/database/models/**/*.js,src/config/*.js,src/database/config/*.js",
+    "scripts": [
+      "src/database/models/**/*.js",
+      "src/config/*.js",
+      "src/database/config/*.js"
+    ],
     "assets": [
       "node_modules/sqlite3/lib/binding/**/*",
       "src/database/migrations/*",
