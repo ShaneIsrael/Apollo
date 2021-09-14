@@ -19,10 +19,10 @@
 <br />
 <p align="center">
   <a href="https://github.com/ShaneIsrael/Apollo">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="images/logo.png" alt="Logo" width="120" height="120">
   </a>
 
-  <h3 align="center">Apollo</h3>
+  <h1 align="center">Apollo</h1>
 
   <p align="center">
     A companion app for your HTPC media libraries
