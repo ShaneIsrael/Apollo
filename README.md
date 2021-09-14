@@ -25,16 +25,16 @@
   <h3 align="center">Apollo</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    A companion app for your HTPC media libraries
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/ShaneIsrael/Apollo"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
+    <a href="https://github.com/ShaneIsrael/Apollo">View Demo</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
+    <a href="https://github.com/ShaneIsrael/Apollo/issues">Report Bug</a>
     ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
+    <a href="https://github.com/ShaneIsrael/Apollo/issues">Request Feature</a>
   </p>
 </p>
 
@@ -58,69 +58,67 @@
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
 
 
 <!-- ABOUT THE PROJECT -->
-## About The Project
+# About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+I started this project in August of 2021 in my free time. It initially started out as me experimenting around with my own media library and quickly grew into what you see now.
 
-There are many great README templates available on GitHub, however, I didn't find one that really suit my needs so I created this enhanced one. I want to create a README template so amazing that it'll be the last one you ever need -- I think this is it.
+Apollo is a companion app for your HTPC media libraries. It's a web app that can be accessed from anywhere to display infromation about your media collection. Information about your collection is gathered from TMDb and stored in a local database. Apollo will also scan your libraries files and store file specific information about your movies and series. Apollo will also use that information to generate statistics against your libraries as seen in the video below. Apollo will also watch your media libraries in real-time for changes and make updates to its database accordingly. 
 
-Here's why:
-* Your time should be focused on creating something amazing. A project that solves a problem and helps others
-* You shouldn't be doing the same tasks over and over like creating a README from scratch
-* You should implement DRY principles to the rest of your life :smile:
+Apollo is not a video player, at least at this time. It is web app to view series, movie, file and statistical information about your library. Some of the code has been rushed and will be refactored and improved (I've rushed through a lot in the last month).  
 
-Of course, no one template will serve all projects since your needs may be different. So I'll be adding more in the near future. You may also suggest changes by forking this repo and creating a pull request or opening an issue. Thanks to all the people have contributed to expanding this template!
-
-A list of commonly used resources that I find helpful are listed in the acknowledgements.
+https://animetrics.sfo2.cdn.digitaloceanspaces.com/apollo/Apollo-Demo-So-Far-9-13-2021.mp4
 
 ### Built With
 
-This section should list any major frameworks that you built your project using. Leave any add-ons/plugins for the acknowledgements section. Here are a few examples.
-* [Bootstrap](https://getbootstrap.com)
-* [JQuery](https://jquery.com)
-* [Laravel](https://laravel.com)
-
+* [Node.js](https://nodejs.org/en/)
+* [React](https://reactjs.org/)
+* [Material UI](https://material-ui.com/)
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
+___
+***Apollo is currently in very early development. While Apollo is completely functional right now, future changes will likely require you to delete your local Apollo database in order to update it.***
+___
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+There are two ways you can install and run Apollo.
+
+1. [Download & Run the latest Apollo Binary](https://github.com/ShaneIsrael/Apollo/releases/)
+2. Install & Run from source code
+
+If you would like to run Apollo via the source code you will need to have npm and Node.js installed. I reccommend installing Node.js with NVM so that you can easily switch between Node versions. This project currently uses Node 12.x but will likely change.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
+
+* nvm - [Download & Install instructions](https://github.com/nvm-sh/nvm#installing-and-updating)
   ```sh
-  npm install npm@latest -g
+  nvm install 12.19.0
   ```
 
 ### Installation
 
-1. Get a free API Key at [https://example.com](https://example.com)
+1. [Get a TMDb Api Key](https://www.themoviedb.org/)
 2. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/ShaneIsrael/Apollo.git
    ```
 3. Install NPM packages
    ```sh
-   npm install
+   cd server && npm install && cd ../ui && npm install
    ```
-4. Enter your API in `config.js`
+4. Enter your API Key. In the server folder, copy `.env.example` to `.env`
    ```JS
-   const API_KEY = 'ENTER YOUR API';
+   TMDB_API_KEY="ENTER YOUR API KEY"
+   TMDB_READ_ACCESS_TOKEN="ENTER YOUR READ ACCESS TOKEN"
    ```
 
 
@@ -128,16 +126,14 @@ This is an example of how to list things you need to use the software and how to
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
-
-
-
-<!-- ROADMAP -->
-## Roadmap
-
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a list of proposed features (and known issues).
+1. Start the server
+   ```
+   cd server && npm start
+   ```
+2. Start the UI
+   ```
+   cd ui && npm start
+   ```
 
 
 
@@ -152,38 +148,12 @@ Contributions are what make the open source community such an amazing place to l
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
-
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+Shane Israel - [LinkedIn](https://www.linkedin.com/in/shane-israel-3a685ba1/) - shanemisrael@gmail.com
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
-
-
-
-<!-- ACKNOWLEDGEMENTS -->
-## Acknowledgements
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Img Shields](https://shields.io)
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Pages](https://pages.github.com)
-* [Animate.css](https://daneden.github.io/animate.css)
-* [Loaders.css](https://connoratherton.com/loaders)
-* [Slick Carousel](https://kenwheeler.github.io/slick)
-* [Smooth Scroll](https://github.com/cferdinandi/smooth-scroll)
-* [Sticky Kit](http://leafo.net/sticky-kit)
-* [JVectorMap](http://jvectormap.com)
-* [Font Awesome](https://fontawesome.com)
-
+Project Link: [https://github.com/ShaneIsrael/Apollo](https://github.com/ShaneIsrael/Apollo)
 
 
 
@@ -201,5 +171,5 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 [license-shield]: https://img.shields.io/github/license/ShaneIsrael/Apollo.svg?style=for-the-badge
 [license-url]: https://github.com/ShaneIsrael/Apollo/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/shaneisrael
-[product-screenshot]: images/screenshot.png
+[linkedin-url]: https://www.linkedin.com/in/shane-israel-3a685ba1/
+[product-screenshot]: images/apollo_dashboard.png

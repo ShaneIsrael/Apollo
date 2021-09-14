@@ -154,11 +154,6 @@ async function main() {
   setupCors(whitelist)
   setupErrorHandler()
 
-  // serve our react build
-  if (ENVIRONMENT === 'production') {
-    
-  }
-
   setupRoutes()
   await preflightChecks()
 
