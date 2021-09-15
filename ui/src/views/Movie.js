@@ -225,8 +225,8 @@ const Movie = () => {
           </Grid>
           <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
             {
-              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{width: 355, mb: 1, mr: 1, ml: 1}}>
-                <Typography noWrap sx={{fontWeight: 'bold', fontSize: 14}} align="center" color="primary">{video.name}</Typography>
+              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+                <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
                 <ReactPlayer
                   height={200}
                   width={355}

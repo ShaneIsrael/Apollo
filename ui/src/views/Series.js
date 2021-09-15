@@ -139,7 +139,7 @@ const Series = ({ sidebarOpen, setStats }) => {
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
   return (
-    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
@@ -242,7 +242,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
           <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
-            <Box sx={{display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto'}}>
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
               {
                 series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
               }
@@ -259,13 +259,13 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="row" alignItems="center" justifyContent="center">
             {
-              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{width: 355, mb: 1, mr: 1, ml: 1}}>
-              <Typography noWrap sx={{fontWeight: 'bold', fontSize: 14}} align="center" color="primary">{video.name}</Typography>
-              <ReactPlayer
-                height={200}
-                width={355}
-                controls
-                url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+                <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
+                <ReactPlayer
+                  height={200}
+                  width={355}
+                  controls
+                  url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
             }
           </Grid>
         </Grid>
