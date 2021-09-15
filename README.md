@@ -74,6 +74,8 @@ Apollo is not a video player, at least at this time. It is web app to view serie
 **[HD Demo Video](https://animetrics.sfo2.cdn.digitaloceanspaces.com/apollo/Apollo-Demo-So-Far-9-13-2021.mp4)**
 
 ![product-screenshot]
+![series-screenshot]
+![season-screenshot]
 
 ### Built With
 
@@ -172,3 +174,5 @@ Project Link: [https://github.com/ShaneIsrael/Apollo](https://github.com/ShaneIs
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/shane-israel-3a685ba1/
 [product-screenshot]: images/apollo_dashboard.png
+[series-screenshot]: images/series-view.png
+[season-screenshot]: images/season-view.png

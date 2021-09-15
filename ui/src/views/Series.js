@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment'
+import ReactPlayer from 'react-player'
 import { useHistory, useParams } from 'react-router-dom'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, Container } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -138,7 +139,7 @@ const Series = ({ sidebarOpen, setStats }) => {
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
   return (
-    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '91vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
@@ -214,11 +215,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
             <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '360px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
-              {/* <Grid item>
-                <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray', color: 'white' }} variant="h1">
-                  {series.Metadatum.name}
-                </Typography>
-              </Grid> */}
+              {/* This grid just pushes the title down into the correct position */}
             </Grid>
             <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
               <Grid container justifyContent="flex-start">
@@ -241,9 +238,9 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
           <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
-            <Box sx={{display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto'}}>
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '85vw', overflowX: 'auto' }}>
               {
-                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={100} />)
               }
             </Box>
           </Grid>
@@ -255,6 +252,17 @@ const Series = ({ sidebarOpen, setStats }) => {
                 }
               </Grid>
             </Box>
+          </Grid>
+          <Grid container item direction="row" alignItems="center" justifyContent="center">
+            {
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+                <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
+                <ReactPlayer
+                  height={200}
+                  width={355}
+                  controls
+                  url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
+            }
           </Grid>
         </Grid>
       </Box>

@@ -61,6 +61,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     cast: {
       type: DataTypes.JSON,
+    },
+    videos: {
+      type: DataTypes.JSON,
     }
   }, {
     sequelize,
