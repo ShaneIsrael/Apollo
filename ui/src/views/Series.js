@@ -215,11 +215,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
             <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '360px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
-              {/* <Grid item>
-                <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray', color: 'white' }} variant="h1">
-                  {series.Metadatum.name}
-                </Typography>
-              </Grid> */}
+              {/* This grid just pushes the title down into the correct position */}
             </Grid>
             <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
               <Grid container justifyContent="flex-start">

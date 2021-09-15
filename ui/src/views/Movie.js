@@ -190,13 +190,8 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '365px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
-              {/* <Grid item>
-                <Typography sx={{ position: 'relative', pt: 2, fontWeight: 900, fontSize: 60, WebkitTextStroke: '2px gray' }} variant="h1">
-                  {movie.Metadatum.name}
-                </Typography>
-              </Grid> */}
-            </Grid>
+            {/* <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '365px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+            </Grid> */}
             <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
               <Grid container justifyContent="flex-start">
                 <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36 }} variant="h1">
