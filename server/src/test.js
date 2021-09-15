@@ -7,19 +7,9 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 async function main() {
-  let tempVal
   try {
-    const movies = await Movie.findAll({
-      include: [Metadata]
-    })
-    for (const movie of movies) {
-      if (movie.Metadatum && !movie.Metadatum.name) {
-        const details = await getMovie(movie.Metadatum.tmdbId)
-        movie.Metadatum.name = details.title
-        movie.Metadatum.save()
-        await sleep(100)
-      }
-    }
+    const details = await getTv(31910)
+    console.log(details.credits.cast.length)
   } catch (err) {
     console.log(err)
   }

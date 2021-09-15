@@ -45,7 +45,7 @@ const Configure = (props) => {
     setTab(newValue)
   }
   return (
-    <Box sx={{ pl: 3, pr: 3, pt: 4 }}>
+    <Box sx={{ pt: 3, pl: 3, pr: 3, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <Tabs 
         textColor="primary"
         indicatorColor="primary"

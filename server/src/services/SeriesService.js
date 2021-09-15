@@ -326,6 +326,15 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
+    const castMeta = []
+    if (newMeta.credits) {
+      for (const cast of newMeta.credits.cast) {
+        const profilePath = await downloadImage(cast.profile_path, 'w185')
+        if (profilePath) cast.profile_path = profilePath.split('/').pop()
+        castMeta.push(cast)
+      }
+    }
+
     if (create) {
       const old = await Metadata.findOne({
         where: { seriesId }
@@ -345,6 +354,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
         overview: newMeta.overview,
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.name,
+        cast: castMeta,
       })
       const meta = await Metadata.findOne({
         where: { seriesId }
@@ -368,6 +378,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     meta.overview = newMeta.overview
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.name
+    meta.cast = castMeta
     meta.save()
 
     // async crawl happens in background
@@ -516,7 +527,14 @@ async function createSeriesMetadata(series) {
       // logger.stream.write('download image')
       const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
       const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
-
+      const castMeta = []
+      if (details.credits) {
+        for (const cast of details.credits.cast) {
+          const profilePath = await downloadImage(cast.profile_path, 'w185')
+          if (profilePath) cast.profile_path = profilePath.split('/').pop()
+          castMeta.push(cast)
+        }
+      }
       const seriesMeta = (await Metadata.findOrCreate({
         where: { seriesId: series.id },
         defaults: {
@@ -531,7 +549,8 @@ async function createSeriesMetadata(series) {
           tmdb_rating: details.vote_average,
           overview: details.overview,
           genres: details.genres.map((g) => g.name).join(','),
-          name: details.name
+          name: details.name,
+          cast: castMeta,
         }
       }))[0]
       return seriesMeta

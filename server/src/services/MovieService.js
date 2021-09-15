@@ -99,6 +99,15 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
+    const castMeta = []
+    if (newMeta.credits) {
+      for (const cast of newMeta.credits.cast) {
+        const profilePath = await downloadImage(cast.profile_path, 'w185')
+        if (profilePath) cast.profile_path = profilePath.split('/').pop()
+        castMeta.push(cast)
+      }
+    }
+
     if (create) {
       const old = await Metadata.findOne({
         where: { movieId }
@@ -119,6 +128,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
         overview: newMeta.overview,
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.title,
+        cast: castMeta
       })
       const meta = await Metadata.findOne({
         where: { movieId }
@@ -140,6 +150,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
     meta.overview = newMeta.overview
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.title
+    meta.cast = castMeta
     meta.save()
     return meta
   } catch (err) {
@@ -213,6 +224,16 @@ async function createMovieMetadata(movie) {
     if (details) {
       const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
       const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
+
+      const castMeta = []
+      if (details.credits) {
+        for (const cast of details.credits.cast) {
+          const profilePath = await downloadImage(cast.profile_path, 'w185')
+          if (profilePath) cast.profile_path = profilePath.split('/').pop()
+          castMeta.push(cast)
+        }
+      }
+
       const meta = (await Metadata.findOrCreate({
         where: { movieId: movie.id },
         defaults: {
@@ -227,7 +248,8 @@ async function createMovieMetadata(movie) {
           tmdb_rating: details.vote_average,
           overview: details.overview,
           genres: details.genres.map((g) => g.name).join(','),
-          name: details.title
+          name: details.title,
+          cast: castMeta
         }
       }))[0]
       return meta

@@ -57,8 +57,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     overview: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
+    cast: {
+      type: DataTypes.JSON,
+    }
   }, {
     sequelize,
     freezeTableName: true,

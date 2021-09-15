@@ -28,7 +28,7 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import InfoIcon from '@mui/icons-material/Info'
 import Zoom from '@mui/material/Zoom'
 
-import background from '../../assets/blurred-background-01.png'
+import background from '../../assets/blurred-background-01-brightness-100.png'
 
 // import { Fade, Tooltip } from '@mui/material'
 import { LibraryService, MovieService, SeriesService } from '../../services'
@@ -457,17 +457,26 @@ export default function Navigation(props) {
           })}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6 }}>
-        <Box sx={{
+      <Box component="main" sx={{
+        flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6,
+        height: '100vh',
+        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
+        // backgroundSize: '100% 100%', width: '100%', height: '100vh',
+        backgroundSize: 'cover',
+        backgroundAttachment: 'fixed'
+      }}>
+        {/* <Box sx={{
           position: 'absolute',
           top: 0,
           left: 0,
           right: 0,
           zIndex: -1,
+          height: '100%',
           background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
-          backgroundSize: '100% 100%', width: '100%', height: '100vh',
+          backgroundSize: 'cover',//'100% 100%', width: '100%', height: '100vh',
+          backgroundAttachment: 'fixed',
           filter: 'brightness(35%)',
-        }} />
+        }} /> */}
         {childrenWithProps}
       </Box>
     </Box>
