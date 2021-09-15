@@ -356,6 +356,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.name,
         cast: castMeta,
+        videos: newMeta.videos.results,
       })
       const meta = await Metadata.findOne({
         where: { seriesId }
@@ -380,6 +381,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.name
     meta.cast = castMeta
+    meta.videos = newMeta.videos.results
     meta.save()
 
     // async crawl happens in background
@@ -552,6 +554,7 @@ async function createSeriesMetadata(series) {
           genres: details.genres.map((g) => g.name).join(','),
           name: details.name,
           cast: castMeta,
+          videos: details.videos.results
         }
       }))[0]
       return seriesMeta

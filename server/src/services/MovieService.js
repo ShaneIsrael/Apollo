@@ -128,7 +128,8 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
         overview: newMeta.overview,
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.title,
-        cast: castMeta
+        cast: castMeta,
+        videos: newMeta.videos.results
       })
       const meta = await Metadata.findOne({
         where: { movieId }
@@ -151,6 +152,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.title
     meta.cast = castMeta
+    meta.videos = newMeta.videos.results
     meta.save()
     return meta
   } catch (err) {
@@ -249,7 +251,8 @@ async function createMovieMetadata(movie) {
           overview: details.overview,
           genres: details.genres.map((g) => g.name).join(','),
           name: details.title,
-          cast: castMeta
+          cast: castMeta,
+          videos: details.videos.results
         }
       }))[0]
       return meta

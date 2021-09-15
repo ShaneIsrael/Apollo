@@ -1,5 +1,6 @@
 import React from 'react';
 import moment from 'moment'
+import ReactPlayer from 'react-player'
 import { useHistory, useParams } from 'react-router-dom'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, Container } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
@@ -138,7 +139,7 @@ const Series = ({ sidebarOpen, setStats }) => {
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
   return (
-    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '91vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
@@ -255,6 +256,15 @@ const Series = ({ sidebarOpen, setStats }) => {
                 }
               </Grid>
             </Box>
+          </Grid>
+          <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
+            {
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item><ReactPlayer
+                height={200}
+                width={355}
+                controls
+                url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
+            }
           </Grid>
         </Grid>
       </Box>

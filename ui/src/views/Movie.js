@@ -1,14 +1,15 @@
 import React from 'react';
-import { useHistory, useParams } from 'react-router-dom'
 import moment from 'moment'
+import { useHistory, useParams } from 'react-router-dom'
+import ReactPlayer from 'react-player'
+import { useTheme } from '@emotion/react'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import { GeneralCoverCard, Loading, MetadataModal, CastCoverCard } from '../components'
 import { MovieService } from '../services';
-import FixMatch from '../components/widgets/FixMatch';
-import { canDisplayToUser, getImagePath } from '../components/utils';
+import FixMatch from '../components/widgets/FixMatch'
+import { canDisplayToUser, getImagePath } from '../components/utils'
 import background from '../assets/blurred-background-01.png'
-import { useTheme } from '@emotion/react';
 
 function createMetadata(movie, size) {
 
@@ -204,24 +205,33 @@ const Movie = () => {
               </Grid>
             </Grid>
             <Grid item>
-              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px' }}>
+              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }}}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
                 <Divider sx={{ mb: 1 }} />
-                <Typography variant="body1" sx={{ maxHeight: '200px', overflowY: 'auto', pr: 1 }}>
+                <Typography variant="body1" sx={{ maxHeight: '200px', pr: 1 }}>
                   {movie.Metadatum.overview}
                 </Typography>
               </Box>
             </Grid>
           </Grid>
-            <Grid container item direction="row" sx={{ display: { md: movie.Metadatum.cast && movie.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
-              <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
-                {
-                  movie.Metadatum.cast && movie.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
-                }
-              </Box>
-            </Grid>
+          <Grid container item direction="row" sx={{ display: { md: movie.Metadatum.cast && movie.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
+              {
+                movie.Metadatum.cast && movie.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+              }
+            </Box>
+          </Grid>
+          <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
+            {
+              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item><ReactPlayer
+                height={200}
+                width={355}
+                controls
+                url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
+            }
+          </Grid>
         </Grid>
       </Box>
     </Box>
