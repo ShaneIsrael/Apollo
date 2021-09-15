@@ -9,11 +9,6 @@ on:
     paths:
     - 'server/**'
     - 'ui/**'
-  pull_request:
-    branches: [ master ]
-    paths:
-    - 'server/**'
-    - 'ui/**'
 
 jobs:
   build:
