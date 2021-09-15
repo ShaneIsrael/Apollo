@@ -7,7 +7,7 @@ import { getImagePath } from '../utils'
 
 const CastCoverCard = (props) => {
   const { cast, size } = props
-  console.log(cast)
+  
   const character = cast.roles ? cast.roles[0].character : cast.character
   return (
     <div style={{ padding: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
