@@ -7,7 +7,8 @@ import { getImagePath } from '../utils'
 
 const CastCoverCard = (props) => {
   const { cast, size } = props
-
+  console.log(cast)
+  const character = cast.roles ? cast.roles[0].character : cast.character
   return (
     <div style={{ padding: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {/* <Avatar  sx={{width: size, height: size,backgroundPosition: '50% 50%'}} /> */}
@@ -23,7 +24,7 @@ const CastCoverCard = (props) => {
         {cast.name}
       </Typography>
       <Typography variant="subtitle1" sx={{ fontSize: 12 }} align="center">
-        {cast.character.replace('(voice)', '').trim()}
+        {character.replace('(voice)', '').trim()}
       </Typography>
     </div>
   )

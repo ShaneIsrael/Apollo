@@ -69,7 +69,7 @@ service.getTv = async (tmdbId) => {
     const res = (await api.get(`tv/${tmdbId}`, {
       params: { 
         language: 'en-US,null',
-        append_to_response: 'images,credits'
+        append_to_response: 'images,aggregate_credits'
       },
       ...options
     })).data

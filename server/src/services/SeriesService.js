@@ -206,6 +206,7 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
       logger.stream.write(`\tseason has ${episodeFiles.length} files at path: ${path.resolve(library.path, series.name, seasonDir)}`)
 
       const seasonNumber = getSeasonNumberFromSeasonDir(seasonDir)
+      if (isNaN(seasonNumber)) continue
       try {
         if (series.Metadatum) {
           let tmdbSeasonMeta
@@ -327,8 +328,8 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
     const castMeta = []
-    if (newMeta.credits) {
-      for (const cast of newMeta.credits.cast) {
+    if (newMeta.aggregate_credits) {
+      for (const cast of newMeta.aggregate_credits.cast.slice(0, 24)) {
         const profilePath = await downloadImage(cast.profile_path, 'w185')
         if (profilePath) cast.profile_path = profilePath.split('/').pop()
         castMeta.push(cast)
@@ -528,8 +529,8 @@ async function createSeriesMetadata(series) {
       const backdropPath = details.backdrop_path ? await downloadImage(details.backdrop_path, 'original') : null
       const posterPath = details.poster_path ? await downloadImage(details.poster_path, 'w780') : null
       const castMeta = []
-      if (details.credits) {
-        for (const cast of details.credits.cast) {
+      if (details.aggregate_credits) {
+        for (const cast of details.aggregate_credits.cast.slice(0, 24)) {
           const profilePath = await downloadImage(cast.profile_path, 'w185')
           if (profilePath) cast.profile_path = profilePath.split('/').pop()
           castMeta.push(cast)
