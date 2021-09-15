@@ -257,9 +257,11 @@ const Series = ({ sidebarOpen, setStats }) => {
               </Grid>
             </Box>
           </Grid>
-          <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
+          <Grid container item direction="row" alignItems="center" justifyContent="center">
             {
-              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item><ReactPlayer
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{width: 355, mb: 1, mr: 1, ml: 1}}>
+              <Typography noWrap sx={{fontWeight: 'bold', fontSize: 14}} align="center" color="primary">{video.name}</Typography>
+              <ReactPlayer
                 height={200}
                 width={355}
                 controls

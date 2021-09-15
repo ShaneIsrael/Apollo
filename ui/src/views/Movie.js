@@ -205,7 +205,7 @@ const Movie = () => {
               </Grid>
             </Grid>
             <Grid item>
-              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }}}>
+              <Box sx={{ width: '100%', pl: 0, pt: 0, pb: 2, pr: 1, height: 'auto', maxHeight: '285px', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
                 <Grid container justifyContent="flex-start" alignItems="center">
                   <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: 'secondary.main' }} variant="subtitle2">{genres}</Typography>
                 </Grid>
@@ -225,11 +225,13 @@ const Movie = () => {
           </Grid>
           <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
             {
-              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item><ReactPlayer
-                height={200}
-                width={355}
-                controls
-                url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
+              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{width: 355, mb: 1, mr: 1, ml: 1}}>
+                <Typography noWrap sx={{fontWeight: 'bold', fontSize: 14}} align="center" color="primary">{video.name}</Typography>
+                <ReactPlayer
+                  height={200}
+                  width={355}
+                  controls
+                  url={`https://youtube.com/watch?v=${video.key}`} /></Grid>)
             }
           </Grid>
         </Grid>
