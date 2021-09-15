@@ -243,7 +243,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
             <Box sx={{display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto'}}>
               {
-                series.Metadatum.cast && series.Metadatum.cast.map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
               }
             </Box>
           </Grid>

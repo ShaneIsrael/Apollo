@@ -218,7 +218,7 @@ const Movie = () => {
             <Grid container item direction="row" sx={{ display: { md: movie.Metadatum.cast && movie.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
               <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
                 {
-                  movie.Metadatum.cast && movie.Metadatum.cast.map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+                  movie.Metadatum.cast && movie.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
                 }
               </Box>
             </Grid>
