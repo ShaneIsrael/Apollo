@@ -75,6 +75,7 @@ Apollo is a companion app for your HTPC media libraries. It's a web app that can
 Apollo is not a video player, at least at this time. It is web app to view series, movie, file and statistical information about your library. Some of the code has been rushed and will be refactored and improved (I've rushed through a lot in the last month).  
 
 **[HD Demo Video](https://animetrics.sfo2.cdn.digitaloceanspaces.com/apollo/Apollo-Demo-So-Far-9-13-2021.mp4)**
+
 ![product-screenshot]
 
 ### Built With
