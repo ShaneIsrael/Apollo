@@ -115,17 +115,7 @@ const Library = () => {
   }
 
   return (
-    <>
-      {/* <Box sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
-        backgroundSize: '100% 100%', width: '100%', height: '100vh',
-        filter: 'brightness(35%)',
-        // filter: 'opacity(35%)'
-      }} /> */}
+    <Box sx={{maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 2, flexGrow: 1, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
         {cards &&
           <Grid container item justifyContent="center">
@@ -146,7 +136,7 @@ const Library = () => {
           }
         </Grid>
       </Box>
-    </>
+    </Box>
   )
 }
 

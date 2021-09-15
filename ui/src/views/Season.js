@@ -166,17 +166,7 @@ const Season = () => {
   }
 
   return (
-    <>
-      {/* <Box sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
-        backgroundSize: '100% 100%', width: '100%', height: '100vh',
-        filter: 'brightness(35%)',
-        // filter: 'opacity(35%)'
-      }} /> */}
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
       <MetadataModal title="Local System Metadata"  open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       { selectedEpisode && <MetadataModal title={`Episode ${selectedEpisode.episode_number} File Data`} open={selectedEpisode ? true : false} close={() => setSelectedEpisode(null)} metadata={createEpisodeMetadata(selectedEpisode)} />}
       <Box sx={{ position: 'relative', pl: 3, pr: 0, pt: 5, flexGrow: 1 }}>
@@ -261,7 +251,7 @@ const Season = () => {
           </Grid>
         </Grid>
       </Box>
-    </>
+    </Box>
   )
 }
 
