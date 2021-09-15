@@ -1,28 +1,15 @@
 import React from 'react';
 import moment from 'moment'
 import { useHistory, useParams } from 'react-router-dom'
-import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@mui/material'
+import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider, Container } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { SeasonCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
+import { SeasonCoverCard, CastCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
 import { canDisplayToUser, getImagePath, secondsToDhms } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 // blurred-texture-background02
-
-
-const leftOffsetMixin = (theme, open) => {
-  if (!open) {
-    return {
-      left: `calc(${theme.spacing(7)} + 1px)`,
-      [theme.breakpoints.up('sm')]: {
-        left: `calc(${theme.spacing(9)} + 1px)`,
-      },
-    }
-  }
-  return { left: 240 }
-}
 
 const Series = ({ sidebarOpen, setStats }) => {
   const { id } = useParams()
@@ -55,7 +42,7 @@ const Series = ({ sidebarOpen, setStats }) => {
               }
               const framerate = (videoStream.avg_frame_rate.split('/')[0] / videoStream.avg_frame_rate.split('/')[1])
               if (frames > 0) {
-                time += frames/framerate
+                time += frames / framerate
               }
             }
           }
@@ -151,13 +138,13 @@ const Series = ({ sidebarOpen, setStats }) => {
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
 
   return (
-    <>
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setSeries} current={series} type="series" />
       <Box sx={{
         position: 'absolute',
         zIndex: 1,
-        ...leftOffsetMixin(theme),
+        left: 0,
         right: 0,
         // filter: 'blur(0px) brightness(100%)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', height: '365px',
@@ -253,8 +240,15 @@ const Series = ({ sidebarOpen, setStats }) => {
             </Grid>
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
+          <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
+            <Box sx={{display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto'}}>
+              {
+                series.Metadatum.cast && series.Metadatum.cast.filter(cast => cast.profile_path).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+              }
+            </Box>
+          </Grid>
           <Grid container item direction="column" sx={{ display: { md: series.Seasons.length > 0 ? 12 : 'none' } }} alignItems="center">
-            <Box sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto' }}>
+            <Box sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
               <Grid container spacing={2} justifyContent="center">
                 {
                   series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard seriesId={id} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
@@ -264,7 +258,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
         </Grid>
       </Box>
-    </>
+    </Box>
   )
 }
 

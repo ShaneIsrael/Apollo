@@ -3,7 +3,7 @@ const fs = require('fs')
 const axios = require('axios')
 const download = require('image-downloader')
 const config = require(path.join(__dirname, '../config/index.js'))[process.env.NODE_ENV || 'production']
-const { tmdb_api_key, tmdb_read_access_token } = require(path.join(__dirname, '../config/index'))[process.env.NODE_ENV || 'production']
+const { tmdb_read_access_token } = require(path.join(__dirname, '../config/index'))[process.env.NODE_ENV || 'production']
 const api = axios.create({ baseURL: 'https://api.themoviedb.org/3' })
 
 const options = {
@@ -55,7 +55,7 @@ service.getMovie = async (tmdbId) => {
     const res = (await api.get(`movie/${tmdbId}`, {
       params: { 
         language: 'en-US,null',
-        append_to_response: 'images'
+        append_to_response: 'images,credits'
       },
       ...options
     })).data
@@ -69,7 +69,7 @@ service.getTv = async (tmdbId) => {
     const res = (await api.get(`tv/${tmdbId}`, {
       params: { 
         language: 'en-US,null',
-        append_to_response: 'images'
+        append_to_response: 'images,credits'
       },
       ...options
     })).data

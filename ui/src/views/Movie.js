@@ -3,22 +3,15 @@ import { useHistory, useParams } from 'react-router-dom'
 import moment from 'moment'
 import { Grid, Box, Typography, Paper, Button, Stack, Rating, Divider } from '@mui/material'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { GeneralCoverCard, Loading, MetadataModal } from '../components'
+import { GeneralCoverCard, Loading, MetadataModal, CastCoverCard } from '../components'
 import { MovieService } from '../services';
 import FixMatch from '../components/widgets/FixMatch';
 import { canDisplayToUser, getImagePath } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 
-const leftOffsetMixin = (theme) => ({
-  left: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up('sm')]: {
-    left: `calc(${theme.spacing(9)} + 1px)`,
-  },
-})
-
 function createMetadata(movie, size) {
-  
+
   const meta = [
     {
       title: "General Info",
@@ -106,7 +99,7 @@ const Movie = () => {
     try {
       setRefreshingMetadata(true)
       await MovieService.changeMetadata(movie.id, movie.Metadatum.tmdbId)
-      const movieResp = (await Movie.getById(id)).data
+      const movieResp = (await MovieService.getById(id)).data
       setMovie(movieResp)
     } catch (err) {
       console.error(err)
@@ -132,26 +125,17 @@ const Movie = () => {
   const hidden = !canDisplayToUser()
 
   return (
-    <>
+    <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
       <FixMatch open={fixMatchOpen} close={handleFixMatchClose} setMatch={setMovie} current={movie} type="movie" />
       <Box sx={{
         position: 'absolute',
-        ...leftOffsetMixin(theme),
+        left: 0,
         right: 0,
         // filter: 'blur(2px)',
         backgroundImage: `url("${backdropImage}")`, backgroundSize: 'cover', height: '365px',
         backgroundPosition: '50% 15%'
       }}>
-        {/* <Box sx={{
-          position: 'absolute',
-          top: 365,
-          left: 0,
-          right: 0,
-          backgroundImage: (theme) => theme.palette.mode === 'dark' ? `url("${background}")` : '', 
-          backgroundSize: 'cover', width: '100%', height: '100vh',
-          filter: 'brightness(35%)',
-        }} /> */}
       </Box>
       <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -231,9 +215,16 @@ const Movie = () => {
               </Box>
             </Grid>
           </Grid>
+            <Grid container item direction="row" sx={{ display: { md: movie.Metadatum.cast && movie.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
+              <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
+                {
+                  movie.Metadatum.cast && movie.Metadatum.cast.filter(cast => cast.profile_path).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+                }
+              </Box>
+            </Grid>
         </Grid>
       </Box>
-    </>
+    </Box>
   )
 }
 

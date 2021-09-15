@@ -166,7 +166,7 @@ async function main() {
 
   setupWebsocketServer(server)
 
-  const cache = new Cache(180)
+  const cache = new Cache(ENVIRONMENT === 'production' ? 180 : 0)
   const observer = new Observer()
   app.set('cache', cache)
   app.set('observer', observer)
