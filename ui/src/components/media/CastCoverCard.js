@@ -10,7 +10,7 @@ const CastCoverCard = (props) => {
 
   const character = cast.roles ? cast.roles[0].character : cast.character
   return (
-    <div style={{ padding: 5, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div style={{ marginRight: 25, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <Avatar alt={character} sx={{
         width: size, height: size
       }} src={getImagePath(`/api/v1/image/${cast.profile_path}`)} />
@@ -22,10 +22,10 @@ const CastCoverCard = (props) => {
         borderRadius: '50%'
 
       }}></div> */}
-      <Typography variant="body1" sx={{ pt: 1, fontSize: 14, fontWeight: 'bold' }} align="center">
+      <Typography variant="body1" sx={{ pt: 1, fontSize: 14, fontWeight: 'bold', width: 'max-content' }} align="center">
         {cast.name}
       </Typography>
-      <Typography variant="subtitle1" sx={{ fontSize: 12 }} align="center">
+      <Typography noWrap variant="subtitle2" sx={{ fontSize: 12, width: '100%'}} align="center">
         {character.replace('(voice)', '').trim()}
       </Typography>
     </div>

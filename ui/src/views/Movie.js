@@ -190,8 +190,9 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="column" alignItems="space-evenly" spacing={2} md={8}>
-            {/* <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '365px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
-            </Grid> */}
+            <Grid container justifyContent="flex-start" alignItems="center" sx={{ pl: 4, height: '365px', display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
+            {/* This grid just pushes the title down into the correct position */}
+            </Grid>
             <Grid item sx={{ display: { xs: 'none', sm: 'none', md: 'inherit' } }}>
               <Grid container justifyContent="flex-start">
                 <Typography sx={{ position: 'relative', pt: 0, fontWeight: 900, fontSize: 36 }} variant="h1">
@@ -212,7 +213,7 @@ const Movie = () => {
             </Grid>
           </Grid>
           <Grid container item direction="row" sx={{ display: { md: movie.Metadatum.cast && movie.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
-            <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '85vw', overflowX: 'auto' }}>
               {
                 movie.Metadatum.cast && movie.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
               }
@@ -220,7 +221,7 @@ const Movie = () => {
           </Grid>
           <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
             {
-              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
                 <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
                 <ReactPlayer
                   height={200}

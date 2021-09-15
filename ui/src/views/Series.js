@@ -238,9 +238,9 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="column" md={4}></Grid>
           <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
-            <Box sx={{ display: 'flex', padding: 2, maxWidth: '80vw', overflowX: 'auto' }}>
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '85vw', overflowX: 'auto' }}>
               {
-                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={120} />)
+                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={100} />)
               }
             </Box>
           </Grid>
@@ -255,7 +255,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="row" alignItems="center" justifyContent="center">
             {
-              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map(video => <Grid item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
                 <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
                 <ReactPlayer
                   height={200}
