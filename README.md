@@ -27,9 +27,6 @@
   <p align="center">
     A companion app for your HTPC media libraries
     <br />
-    <a href="https://github.com/ShaneIsrael/Apollo"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
     <a href="https://animetrics.sfo2.cdn.digitaloceanspaces.com/apollo/Apollo-Demo-So-Far-9-13-2021.mp4">View Demo</a>
     ·
     <a href="https://github.com/ShaneIsrael/Apollo/issues">Report Bug</a>
