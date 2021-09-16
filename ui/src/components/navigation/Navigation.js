@@ -35,6 +35,7 @@ import { LibraryService, MovieService, SeriesService } from '../../services'
 import logo from '../../assets/logo.png'
 import { Popover, Tooltip } from '@mui/material'
 import { Series } from 'devextreme-react/chart'
+import { leftOffsetMixin } from '../utils'
 
 const drawerWidth = 240
 
@@ -459,24 +460,13 @@ export default function Navigation(props) {
       </Drawer>
       <Box component="main" sx={{
         flexGrow: 1, paddingLeft: 0, paddingRight: 0, paddingTop: 6,
+        ...leftOffsetMixin(theme, open),
         height: '100vh',
         background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
         // backgroundSize: '100% 100%', width: '100%', height: '100vh',
         backgroundSize: 'cover',
         backgroundAttachment: 'fixed'
       }}>
-        {/* <Box sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: -1,
-          height: '100%',
-          background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
-          backgroundSize: 'cover',//'100% 100%', width: '100%', height: '100vh',
-          backgroundAttachment: 'fixed',
-          filter: 'brightness(35%)',
-        }} /> */}
         {childrenWithProps}
       </Box>
     </Box>

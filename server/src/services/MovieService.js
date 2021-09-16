@@ -5,7 +5,7 @@ const short = require('short-uuid')
 const ffprobe = require('ffprobe')
 const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-static') : require('ffprobe-static')
 
-const { VALID_EXTENSIONS } = require('../constants')
+const { VALID_EXTENSIONS, VALID_TMDB_VIDEO_TYPES } = require('../constants')
 const { searchMovie, getMovie, downloadImage } = require('./TmdbService')
 const { Library, Movie, Metadata, MovieFile, Stats, Op } = require('../database/models')
 const logger = require('../logger')
@@ -129,7 +129,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.title,
         cast: castMeta,
-        videos: newMeta.videos.results
+        videos: newMeta.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1)
       })
       const meta = await Metadata.findOne({
         where: { movieId }
@@ -152,7 +152,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.title
     meta.cast = castMeta
-    meta.videos = newMeta.videos.results
+    meta.videos = newMeta.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1)
     meta.save()
     return meta
   } catch (err) {
@@ -252,7 +252,7 @@ async function createMovieMetadata(movie) {
           genres: details.genres.map((g) => g.name).join(','),
           name: details.title,
           cast: castMeta,
-          videos: details.videos.results
+          videos: details.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1)
         }
       }))[0]
       return meta

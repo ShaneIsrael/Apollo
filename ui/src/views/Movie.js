@@ -124,7 +124,7 @@ const Movie = () => {
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
 
   const hidden = !canDisplayToUser()
-
+  console.log(movie.Metadatum.videos)
   return (
     <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
@@ -221,7 +221,7 @@ const Movie = () => {
           </Grid>
           <Grid container item direction="row" alignItems="center" spacing={1} justifyContent="center">
             {
-              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+              movie.Metadatum.videos && movie.Metadatum.videos.filter(video => (video.site === 'YouTube')).sort(a => a.type === 'Trailer' ? 0 : 1).slice(0, 3).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
                 <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
                 <ReactPlayer
                   height={200}

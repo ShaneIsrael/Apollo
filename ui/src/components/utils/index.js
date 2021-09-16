@@ -110,3 +110,17 @@ export function secondsToDhms(seconds) {
   let sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : ""
   return (dDisplay + hDisplay + mDisplay).replace(/,\s*$/, "")
 }
+
+export function leftOffsetMixin(theme, open) {
+  if (!open) {
+    return {
+      left: `calc(${theme.spacing(7)} + 1px)`,
+      [theme.breakpoints.up('sm')]: {
+        left: `calc(${theme.spacing(9)} + 1px)`,
+      },
+    }
+  }
+  return { left: 240, width: '50%'} 
+  // I have no idea why width 50% works but it does. Without it, when the sidebar is open the page gets overflowed and
+  // requires you to scroll horizontally. But setting width to 50% seems to make it not overflow.
+}

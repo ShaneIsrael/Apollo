@@ -7,7 +7,7 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 import { SeasonCoverCard, CastCoverCard, GeneralCoverCard, Loading, MetadataModal } from '../components'
 import { SeriesService } from '../services'
 import FixMatch from '../components/widgets/FixMatch';
-import { canDisplayToUser, getImagePath, secondsToDhms } from '../components/utils';
+import { canDisplayToUser, getImagePath, leftOffsetMixin, secondsToDhms } from '../components/utils';
 import background from '../assets/blurred-background-01.png'
 import { useTheme } from '@emotion/react';
 // blurred-texture-background02
@@ -137,7 +137,6 @@ const Series = ({ sidebarOpen, setStats }) => {
   }
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
-
   return (
     <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
@@ -255,7 +254,7 @@ const Series = ({ sidebarOpen, setStats }) => {
           </Grid>
           <Grid container item direction="row" alignItems="center" justifyContent="center">
             {
-              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
+              series.Metadatum.videos && series.Metadatum.videos.filter(video => (video.site === 'YouTube')).sort(a => a.type === 'Trailer' ? 0 : 1).slice(0, 3).map((video, i) => <Grid key={i} item sx={{ width: 355, mb: 1, mr: 1, ml: 1 }}>
                 <Typography noWrap sx={{ fontWeight: 'bold', fontSize: 14 }} align="center" color="primary">{video.name}</Typography>
                 <ReactPlayer
                   height={200}

@@ -7,7 +7,7 @@ const short = require('short-uuid')
 
 const { searchTv, getTv, getSeason, downloadImage } = require('./TmdbService')
 const { Library, Series, Metadata, Season, Episode, Stats, Op } = require('../database/models')
-const { VALID_EXTENSIONS } = require('../constants')
+const { VALID_EXTENSIONS, VALID_TMDB_VIDEO_TYPES } = require('../constants')
 const logger = require('../logger')
 const service = {}
 
@@ -356,7 +356,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
         genres: newMeta.genres.map((g) => g.name).join(','),
         name: newMeta.name,
         cast: castMeta,
-        videos: newMeta.videos.results,
+        videos: newMeta.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1),
       })
       const meta = await Metadata.findOne({
         where: { seriesId }
@@ -381,7 +381,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     meta.genres = newMeta.genres.map((g) => g.name).join(',')
     meta.name = newMeta.name
     meta.cast = castMeta
-    meta.videos = newMeta.videos.results
+    meta.videos = newMeta.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1)
     meta.save()
 
     // async crawl happens in background
@@ -554,7 +554,7 @@ async function createSeriesMetadata(series) {
           genres: details.genres.map((g) => g.name).join(','),
           name: details.name,
           cast: castMeta,
-          videos: details.videos.results
+          videos: details.videos.results.filter(result => VALID_TMDB_VIDEO_TYPES.indexOf(result.type) !== -1)
         }
       }))[0]
       return seriesMeta
