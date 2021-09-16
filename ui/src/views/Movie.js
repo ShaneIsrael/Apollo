@@ -124,7 +124,6 @@ const Movie = () => {
   const backdropImage = movie ? getImagePath(`/api/v1/image/${movie.Metadatum.local_backdrop_path}`) : ''
 
   const hidden = !canDisplayToUser()
-  console.log(movie.Metadatum.videos)
   return (
     <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
