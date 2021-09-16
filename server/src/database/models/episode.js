@@ -38,6 +38,10 @@ module.exports = (sequelize, DataTypes) => {
     name: {
       type: DataTypes.STRING
     },
+    path: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     overview: {
       type: DataTypes.STRING
     },
@@ -63,14 +67,6 @@ module.exports = (sequelize, DataTypes) => {
     },
     file_probe_data: {
       type: DataTypes.JSON
-    },
-    createdAt: {
-      allowNull: false,
-      type: DataTypes.DATE
-    },
-    updatedAt: {
-      allowNull: false,
-      type: DataTypes.DATE
     }
   }, {
     sequelize,

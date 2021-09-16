@@ -50,7 +50,7 @@ function setupMorgan() {
     app.use(
       morgan('combined', {
         skip(req, res) {
-          return res.statusCode >= 500
+          return res.statusCode >= 200
         },
         stream: logger.stream,
       }),
@@ -59,7 +59,7 @@ function setupMorgan() {
     app.use(
       morgan('combined', {
         skip(req, res) {
-          return res.statusCode >= 200
+          return res.statusCode >= 500
         },
         stream: logger.stream,
       }),
@@ -166,7 +166,7 @@ async function main() {
 
   setupWebsocketServer(server)
 
-  const cache = new Cache(ENVIRONMENT === 'production' ? 180 : 0)
+  const cache = new Cache(180)
   const observer = new Observer()
   app.set('cache', cache)
   app.set('observer', observer)

@@ -88,6 +88,7 @@ const getFiles = source =>
 service.addEpisode = (filename, series, seasonDirectoryName) => createEpisodeData(filename, series, seasonDirectoryName)
 
 async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss) {
+  try {
   const { ext } = path.parse(episode)
   if (VALID_EXTENSIONS.indexOf(ext) === -1) return // not a valid video file
 
@@ -174,6 +175,9 @@ async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss
     if (wss) {
       wss.broadcast(`\t\t\tUnable to parse episode: ${series.name} -- ${episode}`)
     }
+  }
+  } catch (err) {
+    logger.error(err)
   }
 }
 
