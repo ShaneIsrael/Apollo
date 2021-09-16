@@ -81,7 +81,7 @@ const logger = createLogger({
     myFormat,
     // format.json(),
   ),
-  transports: environment === 'prod' ? prodTransports : devTransports,
+  transports: environment !== 'development' ? prodTransports : devTransports,
   exitOnError: false, // do not exit on handled exceptions
 })
 
