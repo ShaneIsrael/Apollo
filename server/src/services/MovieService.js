@@ -87,13 +87,15 @@ service.searchMovieByTitle = async (title, amount) => {
  */
 service.changeMovieMetadata = async (movieId, tmdbId, create) => {
   try {
+    const movie = await Movie.findOne({
+      where: { id: movieId },
+      include: [Metadata]
+    })
+
     if (!tmdbId) {
-      const movie = await Movie.findOne({
-        where: { id: movieId },
-        include: [Meatadata]
-      })
       tmdbId = movie.Metadatum.tmdbId
     }
+    
     const newMeta = await getMovie(tmdbId)
 
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
@@ -109,6 +111,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
     }
 
     if (create) {
+      logger.info(`creating ${movie.name} metadata`)
       const old = await Metadata.findOne({
         where: { movieId }
       })
@@ -136,7 +139,7 @@ service.changeMovieMetadata = async (movieId, tmdbId, create) => {
       })
       return meta
     }
-
+    logger.info(`refreshing ${movie.name} metadata`)
     const meta = await Metadata.findOne({
       where: { movieId }
     })
@@ -212,6 +215,7 @@ service.syncMovie = async (id) => {
         }
       }
     }
+    await service.changeMovieMetadata(id)
   } catch (err) {
     logger.error(err)
     throw err
