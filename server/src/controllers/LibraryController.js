@@ -84,7 +84,7 @@ controller.createLibrary = async (req, res, next) => {
     }
 
     const observer = req.app.get('observer')
-    observer.watch()
+    observer.watch(path)
     req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
@@ -108,13 +108,13 @@ controller.updateLibrary = async (req, res, next) => {
     if (['series', 'movie'].indexOf(type.toLowerCase()) === -1)
       return res.status(400).send('Library type must be either series or movie.')
 
-    new Promise((resolve) => {
-      const observer = req.app.get('observer')
-      observer.watch()
-      resolve()
-    })
-
-    const result = await updateLibrary(req.body.id, req.body)
+      
+      const result = await updateLibrary(req.body.id, req.body)
+      new Promise((resolve) => {
+        const observer = req.app.get('observer')
+        observer.init()
+        resolve()
+      })
     req.app.get('cache').flush()
     return res.status(200).send(result)
   } catch (err) {
@@ -131,7 +131,7 @@ controller.deleteLibrary = async (req, res, next) => {
     await deleteLibrary(req.body.id)
 
     const observer = req.app.get('observer')
-    observer.watch()
+    observer.unwatch(library.path)
     req.app.get('cache').flush()
     return res.status(200).send('ok')
   } catch (err) {

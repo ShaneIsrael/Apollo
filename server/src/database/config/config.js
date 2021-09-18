@@ -13,7 +13,7 @@ module.exports = {
     transactionType: 'IMMEDIATE',
     logging: false,
     pool: {
-      max: 5,
+      max: 10,
       min: 0,
       maxactive: 1,
       acquire: 30000,
@@ -33,7 +33,7 @@ module.exports = {
     transactionType: 'IMMEDIATE',
     logging: false,
     pool: {
-      max: 5,
+      max: 10,
       min: 0,
       maxactive: 1,
       acquire: 30000,

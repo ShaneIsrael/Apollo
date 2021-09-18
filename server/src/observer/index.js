@@ -10,24 +10,32 @@ const toGenericPath = (ffpath) => ffpath.split(path.sep).join(path.posix.sep)
 
 class Observer {
   constructor() {
-    this.watch()
-    this.libraries
+    this.init()
+    this.watched = []
   }
-  async watch() {
-    try {
-      if (this.watcher) {
-        this.watcher.close().then(() => logger.info('Library observer closed'))
-      }
+  printWatched() {
+    if (!this.watcher) return logger.error('The observer must be initialized first.')
+    
+    console.log('------ WATCHING LIBRARIES ------')
 
-      this.libraries = await getLibraries()
+    for (const path of this.watched) {
+      console.log('\x1b[32m', path, '\x1b[0m')
+    }
+    console.log('--------------------------------')
+  }
+  async init() {
+    if (this.watcher) {
+      await this.watcher.close()
+      logger.info('Library observer closed')
+    }
+    getLibraries().then(libraries => {
+      this.libraries = libraries
       if (this.libraries.length > 0) {
-        this.watcher = chokidar.watch(this.libraries.map(library => library.path), { persistent: true, ignoreInitial: true })
-
-        console.log('------ WATCHING LIBRARIES ------')
-        for (const library of this.libraries) {
-          console.log('\x1b[32m', library.path, '\x1b[0m')
-        }
-        console.log('--------------------------------')
+        this.watched = this.libraries.map(library => library.path)
+        this.watcher = chokidar.watch(this.watched, {
+          persistent: true,
+          ignoreInitial: true
+        })
 
         this.watcher
           .on('addDir', ffpath => handleDirectoryAdded(toGenericPath(ffpath), this.findLibraryFromPath(toGenericPath(ffpath))))
@@ -35,12 +43,29 @@ class Observer {
           .on('add', ffpath => handleFileAdded(toGenericPath(ffpath), this.findLibraryFromPath(toGenericPath(ffpath))))
           .on('unlink', ffpath => handleFileDeleted(toGenericPath(ffpath), this.findLibraryFromPath(toGenericPath(ffpath))))
           .on('change', ffpath => handleChange(toGenericPath(ffpath), this.findLibraryFromPath(toGenericPath(ffpath))))
+
+        this.printWatched()
       }
-    } catch (error) {
-      logger.error(error)
-    }
+    }).catch(error => logger.error(error))
+  }
+  async watch(path) {
+    if (!path) return logger.error('A path must be specified.')
+    if (!this.watcher) return logger.error('The observer must be initialized first.')
+
+    this.watcher.add(toGenericPath(path))
+    this.watched.push(toGenericPath(path))
+    this.printWatched()
+  }
+  async unwatch(path) {
+    if (!path) return logger.error('A path must be specified.')
+    if (!this.watcher) return logger.error('The observer must be initialized first.')
+
+    this.watcher.unwatch(toGenericPath(path))
+    this.watched = this.watched.filter(p => toGenericPath(path) !== p)
+    this.printWatched()
   }
   findLibraryFromPath(ffpath) {
+    if (!this.libraries) return null
     return this.libraries.find(library => ffpath.indexOf(toGenericPath(library.path)) === 0)
   }
 }
