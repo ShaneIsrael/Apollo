@@ -188,7 +188,7 @@ const Series = ({ sidebarOpen, setStats }) => {
                         }} fontSize="inherit" />
                       }
                     >
-                      Sync Series Files
+                      Sync Series
                     </Button>
                     <Button onClick={handleFixMatch} variant="outlined" size="small">
                       Fix Match
