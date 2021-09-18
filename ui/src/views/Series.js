@@ -137,6 +137,7 @@ const Series = ({ sidebarOpen, setStats }) => {
   }
   const backdropImage = series ? getImagePath(`/api/v1/image/${series.Metadatum.local_backdrop_path}`) : ''
   const genres = series ? series.Metadatum.genres.split(',').filter((e) => e.toLowerCase() !== 'animation').join(', ') : ''
+
   return (
     <Box sx={{ position: 'relative', flexGrow: 1, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <MetadataModal title="Local System Metadata" open={metadataOpen} close={() => setMetadataOpen(false)} metadata={metaViewData} />
@@ -151,16 +152,6 @@ const Series = ({ sidebarOpen, setStats }) => {
         backgroundPosition: '50% 15%'
       }}>
       </Box>
-      {/* <Box sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        background: (theme) => theme.palette.mode === 'dark' ? `url("${background}") no-repeat center center fixed` : '',
-        backgroundSize: '100% 100%', width: '100%', height: '100vh',
-        filter: 'brightness(35%)',
-        // filter: 'opacity(35%)'
-      }} /> */}
       <Box sx={{ position: 'relative', zIndex: 2, pl: 3, pr: 3, pt: 3, flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid container item direction="column" alignItems="center" spacing={2} md={4}>
@@ -239,17 +230,15 @@ const Series = ({ sidebarOpen, setStats }) => {
           <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
             <Box sx={{ display: 'flex', padding: 2, maxWidth: '85vw', overflowX: 'auto' }}>
               {
-                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={100} />)
+                series.Seasons.map((season, i) => <Grid item sx={{pr: 2}} key={i}><SeasonCoverCard seriesId={id} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} height={240} /></Grid>)
               }
             </Box>
           </Grid>
-          <Grid container item direction="column" sx={{ display: { md: series.Seasons.length > 0 ? 12 : 'none' } }} alignItems="center">
-            <Box sx={{ maxHeight: '520px', padding: 2, overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
-              <Grid container spacing={2} justifyContent="center">
-                {
-                  series.Seasons.map((season, i) => <Grid item key={i}><SeasonCoverCard seriesId={id} season={season.season} cover={season.local_poster_path || series.Metadatum.local_poster_path} width={140} height={210} /></Grid>)
-                }
-              </Grid>
+          <Grid container item direction="row" sx={{ display: { md: series.Metadatum.cast && series.Metadatum.cast.length > 0 ? 12 : 'none' } }} justifyContent="center">
+            <Box sx={{ display: 'flex', padding: 2, maxWidth: '85vw', overflowX: 'auto' }}>
+              {
+                series.Metadatum.cast && series.Metadatum.cast.sort((a, b) => a.order - b.order).map((cast, i) => <CastCoverCard key={i} cast={cast} size={100} />)
+              }
             </Box>
           </Grid>
           <Grid container item direction="row" alignItems="center" justifyContent="center">

@@ -15,7 +15,16 @@ const StyledBox = styled(Box)(({ theme }) => ({
 }))
 
 const SeasonCoverCard = (props) => {
-  const { cover, seriesId, season, width, height } = props
+  let { cover, seriesId, season, width, height } = props
+
+  if (width && !height) {
+    height = (width/2) * 3
+  }
+
+  if (height && !width) {
+    width = (height/3) * 2
+  }
+
   return (
     <>
       <Card sx={{
@@ -38,7 +47,7 @@ const SeasonCoverCard = (props) => {
         </CardActionArea>
       </Card>
       <Grid container justifyContent="center">
-        <Box sx={{ pt: 1, fontSize: 14, fontWeight: 'bold' }}>
+        <Box sx={{ pt: 1, fontSize: 16, fontWeight: 'bold' }}>
           {season === 0 ? 'Specials' : `Season ${season}`}
         </Box>
       </Grid>
