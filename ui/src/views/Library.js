@@ -116,7 +116,7 @@ const Library = () => {
 
   return (
     <Box sx={{maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
-      <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 2, flexGrow: 1, maxHeight: '96vh', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 }  }}>
+      <Box ref={elem => setScrollRef(elem)} sx={{ position: 'relative', pt: 2, flexGrow: 1, maxHeight: '96vh', overflowY: 'auto' }}>
         {cards &&
           <Grid container item justifyContent="center">
             <Paper sx={{ position: 'fixed', zIndex: 2, width: '80%', maxWidth: 600, backgroundColor: 'rgba(0,0,0,.65)' }}>
