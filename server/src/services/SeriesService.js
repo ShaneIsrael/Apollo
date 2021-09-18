@@ -5,7 +5,7 @@ const ffprobe = require('ffprobe')
 const ffprobeStatic = ENVIRONMENT === 'production' ? require('../utils/ffprobe-static') : require('ffprobe-static')
 const short = require('short-uuid')
 
-const { searchTv, getTv, getSeason, downloadImage } = require('./TmdbService')
+const { searchTv, getTv, getSeason, downloadImage, getEpisode } = require('./TmdbService')
 const { Library, Series, Metadata, Season, Episode, Stats, Op } = require('../database/models')
 const { VALID_EXTENSIONS, VALID_TMDB_VIDEO_TYPES } = require('../constants')
 const logger = require('../logger')
@@ -106,12 +106,14 @@ async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss
       episodeTitle = episodeTitleSplit[1]
     }
 
-
-    if (!tmdbSeasonMeta && series.Metadatum) {
-      tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
+    let tmdbEpisodeData
+    if (tmdbSeasonMeta) {
+      tmdbEpisodeData = tmdbSeasonMeta ? tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber) : null
+    } else {
+      if (series.Metadatum) {
+        tmdbEpisodeData = await getEpisode(series.Metadatum.tmdbId, seasonNumber, episodeNumber)
+      }
     }
-
-    const tmdbEpisodeData = tmdbSeasonMeta ? tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber) : null
 
     let episodeRow = await Episode.findOne({
       where: {
@@ -341,6 +343,7 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     }
 
     if (create) {
+      logger.info(`creating ${series.name} metadata`)
       const old = await Metadata.findOne({
         where: { seriesId }
       })
@@ -369,10 +372,10 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
       crawlSeasons(seriesId, newMeta.seasons).catch(err => logger.error(err))
       return meta
     }
+    logger.info(`refreshing ${series.name} metadata`)
     const meta = await Metadata.findOne({
       where: { seriesId }
     })
-    logger.info(`refreshing ${series.name} metadata`)
     meta.tmdbId = newMeta.id
     meta.imdbId = newMeta.imdbId
     meta.tmdb_poster_path = newMeta.poster_path
@@ -513,11 +516,19 @@ service.syncSeries = async (id) => {
           await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeason)
           for (let epFile of files) {
             logger.info(`sync series files -- adding episode ${epFile}...`)
-            await createEpisodeData(epFile, series, seasonDir, tmdbSeasosn)
+            await createEpisodeData(epFile, series, seasonDir, tmdbSeason)
           }
         }
       }
     }
+
+    logger.info(`sync series files -- updating metadata`)
+    await service.changeSeriesMetadata(id)
+    for (const season of series.Seasons) {
+      logger.info(`sync series files -- updating Season ${season.season} metadata`)
+      await service.refreshSeasonEpisodesMetadata(season.id)
+    }
+
   } catch (err) {
     logger.error(err)
     throw err
