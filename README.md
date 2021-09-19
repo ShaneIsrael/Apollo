@@ -47,11 +47,12 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
+    <li><a href="#installation">Installation</a></li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#local-development">Local Development</a>
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#setup">Setup</a></li>
       </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
@@ -74,8 +75,12 @@ Apollo is not a video player, at least at this time. It is web app to view serie
 **[HD Demo Video](https://animetrics.sfo2.cdn.digitaloceanspaces.com/apollo/Apollo-Demo-So-Far-9-13-2021.mp4)**
 
 ![product-screenshot]
-![series-screenshot]
+![adachi-example]
 ![season-screenshot]
+![smallville-example]
+![login-view]
+![library-config-view]
+![system-config-view]
 
 ### Built With
 
@@ -85,7 +90,7 @@ Apollo is not a video player, at least at this time. It is web app to view serie
 
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Installation
 ___
 ***Apollo is currently in very early development. While Apollo is completely functional right now, future changes will likely require you to delete your local Apollo database in order to update it.***
 ___
@@ -93,9 +98,12 @@ ___
 There are two ways you can install and run Apollo.
 
 1. [Download & Run the latest Apollo Binary](https://github.com/ShaneIsrael/Apollo/releases/)
-2. Install & Run from source code
+2. Install & Run from source code (see: local development)
 
-If you would like to run Apollo via the source code you will need to have npm and Node.js installed. I reccommend installing Node.js with NVM so that you can easily switch between Node versions. This project currently uses Node 12.x but will likely change.
+
+## Local Development
+
+If you would like to run Apollo via the source code in order to contribute you will need to have npm and Node.js installed. I reccommend installing Node.js with NVM so that you can easily switch between Node versions. This project currently uses Node 12.x but will likely change.
 
 ### Prerequisites
 
@@ -105,7 +113,7 @@ If you would like to run Apollo via the source code you will need to have npm an
   nvm install 12.19.0
   ```
 
-### Installation
+## Setup
 
 1. [Get a TMDb Api Key](https://www.themoviedb.org/)
 2. Clone the repo
@@ -141,7 +149,9 @@ If you would like to run Apollo via the source code you will need to have npm an
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+If this project is at all interesting to you please feel free to contribute or create suggestions if you have them. Any contributions you make are **greatly appreciated**.
+
+[For questions or feature requests please create an issue with an appropriate label here](https://github.com/ShaneIsrael/Apollo/issues/new)
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
@@ -174,5 +184,9 @@ Project Link: [https://github.com/ShaneIsrael/Apollo](https://github.com/ShaneIs
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://www.linkedin.com/in/shane-israel-3a685ba1/
 [product-screenshot]: images/apollo_dashboard.png
-[series-screenshot]: images/series-view.png
+[adachi-example]: images/adachi-example.png
+[smallville-example]: images/smallville-example.png
+[login-view]: images/login-view.png
+[library-config-view]: images/library-config-view.png
+[system-config-view]: images/system-config-view.png
 [season-screenshot]: images/season-view.png
