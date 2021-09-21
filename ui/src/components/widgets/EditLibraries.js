@@ -11,9 +11,7 @@ const EditLibraries = (props) => {
 
   const handleChange = async (msg, type) => {
     try {
-      console.log('updating')
       const resp = (await LibraryService.getLibraries()).data
-      console.log('updated')
       setLibraries(resp)
       setAlertData({message: msg, type})
     } catch (err) {

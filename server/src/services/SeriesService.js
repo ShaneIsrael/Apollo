@@ -7,7 +7,7 @@ const short = require('short-uuid')
 
 const { searchTv, getTv, getSeason, downloadImage, getEpisode } = require('./TmdbService')
 const { Library, Series, Metadata, Season, Episode, Stats, Op } = require('../database/models')
-const { VALID_EXTENSIONS, VALID_TMDB_VIDEO_TYPES } = require('../constants')
+const { VALID_EXTENSIONS, VALID_TMDB_VIDEO_TYPES, toGenericPath } = require('../constants')
 const logger = require('../logger')
 const service = {}
 
@@ -329,7 +329,6 @@ service.changeSeriesMetadata = async (seriesId, tmdbId, create) => {
     }
 
     const newMeta = await getTv(tmdbId)
-
     const backdropPath = newMeta.backdrop_path ? await downloadImage(newMeta.backdrop_path, 'original') : null
     const posterPath = newMeta.poster_path ? await downloadImage(newMeta.poster_path, 'w780') : null
 
@@ -581,6 +580,7 @@ async function createSeriesMetadata(series) {
 service.addSeriesMetadata = (series) => createSeriesMetadata(series)
 
 async function createSeries(name, path, libraryId) {
+  path = toGenericPath(path)
   const series = await Series.findOrCreate({
     where: {
       name,

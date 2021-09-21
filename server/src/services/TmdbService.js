@@ -4,7 +4,10 @@ const axios = require('axios')
 const download = require('image-downloader')
 const config = require(path.join(__dirname, '../config/index.js'))[process.env.NODE_ENV || 'production']
 const { tmdb_read_access_token } = require(path.join(__dirname, '../config/index'))[process.env.NODE_ENV || 'production']
-const api = axios.create({ baseURL: 'https://api.themoviedb.org/3' })
+const api = axios.create({
+  baseURL: 'https://api.themoviedb.org/3',
+  validateStatus: (status) => status < 500
+})
 
 const options = {
   headers: {
@@ -22,14 +25,15 @@ service.searchTv = async (string) => {
   const query = string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   try {
     const res = (await api.get('search/tv', {
-      params: { 
+      params: {
         language: 'en-US,null',
         query,
         include_adult: true
       },
       ...options
-    })).data
-    return res
+    }))
+    if (res.status >= 400) return null
+    return res.data
   } catch (err) {
     throw new Error(`search/tv/${string} - ${err.response.status} - ${err.response.statusText}`)
   }
@@ -38,14 +42,15 @@ service.searchMovie = async (string) => {
   const query = string.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
   try {
     const res = (await api.get('search/movie', {
-      params: { 
+      params: {
         language: 'en-US,null',
         query,
         include_adult: true,
       },
       ...options
-    })).data
-    return res
+    }))
+    if (res.status >= 400) return null
+    return res.data
   } catch (err) {
     throw new Error(`search/movie/${string} - ${err.response.status} - ${err.response.statusText}`)
   }
@@ -53,13 +58,14 @@ service.searchMovie = async (string) => {
 service.getMovie = async (tmdbId) => {
   try {
     const res = (await api.get(`movie/${tmdbId}`, {
-      params: { 
+      params: {
         language: 'en-US,null',
         append_to_response: 'images,credits,videos'
       },
       ...options
-    })).data
-    return res
+    }))
+    if (res.status >= 400) return null
+    return res.data
   } catch (err) {
     throw new Error(`movie/${tmdbId} - ${err.response.status} - ${err.response.statusText}`)
   }
@@ -67,13 +73,14 @@ service.getMovie = async (tmdbId) => {
 service.getTv = async (tmdbId) => {
   try {
     const res = (await api.get(`tv/${tmdbId}`, {
-      params: { 
+      params: {
         language: 'en-US,null',
         append_to_response: 'images,aggregate_credits,videos'
       },
       ...options
-    })).data
-    return res
+    }))
+    if (res.status >= 400) return null
+    return res.data
   } catch (err) {
     throw new Error(`tv/${tmdbId} - ${err.response.status} - ${err.response.statusText}`)
   }
@@ -81,12 +88,13 @@ service.getTv = async (tmdbId) => {
 service.getSeason = async (tmdbId, season) => {
   try {
     const res = (await api.get(`tv/${tmdbId}/season/${season}`, {
-      params: { 
+      params: {
         language: 'en-US,null',
         // append_to_response: 'images'
       },
       ...options
     })).data
+    if (!res.success) return null
     return res
   } catch (err) {
     throw new Error(`tv/${tmdbId}/season/${season} - ${err.response.status} - ${err.response.statusText}`)
@@ -96,13 +104,14 @@ service.getSeason = async (tmdbId, season) => {
 service.getEpisode = async (tmdbId, season, episode) => {
   try {
     const res = (await api.get(`tv/${tmdbId}/season/${season}/episode/${episode}`, {
-      params: { 
+      params: {
         language: 'en-US,null',
         // append_to_response: 'images'
       },
       ...options
-    })).data
-    return res
+    }))
+    if (res.status >= 400) return null
+    return res.data
   } catch (err) {
     throw new Error(`tv/${tmdbId}/season/${season}/episode/${episode} - ${err.response.status} - ${err.response.statusText}`)
   }

@@ -52,7 +52,6 @@ function createEpisodeCard(episode, setSelectedEpisode) {
 
 function createEpisodeMetadata(episode) {
   const fileProbeData = episode.file_probe_data
-  console.log(episode)
   const meta = [{
     title: 'General Info',
     data: {

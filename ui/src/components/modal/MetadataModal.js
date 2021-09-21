@@ -44,26 +44,26 @@ const MetadataModal = ({ title, metadata, open, close }) => {
   const [data, setData] = React.useState(metadata || [])
 
   return (
-  <Modal
-    open={open}
-    onClose={close}
-    aria-labelledby="view-metadata"
-    aria-describedby="view-metadata-description"
-  >
-    <Box sx={{ ...style, width: '80%',  maxHeight: '80%', overflowY: 'scroll' }}>
-      <h2 id="view-metadata">{title}</h2>
-      <Divider />
-      <div>
-        {
-          data.map((d, index) =>
-            // <Grid item xs={12} key={index}>
-              <Accordion key={index} defaultExpanded={data.length === 1}>
+    <Modal
+      open={open}
+      onClose={close}
+      aria-labelledby="view-metadata"
+      aria-describedby="view-metadata-description"
+    >
+      <Box sx={{ ...style, width: '80%', maxHeight: '80%', overflowY: 'scroll' }}>
+        <h2 id="view-metadata">{title}</h2>
+        <Divider />
+        <div>
+          {
+            data.map((d, index) => {
+              const title = d["title"] ? d.title : d.data.filename
+              return <Accordion key={index} defaultExpanded={data.length === 1}>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                   aria-controls={`panel${index}-content`}
                   id={`panel${index}-content`}
                 >
-                  <Typography color={d.title === 'General Info' ? 'primary' : 'secondary'} variant="caption" sx={{ fontSize: 15, fontWeight: 'bold' }}>{d.title.toUpperCase()}</Typography>
+                  <Typography color={title === 'General Info' ? 'primary' : 'secondary'} variant="caption" sx={{ fontSize: 15, fontWeight: 'bold' }}>{title.toUpperCase()}</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
                   <TableContainer component={Paper}>
@@ -86,17 +86,18 @@ const MetadataModal = ({ title, metadata, open, close }) => {
                   </TableContainer>
                 </AccordionDetails>
               </Accordion>
-            // </Grid>
-          )
-        }
-      </div>
-      <Divider />
-      <Grid sx={{ pt: 2, pb: 2 }} container item justifyContent="flex-end">
-        <Button onClick={close} variant="outlined">Close</Button>
-      </Grid>
-    </Box>
-  </Modal>
-)
+              // </Grid>
+            }
+            )
+          }
+        </div>
+        <Divider />
+        <Grid sx={{ pt: 2, pb: 2 }} container item justifyContent="flex-end">
+          <Button onClick={close} variant="outlined">Close</Button>
+        </Grid>
+      </Box>
+    </Modal>
+  )
 }
 
 export default MetadataModal
