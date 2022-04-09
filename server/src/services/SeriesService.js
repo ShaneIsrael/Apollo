@@ -28,6 +28,7 @@ async function probe(path) {
 async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
   let localPath
   const seasonNumber = getSeasonNumberFromSeasonDir(seasonDir)
+  const seasonMeta = {}
   if (!tmdbSeason) {
     const series = await Series.findOne({
       where: { id: seriesId },
@@ -38,7 +39,10 @@ async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
     }
   }
   if (tmdbSeason) {
-    localPath = await downloadImage(tmdbSeason.poster_path, 'w342')
+    localPath = await downloadImage(tmdbSeason.poster_path || tmdbSeason.tmdb_poster_path, 'w342')
+    seasonMeta.tmdbId = Number(tmdbSeason.id)
+    seasonMeta.tmdb_poster_path = tmdbSeason.poster_path
+    seasonMeta.local_poster_path = localPath.split('/').pop()
   }
 
   const seasonRow = (await Season.findOrCreate({
@@ -50,17 +54,17 @@ async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
       seriesId,
       season: seasonNumber,
       path: `${seriesPath}/${seasonDir}`,
-      tmdbId: tmdbSeason ? Number(tmdbSeason.id) : null,
-      tmdb_poster_path: tmdbSeason ? tmdbSeason.poster_path : null,
-      local_poster_path: localPath ? localPath.split('/').pop() : null
+      ...seasonMeta
     }
   }))
   // if we are updating and not creating
   if (!seasonRow[1]) {
     seasonRow[0].path = `${seriesPath}/${seasonDir}`
-    seasonRow[0].tmdbId = tmdbSeason ? tmdbSeason.id : null
-    seasonRow[0].tmdb_poster_path = tmdbSeason ? tmdbSeason.poster_path : null
-    seasonRow[0].local_poster_path = localPath ? localPath.split('/').pop() : null
+    if (tmdbSeason) {
+    seasonRow[0].tmdbId = Number(tmdbSeason.id)
+    seasonRow[0].tmdb_poster_path = tmdbSeason.poster_path
+    seasonRow[0].local_poster_path = localPath.split('/').pop()
+    }
     seasonRow[0].save()
   }
   return seasonRow[0]
@@ -218,11 +222,11 @@ const crawlSeasons = (seriesId, seasonData, wss) => new Promise(async (resolve, 
           let tmdbSeasonMeta
           try {
             tmdbSeasonMeta = await getSeason(series.Metadatum.tmdbId, seasonNumber)
+            await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeasonMeta)
           } catch (err) {
             logger.error(err)
           }
-          const tmdbSeasonData = seasonData ? seasonData.find((s) => Number(s.season_number) === Number(seasonNumber)) : null
-          const seasonRow = await findOrCreateSeason(series.id, series.path, seasonDir, tmdbSeasonData)
+          // const tmdbSeasonData = seasonData ? seasonData.find((s) => Number(s.season_number) === Number(seasonNumber)) : null
           for (let episode of episodeFiles) {
             await createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss)
           }

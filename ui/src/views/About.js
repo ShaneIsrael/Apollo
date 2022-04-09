@@ -4,8 +4,6 @@ import tmdb_logo from '../assets/tmdb_logo.svg'
 import logo_dark from '../assets/logo_vertical_dark.png'
 import logo_light from '../assets/logo_vertical_light.png'
 
-import { Player } from 'video-react'
-
 const About = ({ theme }) => {
   return (
     <>

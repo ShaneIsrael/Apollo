@@ -94,7 +94,6 @@ service.getSeason = async (tmdbId, season) => {
       },
       ...options
     })).data
-    if (!res.success) return null
     return res
   } catch (err) {
     throw new Error(`tv/${tmdbId}/season/${season} - ${err.response.status} - ${err.response.statusText}`)

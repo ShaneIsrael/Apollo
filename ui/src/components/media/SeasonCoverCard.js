@@ -14,8 +14,9 @@ const StyledBox = styled(Box)(({ theme }) => ({
   backgroundColor: 'rgba(0, 0, 0, 0)'
 }))
 
-const SeasonCoverCard = (props) => {
-  let { cover, seriesId, season, width, height } = props
+const SeasonCoverCard = ({ cover, seriesId, season, width, height }) => {
+
+  const [img, setImg] = React.useState(null)
 
   if (width && !height) {
     height = (width/2) * 3
@@ -24,6 +25,10 @@ const SeasonCoverCard = (props) => {
   if (height && !width) {
     width = (height/3) * 2
   }
+
+  React.useEffect(() => {
+    setImg(getImagePath(`/api/v1/image/${cover}`))
+  }, [cover])
 
   return (
     <>
@@ -38,7 +43,7 @@ const SeasonCoverCard = (props) => {
             sx={{
               height: height,
             }}
-            image={getImagePath(`/api/v1/image/${cover}`)}
+            image={img}
             title={"title"}
           >
             <StyledBox>

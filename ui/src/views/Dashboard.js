@@ -41,7 +41,7 @@ const Dashboard = (props) => {
               </Alert>
           }
         </Grid>
-        <Grid item xs={12} sm={12} md={6}>
+        <Grid item xs={12} sm={12} md={12}>
           {
             librarySizes ?
               <LibrarySizeStats data={librarySizes} type="series" slice={10} />
@@ -52,7 +52,7 @@ const Dashboard = (props) => {
               </Alert>
           }
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={12}>
           {
             librarySizes ?
               <LibrarySizeStats data={librarySizes} type="movie" slice={10} />

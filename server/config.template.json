@@ -1,5 +1,6 @@
 {
   "SERVER_PORT": 6969,
   "ALLOWED_DOMAINS": "http://localhost:6969",
-  "TOKEN_KEY": "set_this_to_some_random_text"
+  "TOKEN_KEY": "set_this_to_some_random_text",
+  "USE_CACHING": true
 }

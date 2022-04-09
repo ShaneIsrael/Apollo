@@ -166,9 +166,11 @@ async function main() {
 
   setupWebsocketServer(server)
 
-  const cache = new Cache(ENVIRONMENT === 'development' ? 0 : 180)
+  if (userConfig.USE_CACHING) {
+    const cache = new Cache(ENVIRONMENT === 'development' ? 0 : 180)
+    app.set('cache', cache)
+  }
   const observer = new Observer()
-  app.set('cache', cache)
   app.set('observer', observer)
 
   console.log('-------- CORS WHITELIST --------')
