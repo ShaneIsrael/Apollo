@@ -2,7 +2,7 @@ const {
   getLibraryStats,
   getMediaYears,
   getLibrarySizes
-} = require('../controllers')
+} = require('../controllers/StatsController')
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 
 module.exports = (app) => {

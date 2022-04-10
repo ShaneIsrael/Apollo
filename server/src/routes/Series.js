@@ -12,7 +12,7 @@ const {
   getSeasonCount,
   getSeriesCount,
   getSeriesSize,
-} = require('../controllers')
+} = require('../controllers/SeriesController')
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 const { checkCache } = require('../middleware/cache')
 

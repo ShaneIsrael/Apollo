@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "bin": "src/app.js",
   "scripts": {
-    "start": "export NODE_ENV=development && source .env && nodemon src/app.js",
+    "start": "export NODE_ENV=development && source .env && nodemon --trace-warnings src/app.js",
     "production": "export NODE_ENV=production && source .env && node src/app.js",
     "docker": "export NODE_ENV=docker && node src/app.js"
   },

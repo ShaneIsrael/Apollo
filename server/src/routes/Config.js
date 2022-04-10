@@ -1,7 +1,7 @@
 const {
   getConfig,
   saveConfig,
-} = require('../controllers')
+} = require('../controllers/ConfigController')
 const { verifyAdmin } = require('../middleware/auth')
 
 module.exports = (app) => {

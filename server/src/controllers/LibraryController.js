@@ -1,12 +1,13 @@
 
 /* eslint-disable no-restricted-globals */
 const { existsSync, lstatSync } = require('fs')
-const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary,
-  deleteLibrary, getAllLibrarySeries, getAllLibraryMovies,
-  crawlMovies, crawlSeries, isCrawlingActive } = require('../services')
+const { crawlSeries } = require('../services/SeriesService')
+const { crawlMovies } = require('../services/MovieService')
+const { getLibraries, getLibrary, getLibraryByTag, updateLibrary, 
+        deleteLibrary, getAllLibrarySeries, getAllLibraryMovies, createLibrary,
+        isCrawlingActive } = require('../services/LibraryService')
 
 const { Library } = require('../database/models')
-const logger = require('../logger')
 
 const { setCache, flushCache } = require('../utils/cacheData')
 

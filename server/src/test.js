@@ -13,7 +13,7 @@ function sleep(ms) {
 //   //   console.log(details.credits.cast.length)
 //   // } catch (err) {
 //   //   console.log(err)
-//   // }
+//   // }m
 //   const observer = new Observer()
 //   observer.test('/Volumes/Anime Shows')
 //   console.log(1)
@@ -22,25 +22,25 @@ function sleep(ms) {
 // }
 // main()
 
-async function compress() {
-const compress_images = require("compress-images")
+// async function compress() {
+// const compress_images = require("compress-images")
 
-const INPUT_path_to_your_images = "/Users/shane/Library/Apollo/images/*.{jpg,JPG,jpeg,JPEG,png}";
-const OUTPUT_path = "/Users/shane/Library/Apollo/compressed/";
+// const INPUT_path_to_your_images = "/Users/shane/Library/Apollo/images/*.{jpg,JPG,jpeg,JPEG,png}";
+// const OUTPUT_path = "/Users/shane/Library/Apollo/compressed/";
 
-compress_images(INPUT_path_to_your_images, OUTPUT_path, { 
-    compress_force: false, statistic: true, autoupdate: true }, false,
-                { jpg: { engine: "mozjpeg", command: ["-quality", "60"] } },
-                { png: { engine: "pngquant", command: ["--quality=20-50", "-o"] } },
-                { svg: { engine: false, command: false } },
-                { gif: { engine: false, command: false } },
-  function (error, completed, statistic) {
-    console.log("-------------");
-    console.log(error);
-    console.log(completed);
-    console.log(statistic);
-    console.log("-------------");
-  }
-)
-}
-compress()
+// compress_images(INPUT_path_to_your_images, OUTPUT_path, { 
+//     compress_force: false, statistic: true, autoupdate: true }, false,
+//                 { jpg: { engine: "mozjpeg", command: ["-quality", "60"] } },
+//                 { png: { engine: "pngquant", command: ["--quality=20-50", "-o"] } },
+//                 { svg: { engine: false, command: false } },
+//                 { gif: { engine: false, command: false } },
+//   function (error, completed, statistic) {
+//     console.log("-------------");
+//     console.log(error);
+//     console.log(completed);
+//     console.log(statistic);
+//     console.log("-------------");
+//   }
+// )
+// }
+// compress()

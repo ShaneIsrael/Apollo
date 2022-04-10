@@ -1,6 +1,6 @@
 const {
   getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary, deleteLibrary, validateLibraryPath, getAllLibrarySeries, getAllLibraryMovies, crawl, isLibraryCrawling
-} = require('../controllers')
+} = require('../controllers/LibraryController')
 
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 const { checkCache } = require('../middleware/cache')

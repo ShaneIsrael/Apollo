@@ -3,7 +3,7 @@
 const { getSeriesById, searchSeriesById, searchSeriesByTitle, 
   getSeriesByUuid, changeSeriesMetadata, getSeriesSeason,
   refreshSeasonEpisodesMetadata, probeSeasonEpisodes, syncSeries,
-  getEpisodeCount, getSeasonCount, getSeriesCount, getSeriesSize } = require('../services')
+  getEpisodeCount, getSeasonCount, getSeriesCount, getSeriesSize } = require('../services/SeriesService')
 
 const {setCache, flushCache} = require('../utils/cacheData')
 

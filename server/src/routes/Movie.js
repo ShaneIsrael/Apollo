@@ -7,7 +7,7 @@ const {
   syncMovie,
   getMovieCount,
   getMovieSize
-} = require('../controllers')
+} = require('../controllers/MovieController')
 const { verifyAdmin, verifyStandard } = require('../middleware/auth')
 const { checkCache } = require('../middleware/cache')
 

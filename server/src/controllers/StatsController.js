@@ -1,6 +1,6 @@
 
 /* eslint-disable no-restricted-globals */
-const { getLibraryStats, getMediaYears, getLibrarySizes } = require('../services')
+const { getLibraryStats, getMediaYears, getLibrarySizes } = require('../services/StatsService')
 
 const controller = {}
 

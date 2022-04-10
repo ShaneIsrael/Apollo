@@ -1,6 +1,6 @@
 
 /* eslint-disable no-restricted-globals */
-const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle, syncMovie, getMovieCount, getMovieSize } = require('../services')
+const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, searchMovieByTitle, syncMovie, getMovieCount, getMovieSize } = require('../services/MovieService')
 
 const controller = {}
 
