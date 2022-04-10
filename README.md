@@ -103,14 +103,14 @@ There are two ways you can install and run Apollo.
 
 ## Local Development
 
-If you would like to run Apollo via the source code in order to contribute you will need to have npm and Node.js installed. I reccommend installing Node.js with NVM so that you can easily switch between Node versions. This project currently uses Node 12.x but will likely change.
+If you would like to run Apollo via the source code in order to contribute you will need to have npm and Node.js installed. I reccommend installing Node.js with NVM so that you can easily switch between Node versions. This project currently uses Node 16.x but will likely change.
 
 ### Prerequisites
 
 
 * nvm - [Download & Install instructions](https://github.com/nvm-sh/nvm#installing-and-updating)
   ```sh
-  nvm install 12.19.0
+  nvm install 16.14.2
   ```
 
 ## Setup

@@ -6,7 +6,8 @@
   "bin": "src/app.js",
   "scripts": {
     "start": "export NODE_ENV=development && source .env && nodemon src/app.js",
-    "production": "export NODE_ENV=production && source .env && sequelize db:migrate && node src/app.js"
+    "production": "export NODE_ENV=production && source .env && node src/app.js",
+    "docker": "export NODE_ENV=docker && node src/app.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +16,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "chokidar": "^3.5.2",
+    "compress-images": "^2.0.5",
     "compression": "^1.7.4",
     "cors": "^2.8.5",
     "devcert": "^1.2.0",

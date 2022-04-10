@@ -1,6 +1,7 @@
 {
-  "SERVER_PORT": 6969,
-  "ALLOWED_DOMAINS": "http://localhost:6969",
+  "SERVER_PORT": 3000,
+  "ALLOWED_DOMAINS": "http://localhost:3000",
   "TOKEN_KEY": "set_this_to_some_random_text",
-  "USE_CACHING": true
+  "USE_CACHING": true,
+  "USE_IMAGE_COMPRESSION": false
 }

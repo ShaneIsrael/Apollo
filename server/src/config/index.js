@@ -14,5 +14,13 @@ module.exports = {
     imageDir: '/images',
     logsDir: '/logs',
     dbname: 'apollo.db'
+  },
+  docker: {
+    tmdb_api_key: process.env.TMDB_API_KEY,
+    tmdb_read_access_token: process.env.TMDB_READ_ACCESS_TOKEN,
+    appdata: '/data',
+    imageDir: '/data/images',
+    logsDir: '/data/logs',
+    dbname: 'apollo.db'
   }
 }

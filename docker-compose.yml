@@ -1,0 +1,16 @@
+services:
+  apollo:
+    container_name: apollo
+    image: apollo
+    ports:
+      - "6969:3000"
+    volumes:
+      - /Volumes:/media:ro
+      - /Users/shane/Library/Apollo:/data
+      - /Users/shane/git/media-browser/server/config.json:/server/config.json
+      #- path/to/your/media/root:/media
+      #- path/to/where/you/want/apollo/data/stored:/data
+      #- path/to/your/apollo/config.json:/server/config.json
+    environment:
+      - TMDB_API_KEY=4b107ae9be9d72628597b37a27ff3ad8
+      - TMDB_READ_ACCESS_TOKEN=eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0YjEwN2FlOWJlOWQ3MjYyODU5N2IzN2EyN2ZmM2FkOCIsInN1YiI6IjVmZTk5ZTc5MDdhODA4MDAzZThkZjAyNiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ._3nihVOODAGWwRhIjqM43WDcLY0hwy4Tv3y8DLmjVi8

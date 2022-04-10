@@ -2,6 +2,7 @@ const path = require('path')
 const fs = require('fs')
 const axios = require('axios')
 const download = require('image-downloader')
+const Config = require('../routes/Config')
 const config = require(path.join(__dirname, '../config/index.js'))[process.env.NODE_ENV || 'production']
 const { tmdb_read_access_token } = require(path.join(__dirname, '../config/index'))[process.env.NODE_ENV || 'production']
 const api = axios.create({
@@ -164,6 +165,9 @@ service.downloadImage = async (tmdbSrc, size) => {
       url,
       dest: path.join(config.appdata, config.imageDir)
     })
+    if (config.USE_IMAGE_COMPRESSION) {
+      //TODO compress downloaded images
+    }
     return filename.split(path.sep).join(path.posix.sep)
   } catch (err) {
     throw new Error(`Error occurred downloading image: src=${url}, ${err}`)

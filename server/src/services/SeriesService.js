@@ -42,7 +42,9 @@ async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
     localPath = await downloadImage(tmdbSeason.poster_path || tmdbSeason.tmdb_poster_path, 'w342')
     seasonMeta.tmdbId = Number(tmdbSeason.id)
     seasonMeta.tmdb_poster_path = tmdbSeason.poster_path
-    seasonMeta.local_poster_path = localPath.split('/').pop()
+    if (localPath) {
+      seasonMeta.local_poster_path = localPath?.split('/').pop()
+    }
   }
 
   const seasonRow = (await Season.findOrCreate({
@@ -63,7 +65,9 @@ async function findOrCreateSeason(seriesId, seriesPath, seasonDir, tmdbSeason) {
     if (tmdbSeason) {
     seasonRow[0].tmdbId = Number(tmdbSeason.id)
     seasonRow[0].tmdb_poster_path = tmdbSeason.poster_path
-    seasonRow[0].local_poster_path = localPath.split('/').pop()
+    if (localPath) {
+      seasonRow[0].local_poster_path = localPath.split('/').pop()
+    }
     }
     seasonRow[0].save()
   }
@@ -112,7 +116,7 @@ async function createEpisodeData(episode, series, seasonDir, tmdbSeasonMeta, wss
 
     let tmdbEpisodeData
     if (tmdbSeasonMeta) {
-      tmdbEpisodeData = tmdbSeasonMeta ? tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber) : null
+      tmdbEpisodeData = tmdbSeasonMeta && tmdbSeasonMeta.episodes ? tmdbSeasonMeta.episodes.find((episode) => episode.episode_number === episodeNumber) : null
     } else {
       if (series.Metadatum) {
         tmdbEpisodeData = await getEpisode(series.Metadatum.tmdbId, seasonNumber, episodeNumber)

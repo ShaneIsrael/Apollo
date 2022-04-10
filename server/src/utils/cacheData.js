@@ -5,5 +5,11 @@ module.exports = {
       const key = '__express__' + req.originalUrl
       cache.set(key, value)
     }
+  },
+  flushCache: (req) => {
+    const cache = req.app.get('cache')
+    if (cache) {
+      cache.flush()
+    }
   }
 }

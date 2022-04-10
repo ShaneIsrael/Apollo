@@ -1,5 +1,8 @@
+const { existsSync } = require('fs')
 const path = require('path')
-require('dotenv').config({ path: path.join(__dirname, '../.env')})
+if (existsSync(path.join(__dirname, '../.env'))) {
+  require('dotenv').config({ path: path.join(__dirname, '../.env')})
+}
 const express = require('express')
 const compression = require('compression')
 const cors = require('cors')
@@ -158,7 +161,7 @@ async function main() {
   await preflightChecks()
 
   // Start the server
-  const port = ENVIRONMENT === 'development' ? 3001 : userConfig.SERVER_PORT
+  const port = ENVIRONMENT === 'development' ? 3001 : ENVIRONMENT === 'docker' ? 3000 : userConfig.SERVER_PORT
   console.log('\n')
   logger.info(`Apollo is running at http://localhost:${port}`)
   console.log('\n')
@@ -185,6 +188,10 @@ async function main() {
     // open browser
     let start = (process.platform == 'darwin' ? 'open' : process.platform == 'win32' ? 'start' : 'xdg-open')
     require('child_process').exec(start + ' ' + `http://localhost:${port}`)
+  }
+  if (ENVIRONMENT === 'docker') {
+    // serve ui
+    app.use('/', express.static(path.join(__dirname, '../../ui/build')))
   }
 }
 main()

@@ -4,7 +4,7 @@ const { getMovieById, getMovieByUuid, changeMovieMetadata, searchMovieById, sear
 
 const controller = {}
 
-const {setCache} = require('../utils/cacheData')
+const {setCache, flushCache} = require('../utils/cacheData')
 
 controller.getMovieSize = async (req, res, next) => {
   try {
@@ -70,7 +70,7 @@ controller.changeMovieMetadata = async (req, res, next) => {
   try {
     const { movieId, tmdbId, create } = req.body
     const result = await changeMovieMetadata(movieId, tmdbId, create)
-    req.app.get('cache').flush()
+    flushCache(req)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)

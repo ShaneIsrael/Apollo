@@ -8,7 +8,7 @@ const { getLibraries, getLibrary, getLibraryByTag, createLibrary, updateLibrary,
 const { Library } = require('../database/models')
 const logger = require('../logger')
 
-const { setCache } = require('../utils/cacheData')
+const { setCache, flushCache } = require('../utils/cacheData')
 
 const controller = {}
 
@@ -85,7 +85,7 @@ controller.createLibrary = async (req, res, next) => {
 
     const observer = req.app.get('observer')
     observer.watch(path)
-    req.app.get('cache').flush()
+    flushCache(req)
     return res.status(200).send(result)
   } catch (err) {
     if (err.message === 'Validation error') {
@@ -115,7 +115,7 @@ controller.updateLibrary = async (req, res, next) => {
         observer.init()
         resolve()
       })
-    req.app.get('cache').flush()
+    flushCache(req)
     return res.status(200).send(result)
   } catch (err) {
     return next(err)
@@ -132,7 +132,7 @@ controller.deleteLibrary = async (req, res, next) => {
 
     const observer = req.app.get('observer')
     observer.unwatch(library.path)
-    req.app.get('cache').flush()
+    flushCache(req)
     return res.status(200).send('ok')
   } catch (err) {
     return next(err)
