@@ -18,6 +18,25 @@ function calculateDuration(duration) {
     return 0
   }
 }
+
+async function chunkedFindAll(model, params, chunkSize) {
+  const ids = (await model.findAll({attributes: ['id'], raw: true})).map(id => id.id)
+  let chunkIds = ids.splice(0, chunkSize)
+  const results = []
+  while (chunkIds.length > 0) {
+    params.where = {
+      ...params.where, 
+      id: {
+        [Op.in]: chunkIds
+      }
+    }
+    const data = await model.findAll(params)
+    results.push(...data)
+    chunkIds = ids.splice(0, chunkSize)
+  }
+  return results
+}
+
 function secondsToDhms(seconds) {
   seconds = Number(seconds);
   const d = Math.floor(seconds / (3600 * 24))
@@ -40,7 +59,8 @@ const capitalize = ([firstLetter, ...restOfWord]) => {
 async function createGeneralLibraryStats() {
   async function seriesStats() {
     const libraries = await Library.findAll({
-      where: { type: 'series' }
+      where: { type: 'series' },
+      raw: true
     })
     for (const library of libraries) {
       const stats = {
@@ -51,12 +71,6 @@ async function createGeneralLibraryStats() {
       }
 
       const genreCount = {}
-      const series = await Series.findAll({
-        where: {
-          libraryId: library.id
-        },
-        include: [Metadata, Season, { model: Episode, include: [Season] }]
-      })
       let seasons = []
       let episodes = []
 
@@ -64,6 +78,25 @@ async function createGeneralLibraryStats() {
         seriesCount: 0,
         ratingsTotal: 0
       }
+      let totalGbs = 0
+      let totalDuration = 0
+      let longestEpisode = {
+        seriesId: null,
+        duration: 0,
+        seasonEpisodeName: null
+      }
+      let longestEpisodeName = {
+        length: 0,
+        name: null,
+        seriesId: null
+      }
+      const series = await chunkedFindAll(Series, {
+        where: {
+          libraryId: library.id
+        },
+        include: [Metadata, Season, { model: Episode, include: [Season] }],
+      }, 10)
+      
       for (const serie of series) {
         if (!serie.Metadatum) continue
         seasons = seasons.concat(serie.Seasons)
@@ -86,18 +119,7 @@ async function createGeneralLibraryStats() {
         }
       }
 
-      let totalGbs = 0
-      let totalDuration = 0
-      let longestEpisode = {
-        seriesId: null,
-        duration: 0,
-        seasonEpisodeName: null
-      }
-      let longestEpisodeName = {
-        length: 0,
-        name: null,
-        seriesId: null
-      }
+
       for (const episode of episodes) {
         if (episode.name && episode.name.length > longestEpisodeName.length) {
           longestEpisodeName.length = episode.name.length
@@ -129,36 +151,37 @@ async function createGeneralLibraryStats() {
       if (longestEpisode.seriesId && longestEpisodeName.seriesId) {
         const longestEpisodeSeries = await Series.findByPk(longestEpisode.seriesId)
         const longestEpisodeNameSeries = await Series.findByPk(longestEpisodeName.seriesId)
-        let sortable = []
-        for (const genre of Object.keys(genreCount)) {
-          sortable.push([genre, genreCount[genre]])
-        }
-        sortable.sort((a, b) => b[1] - a[1])
-        sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
-        stats.general["Total Series"] = series.length
-        stats.general["Total Seasons"] = seasons.length
-        stats.general["Total Episodes"] = episodes.length
-        stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
-        stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
-        stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
-        stats.general["Average Episode Length"] = secondsToDhms(totalDuration / episodes.length)
         stats.Random["Longest Episode Name"] = longestEpisodeName.name
         stats.Random["Longest Episode Name Series"] = longestEpisodeNameSeries.name
         stats["Longest Episode"]["Series"] = longestEpisodeSeries.name
         stats["Longest Episode"]["Episode Length"] = secondsToDhms(longestEpisode.duration)
         stats["Longest Episode"]["Episode Details"] = longestEpisode.seasonEpisodeName
-
-        Stats.create({
-          libraryId: library.id,
-          tag: 'general-stats',
-          json: stats
-        })
       }
+
+      let sortable = []
+      for (const genre of Object.keys(genreCount)) {
+        sortable.push([genre, genreCount[genre]])
+      }
+      sortable.sort((a, b) => b[1] - a[1])
+      sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
+      stats.general["Total Series"] = series.length
+      stats.general["Total Seasons"] = seasons.length
+      stats.general["Total Episodes"] = episodes.length
+      stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
+      stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+      stats.general["Average Series Rating"] = `${(totalSeriesRatingsNotZero.ratingsTotal / totalSeriesRatingsNotZero.seriesCount).toFixed(2)} / 10 of ${totalSeriesRatingsNotZero.seriesCount} Series`
+      stats.general["Average Episode Length"] = secondsToDhms(totalDuration / episodes.length)
+      Stats.create({
+        libraryId: library.id,
+        tag: 'general-stats',
+        json: stats
+      })
     }
   }
   async function movieStats() {
     const libraries = await Library.findAll({
-      where: { type: 'movie' }
+      where: { type: 'movie' },
+      raw: true
     })
     for (const library of libraries) {
       const stats = {
@@ -168,14 +191,17 @@ async function createGeneralLibraryStats() {
         "Top 5 Genres": {},
       }
       const genreCount = {}
-      const movies = await Movie.findAll({
+
+      const movies = await chunkedFindAll(Movie, {
         where: {
           libraryId: library.id
         },
-        include: [Metadata, MovieFile]
-      })
-      let files = []
+        include: [Metadata, MovieFile],
+        raw: true,
+        nest: true
+      }, 10)
 
+      let files = []
       let totalRatingsNotZero = {
         count: 0,
         ratingsTotal: 0
@@ -224,8 +250,8 @@ async function createGeneralLibraryStats() {
 
       }
       for (const file of files) {
-
         if (file.metadata) {
+          file.metadata = JSON.parse(file.metadata)
           if (file.metadata.streams[0].tags) {
             let duration = calculateDuration(file.metadata.streams[0].tags["DURATION-eng"])
             totalDuration += duration
@@ -247,30 +273,29 @@ async function createGeneralLibraryStats() {
           }
         }
       }
+      let sortable = []
       if (longestMovie.movieId) {
-        const longestMovieRow = await Movie.findByPk(longestMovie.movieId)
-        let sortable = []
-        for (const genre of Object.keys(genreCount)) {
-          sortable.push([genre, genreCount[genre]])
-        }
-        sortable.sort((a, b) => b[1] - a[1])
-        sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
-        stats.general["Total Movies"] = movies.length
-        stats.general["Total Movie Files"] = files.length
-        stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
-        stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
-        stats.general["Average Movie Length"] = secondsToDhms(totalDuration / movies.length)
-        stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
-        stats.Random["Longest Movie Name"] = longestMovieName.name
+        let longestMovieRow = await Movie.findByPk(longestMovie.movieId)
         stats["Longest Movie"]["Movie"] = longestMovieRow.name
         stats["Longest Movie"]["Movie Length"] = secondsToDhms(longestMovie.duration)
-
-        Stats.create({
-          libraryId: library.id,
-          tag: 'general-stats',
-          json: stats
-        })
       }
+      for (const genre of Object.keys(genreCount)) {
+        sortable.push([genre, genreCount[genre]])
+      }
+      sortable.sort((a, b) => b[1] - a[1])
+      sortable.slice(0, 5).forEach(item => { stats["Top 5 Genres"][item[0]] = item[1] })
+      stats.general["Total Movies"] = movies.length
+      stats.general["Total Movie Files"] = files.length
+      stats.general["Total Library Size"] = `${totalGbs.toFixed(2)} TB's`
+      stats.general["Total Library Runtime"] = secondsToDhms(totalDuration)
+      stats.general["Average Movie Length"] = secondsToDhms(totalDuration / movies.length)
+      stats.general["Average Movie Rating"] = `${(totalRatingsNotZero.ratingsTotal / totalRatingsNotZero.count).toFixed(2)} / 10 of ${totalRatingsNotZero.count} Movies`
+      stats.Random["Longest Movie Name"] = longestMovieName.name
+      Stats.create({
+        libraryId: library.id,
+        tag: 'general-stats',
+        json: stats
+      })
     }
   }
 
@@ -282,14 +307,18 @@ async function createGeneralLibraryStats() {
 async function createMediaYearsStats() {
   let syears = {}
   let myears = {}
-  const mdatas = (await Metadata.findAll({
+
+  const mdatas = await chunkedFindAll(Metadata, {
     where: {
       movieId: {
         [Op.not]: null
       }
     },
-    attributes: ['release_date']
-  }))
+    attributes: ['release_date'],
+    raw: true,
+    nest: true
+  }, 10)
+
   for (const meta of mdatas) {
     if (!meta.release_date) continue
     const year = Number(meta.release_date.split('-')[0])
@@ -301,14 +330,17 @@ async function createMediaYearsStats() {
     }
   }
 
-  const sdatas = (await Metadata.findAll({
+  const sdatas = await chunkedFindAll(Metadata, {
     where: {
       seriesId: {
         [Op.not]: null
       }
     },
-    attributes: ['release_date']
-  }))
+    attributes: ['release_date'],
+    raw: true,
+    nest: true
+  }, 10)
+
   for (const meta of sdatas) {
     if (!meta.release_date) continue
     const year = Number(meta.release_date.split('-')[0])
@@ -341,9 +373,7 @@ async function createMediaYearsStats() {
 async function createLibraryFolderSizeStats() {
   try {
     let libraryDataStats = []
-    const libraries = await Library.findAll({
-      include: [Series, Movie]
-    })
+    const libraries = await Library.findAll()
 
     for (const library of libraries) {
       if (!existsSync(library.path)) {
@@ -358,7 +388,13 @@ async function createLibraryFolderSizeStats() {
         valueUnit: 'MB',
         items: []
       }
-      const libraryEntries = library.type === 'movie' ? library.Movies : library.Series
+      const libraryEntries = await chunkedFindAll(library.type === 'movie' ? Movie : Series, {
+        attributes: ['path', 'name', 'id'],
+        where: {
+          libraryId: library.id
+        },
+        raw: true
+      }, 10)
       for (const entry of libraryEntries) {
         const valid = existsSync(entry.path) && lstatSync(entry.path).isDirectory()
         if (valid) {
@@ -386,12 +422,13 @@ async function createLibraryFolderSizeStats() {
 
 async function start() {
   try {
+    logger.info('...stats generation cron initialized.')
     // Run at midnight
     cron.schedule('0 0 * * *', () => {
       logger.info('Running Stats Generation Cronjob...')
-      createGeneralLibraryStats().catch(err => logger.error(err))
-      createMediaYearsStats().catch(err => logger.error(err))
-      createLibraryFolderSizeStats().catch(err => logger.error(err))
+      await createGeneralLibraryStats().catch(err => logger.error(err))
+      await createMediaYearsStats().catch(err => logger.error(err))
+      await createLibraryFolderSizeStats().catch(err => logger.error(err))
     })
   } catch (err) {
     logger.error(err)

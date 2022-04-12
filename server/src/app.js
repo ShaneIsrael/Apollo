@@ -163,7 +163,7 @@ async function main() {
   // Start the server
   const port = ENVIRONMENT === 'development' ? 3001 : ENVIRONMENT === 'docker' ? 3000 : userConfig.SERVER_PORT
   console.log('\n')
-  logger.info(`Apollo is running at http://localhost:${port}`)
+  logger.info(`Apollo is running at http://localhost:${ENVIRONMENT === 'docker' ? 6969 : port}`)
   console.log('\n')
   const server = app.listen(port)
 

@@ -27,7 +27,7 @@ const Dashboard = (props) => {
     <Box sx={{ pt: 3, pl: 3, pr: 3, maxHeight: '100%', overflowY: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', "&::-webkit-scrollbar": { width: 0, height: 0 } }}>
       <Grid container direction="row" spacing={1}>
         {statLibraries.length > 0 ?
-          statLibraries.sort((a, b) => a.type === 'movie').map(l => <Grid key={l.id} item xs={12} md={6} lg={3}><GeneralStatsTable library={l} /></Grid>)
+          statLibraries.sort((a, b) => a.type === 'movie').map(l => <Grid key={l.id} item xs={12} md={6} lg={6}><GeneralStatsTable library={l} /></Grid>)
           : <div></div>
         }
         <Grid item xs={12}>

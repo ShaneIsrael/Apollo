@@ -21,7 +21,7 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x entrypoint.sh
 
 WORKDIR /ui
-RUN npm i --silent
+RUN npm i
 RUN npm run build
 
 RUN rm -r src/

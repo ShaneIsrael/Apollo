@@ -1,12 +1,13 @@
-const { crawlSeries, crawlMovies, searchMovie, searchTv, getMovie, downloadImage, getTv } = require('./services/')
-const { Movie, Series, Metadata, Season } = require('./database/models')
-const path = require('path')
-const {extensions} = require('./constants')
-const Observer = require('./observer')
-const short = require('short-uuid')
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+// const { crawlSeries, crawlMovies, searchMovie, searchTv, getMovie, downloadImage, getTv } = require('./services/')
+const { Movie, Series, Metadata, Season, Episode } = require('./database/models')
+// const path = require('path')
+// const {extensions} = require('./constants')
+// const Observer = require('./observer')
+// const short = require('short-uuid')
+// function sleep(ms) {
+//   return new Promise(resolve => setTimeout(resolve, ms));
+// }
+
 // async function main() {
 //   // try {
 //   //   const details = await getTv(31910)
@@ -21,6 +22,24 @@ function sleep(ms) {
 //   console.log(2)
 // }
 // main()
+
+
+async function main() {
+  // const seriesIds = (await Series.findAll({attributes: ['id'], raw: true})).map(id => id.id)
+  // let chunkIds = seriesIds.splice(0, 10)
+  // while (chunkIds.length > 0) {
+  //   console.log(chunkIds)
+  //   chunkIds = seriesIds.splice(0, 10)
+  // }
+  // console.log(seriesIds)
+  const series = await Series.findOne({
+    include: [Metadata, Season, { model: Episode, include: [Season] }],
+    raw: true,
+    nest: true
+  })
+  console.log(series)
+}
+main()
 
 // async function compress() {
 // const compress_images = require("compress-images")
