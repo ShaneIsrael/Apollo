@@ -420,11 +420,11 @@ async function createLibraryFolderSizeStats() {
   }
 }
 
-async function start() {
+function start() {
   try {
     logger.info('...stats generation cron initialized.')
     // Run at midnight
-    cron.schedule('0 0 * * *', () => {
+    cron.schedule('0 0 * * *', async () => {
       logger.info('Running Stats Generation Cronjob...')
       await createGeneralLibraryStats().catch(err => logger.error(err))
       await createMediaYearsStats().catch(err => logger.error(err))
