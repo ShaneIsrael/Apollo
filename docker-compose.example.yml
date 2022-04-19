@@ -1,0 +1,13 @@
+services:
+  apollo:
+    container_name: apollo
+    image: apollo
+    ports:
+      - "6969:3000"
+    volumes:
+      - path/to/your/media/root:/media
+      - path/to/where/you/want/apollo/data/stored:/data
+      - path/to/your/apollo/config.json:/server/config.json
+    environment:
+      - TMDB_API_KEY=yourApiKeyHere
+      - TMDB_READ_ACCESS_TOKEN=yourReadAccessTokenHere
