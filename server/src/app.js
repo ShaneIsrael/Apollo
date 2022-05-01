@@ -170,7 +170,7 @@ async function main() {
   await preflightChecks()
 
   // Start the server
-  const port = ENVIRONMENT === 'development' ? 3001 : ENVIRONMENT === 'docker' ? 3000 : userConfig.SERVER_PORT
+  const port = ENVIRONMENT === 'development' ? 3001 : ENVIRONMENT === 'docker' ? 6969 : userConfig.SERVER_PORT
   console.log('\n')
   logger.info(`Apollo is running at http://localhost:${ENVIRONMENT === 'docker' ? 6969 : port}`)
   console.log('\n')

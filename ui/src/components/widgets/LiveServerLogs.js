@@ -6,8 +6,8 @@ import Typography from '@mui/material/Typography'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 const URL = window.location.port ? 
-  Number(window.location.port) === 6969 ? `ws://${window.location.hostname}:6969` : `ws://${window.location.hostname}:3001`
-  : `ws://${window.location.host}${window.location.pathname}`
+  Number(window.location.port) === 6969 ? `wss://${window.location.hostname}:6969` : `wss://${window.location.hostname}:3001`
+  : `wss://${window.location.host}${window.location.pathname}`
   
 const LiveServerLogs = () => {
   const [logs, setLogs] = React.useState([])

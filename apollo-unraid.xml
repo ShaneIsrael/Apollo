@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Container>
+  <Name>Apollo</Name>
+  <Description>A browser for your media. Displays statistics based on your media collection and gets and stores information from TMDb.</Description>
+  <Registry>https://hub.docker.com/repository/docker/shaneisrael/apollo</Registry>
+  <Repository>shaneisrael/apollo</Repository>
+  <BindTime>true</BindTime>
+  <Privileged>false</Privileged>
+  <Environment/>
+  <Network Default="host">bridge</Network>
+  <Config 
+    Type="Variable" 
+    Name="TMDb API Key" 
+    Target="TMDB_API_KEY" 
+    Default="" 
+    Description="Your TMDb Api Key" 
+    Mask="false" 
+    Display="advanced" 
+    Required="true">ReplaceThisWithYourApiKey</Config>
+  <Config 
+    Type="Variable" 
+    Name="TMDb Read Access Token" 
+    Target="TMDB_READ_ACCESS_TOKEN" 
+    Default="" 
+    Description="Your TMDb Read Access Token" 
+    Mask="false" 
+    Display="advanced" 
+    Required="true">ReplaceThisWithYourAccessToken</Config>
+  <Config 
+    Type="Port" 
+    Name="Apollo Web UI" 
+    Target="3000" 
+    Default="6969" 
+    Mode="tcp" 
+    Description="This is Apollo Web UI Port." 
+    Display="always" 
+    Required="true">6969</Config>
+  <Config 
+    Type="Path" 
+    Name="Appdata Directory" 
+    Target="/data" 
+    Default="/mnt/user/appdata/apollo" 
+    Mode="rw" 
+    Description="This is where Apollo will store it's data."
+    Required="true">/mnt/user/appdata/apollo</Config>
+  <Config 
+    Type="Path" 
+    Name="Media Root Directory" 
+    Target="/media" 
+    Default="/mnt/user/media" 
+    Mode="ro" 
+    Description="This should be a root path to where all your media directories live. This is a read-only mapping, apollo will not be able to write/edit or delete data from this path."
+    Required="true">/mnt/user/media</Config>
+  <Version>0.0.1</Version>
+  <WebUI>http://[IP]:[PORT:6969]/</WebUI>
+  <Icon>https://raw.githubusercontent.com/ShaneIsrael/Apollo/master/images/logo.png</Icon>
+  <ExtraParams></ExtraParams>
+</Container>

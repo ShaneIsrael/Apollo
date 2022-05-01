@@ -9,6 +9,7 @@ RUN apk add --update --no-cache \
   nasm \
   libjpeg-turbo-dev
 
+RUN mkdir /data
 COPY ui/src /ui/src
 COPY ui/public /ui/public
 COPY ui/package.json /ui
