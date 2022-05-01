@@ -1,23 +1,14 @@
-const fs = require('fs')
-const path = require('path')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const { serveImage } = require('../controllers/ImageController')
 const { User } = require ('../database/models')
-const { verifyAdmin, verifyStandard } = require('../middleware/auth')
-const ENVIRONMENT = process.env.NODE_ENV || 'production'
-let userConfig
-if (ENVIRONMENT === 'production') {
-  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
-} else {
-  userConfig = require('../../config.json')
-}
 
 module.exports = (app) => {
   app.get('/api/v1/image/:id', serveImage)
   
   app.post('/api/v1/register', async (req, res, next) => {
     try {
+      const userConfig = req.app.get('appconfig')
       const { username, password, role } = req.body
 
       if (!(username && password && role)) {
@@ -70,6 +61,7 @@ module.exports = (app) => {
 
   app.post('/api/v1/login', async (req, res, next) => {
     try {
+      const userConfig = req.app.get('appconfig')
       const { username, password } = req.body
       if (!(username && password)) {
         return res.status(400).send('Username & Password is required')

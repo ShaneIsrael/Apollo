@@ -20,12 +20,21 @@ const Cache = require('./utils/Cache')
 const app = express()
 app.set('trust proxy', true)
 
-let userConfig
 if (ENVIRONMENT === 'production') {
-  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
+  app.set('appconfig', JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json'))))
 } else {
-  userConfig = require('../config.json')
+  if (ENVIRONMENT === 'docker') {
+    if (fs.existsSync('/data/config.json')) {
+      app.set('appconfig', require('/data/config.json'))
+    } else {
+      app.set('appconfig', require('/data/config.default.json'))
+    }
+  } else {
+    app.set('appconfig', require('../config.json'))
+  }
 }
+
+const userConfig = app.get('appconfig')
 
 function formatConsoleDate(date) {
   var hour = date.getHours();
@@ -170,7 +179,7 @@ async function main() {
   setupWebsocketServer(server)
 
   if (userConfig.USE_CACHING) {
-    const cache = new Cache(ENVIRONMENT === 'development' ? 0 : 180)
+    const cache = new Cache(ENVIRONMENT === 'development' ? 0 : config.CACHE_TIME_SECONDS || 0)
     app.set('cache', cache)
   }
   const observer = new Observer()

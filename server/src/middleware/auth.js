@@ -5,16 +5,11 @@ const { User, Config } = require('../database/models');
 const logger = require('../logger');
 
 const ENVIRONMENT = process.env.NODE_ENV || 'production'
-let userConfig
-if (ENVIRONMENT === 'production') {
-  userConfig = JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json')))
-} else {
-  userConfig = require('../../config.json')
-}
 
-const TOKEN_KEY = userConfig.TOKEN_KEY
+
 
 const verifyAdmin = async (req, res, next) => {
+  const TOKEN_KEY = req.app.get('appconfig').TOKEN_KEY
   const token =
     req.body.token || req.query.token || req.headers["x-access-token"]
 
@@ -43,6 +38,7 @@ const verifyAdmin = async (req, res, next) => {
 }
 
 const verifyStandard = async (req, res, next) => {
+  const TOKEN_KEY = req.app.get('appconfig').TOKEN_KEY
   const token =
     req.body.token || req.query.token || req.headers["x-access-token"]
 

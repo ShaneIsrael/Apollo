@@ -16,6 +16,7 @@ COPY ui/package.json /ui
 COPY server/src /server/src
 COPY server/.sequelizerc /server
 COPY server/package.json /server
+COPY server/config.default.json /data
 COPY entrypoint.sh /entrypoint.sh
 
 RUN chmod +x entrypoint.sh

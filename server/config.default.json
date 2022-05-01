@@ -1,7 +1,8 @@
 {
   "SERVER_PORT": 3000,
-  "ALLOWED_DOMAINS": "http://localhost:3000",
+  "ALLOWED_DOMAINS": "http://localhost:6969,http://localhost:3000",
   "TOKEN_KEY": "set_this_to_some_random_text",
+  "RESET_LIBRARY_CRAWLING": true,
   "USE_CACHING": true,
   "CACHE_TIME_SECONDS": 300,
   "USE_IMAGE_COMPRESSION": false
