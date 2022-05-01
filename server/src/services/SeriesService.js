@@ -255,7 +255,7 @@ service.getSeriesById = async (id) => {
   try {
     const series = await Series.findOne({
       where: { id },
-      include: [{ model: Metadata }, { model: Season, include: [Episode] }]
+      include: [{ model: Metadata }, { model: Season, include: [{ model: Episode, attributes: ['seasonId', 'season_number', 'episode_number']}] }]
     })
     return series
   } catch (err) {
@@ -267,7 +267,7 @@ service.getSeriesByUuid = async (uuid) => {
   try {
     const series = await Series.findOne({
       where: { uuid },
-      include: [{ model: Metadata }, { model: Season, include: [Episode] }]
+      include: [{ model: Metadata }, { model: Season, include: [{ model: Episode, attributes: ['seasonId', 'season_number', 'episode_number']}] }]
     })
     return series
   } catch (err) {
@@ -284,7 +284,7 @@ service.getSeriesSeason = async (seriesId, season) => {
     if (series) {
       const seasonData = await Season.findOne({
         where: { seriesId: series.id, season },
-        include: [Episode]
+        include: [{ model: Episode, attributes: ['seasonId', 'seriesId', 'tmdbId', 'filename', 'name', 'path', 'overview', 'tmdb_still_path', 'local_still_path', 'air_date', 'season_number', 'episode_number', 'tmdb_rating']}]
       })
       if (seasonData && !seasonData.local_poster_path) {
         if (series.Metadatum)

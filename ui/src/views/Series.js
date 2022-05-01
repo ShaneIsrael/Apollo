@@ -28,31 +28,31 @@ const Series = ({ sidebarOpen, setStats }) => {
     if (series && series.Seasons) {
       const seasonCount = series.Seasons.filter(s => s.season !== 0).length
       let episodeCount = 0
-      let time = 0
+      // let time = 0
       for (const season of series.Seasons) {
         if (season.season !== 0 && season.Episodes) {
           episodeCount += season.Episodes.length
-          for (const episode of season.Episodes) {
-            if (episode.file_probe_data && episode.file_probe_data.streams) {
-              let videoStream = episode.file_probe_data.streams[0]
-              let frames = 0
-              if (videoStream.nb_frames)
-                frames = videoStream.nb_frames
-              else if (videoStream.tags && (videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng'])) {
-                frames = videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng']
-              }
-              const framerate = (videoStream.avg_frame_rate.split('/')[0] / videoStream.avg_frame_rate.split('/')[1])
-              if (frames > 0) {
-                time += frames / framerate
-              }
-            }
-          }
+          // for (const episode of season.Episodes) {
+          //   if (episode.file_probe_data && episode.file_probe_data.streams) {
+          //     let videoStream = episode.file_probe_data.streams[0]
+          //     let frames = 0
+          //     if (videoStream.nb_frames)
+          //       frames = videoStream.nb_frames
+          //     else if (videoStream.tags && (videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng'])) {
+          //       frames = videoStream.tags['NUMBER_OF_FRAMES'] || videoStream.tags['NUMBER_OF_FRAMES-eng']
+          //     }
+          //     const framerate = (videoStream.avg_frame_rate.split('/')[0] / videoStream.avg_frame_rate.split('/')[1])
+          //     if (frames > 0) {
+          //       time += frames / framerate
+          //     }
+          //   }
+          // }
         }
       }
-      time = secondsToDhms(time).replace(/,/g, '')
+      // time = secondsToDhms(time).replace(/,/g, '')
       return (
         <Typography variant="overline" color="primary" noWrap sx={{ fontSize: 15 }}>
-          {`${seasonCount} ${seasonCount === 1 ? 'Season' : 'Seasons'} | ${episodeCount} ${episodeCount === 1 ? 'Episode' : 'Episodes'} ${time ? `| ${time}` : ''}`}
+          {`${seasonCount} ${seasonCount === 1 ? 'Season' : 'Seasons'} | ${episodeCount} ${episodeCount === 1 ? 'Episode' : 'Episodes'}`}
         </Typography>
       )
     }

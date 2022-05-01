@@ -16,7 +16,7 @@ import { canDisplayToUser } from '../components/utils'
 function createEpisodeCard(episode, setSelectedEpisode) {
   return (
     <>
-      <Grid container item spacing={2}>
+      {/* <Grid container item spacing={2}> */}
         <Grid item>
           <div onClick={() => setSelectedEpisode(episode)}>
             <GeneralCoverCard cover={episode.local_still_path} alt={still_not_found} width={200} height={112} />
@@ -45,13 +45,13 @@ function createEpisodeCard(episode, setSelectedEpisode) {
             </Typography>
           </Grid>
         </Grid>
-      </Grid>
+      {/* </Grid> */}
     </>
   )
 }
 
 function createEpisodeMetadata(episode) {
-  const fileProbeData = episode.file_probe_data
+  // const fileProbeData = episode.file_probe_data
   const meta = [{
     title: 'General Info',
     data: {
@@ -61,28 +61,28 @@ function createEpisodeMetadata(episode) {
       "Last Updated": moment(episode.updatedAt).format('MMMM Do, YYYY - hh:mm:ss A ')
     }
   }]
-  for (const stream of fileProbeData.streams) {
-    const data = {}
-    let title
-    for (const dataKey of Object.keys(stream)) {
-      if (dataKey !== 'codec_long_name' && dataKey !== 'index' && typeof stream[dataKey] !== 'object') {
-        data[dataKey] = stream[dataKey]
-      }
-    }
-    if (stream.tags) {
-      for (const dataKey of Object.keys(stream.tags)) {
-        if (dataKey === 'title') {
-          title = stream.tags[dataKey]
-          continue
-        }
-        data[dataKey] = stream.tags[dataKey]
-      }
-    }
-    meta.push({
-      title: title ? title : stream.codec_long_name,
-      data,
-    })
-  }
+  // for (const stream of fileProbeData.streams) {
+  //   const data = {}
+  //   let title
+  //   for (const dataKey of Object.keys(stream)) {
+  //     if (dataKey !== 'codec_long_name' && dataKey !== 'index' && typeof stream[dataKey] !== 'object') {
+  //       data[dataKey] = stream[dataKey]
+  //     }
+  //   }
+  //   if (stream.tags) {
+  //     for (const dataKey of Object.keys(stream.tags)) {
+  //       if (dataKey === 'title') {
+  //         title = stream.tags[dataKey]
+  //         continue
+  //       }
+  //       data[dataKey] = stream.tags[dataKey]
+  //     }
+  //   }
+  //   meta.push({
+  //     title: title ? title : stream.codec_long_name,
+  //     data,
+  //   })
+  // }
 
   return meta
 }
@@ -239,14 +239,14 @@ const Season = () => {
               </Grid>
             }
           </Grid>
-          <Grid container item spacing={2} md={8} sx={{ maxHeight: '95vh', padding: 2, overflowY: 'auto' }}>
+          <Grid container item alignItems="flex-start" spacing={2} md={8} sx={{ maxHeight: '95vh', padding: 2, overflowY: 'auto' }}>
             <Grid container item spacing={2}>
               <Grid item xs={12}>
                 <Typography variant="h6">Episodes</Typography>
                 <Divider />
               </Grid>
             </Grid>
-            {seasonData.Episodes.map((episode, i) => <Grid key={i} item xs={12}>{createEpisodeCard(episode, setSelectedEpisode)}</Grid>)}
+            {seasonData.Episodes.map((episode, i) => <Grid key={i} container item spacing={2} xs={12}>{createEpisodeCard(episode, setSelectedEpisode)}</Grid>)}
           </Grid>
         </Grid>
       </Box>

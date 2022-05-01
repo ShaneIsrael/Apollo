@@ -24,14 +24,20 @@ if (ENVIRONMENT === 'production') {
   app.set('appconfig', JSON.parse(fs.readFileSync(path.join(path.dirname(process.execPath), 'config.json'))))
 } else {
   if (ENVIRONMENT === 'docker') {
+    let configpath
     if (fs.existsSync('/data/config.json')) {
-      app.set('appconfig', require('/data/config.json'))
+      configpath = '/data/config.json'
     } else {
-      app.set('appconfig', require('/data/config.default.json'))
+      configpath = '/data/config.default.json'
     }
   } else {
-    app.set('appconfig', require('../config.json'))
+    if (fs.existsSync('../config.json')) {
+      configpath = '../config.json'
+    } else {
+      configpath = '../config.default.json'
+    }
   }
+  app.set('appconfig', require(configpath))
 }
 
 const userConfig = app.get('appconfig')
